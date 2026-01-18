@@ -8,7 +8,7 @@ Get up and running in under 5 minutes.
 cd your-astro-project
 
 # One-line install
-curl -fsSL https://raw.githubusercontent.com/yourusername/astro-seo-agency/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jamiegrand/astro-seo-agency/main/install.sh | bash
 ```
 
 ## 2. Open in Claude Code
@@ -52,16 +52,16 @@ Then `/start` will show traffic data and rank issues by impact.
 
 ## Command Cheat Sheet
 
-| Command | What it does |
-|---------|--------------|
-| `/start` | Show priorities, begin session |
-| `/fix-next` | Fix highest-impact issue |
-| `/seo-wins` | Find ranking opportunities |
-| `/feature "..."` | Build something new |
-| `/audit` | Run full site audit |
-| `/pause` | Save progress |
-| `/resume` | Continue later |
-| `/help` | Show all commands |
+| Command          | What it does                   |
+| ---------------- | ------------------------------ |
+| `/start`         | Show priorities, begin session |
+| `/fix-next`      | Fix highest-impact issue       |
+| `/seo-wins`      | Find ranking opportunities     |
+| `/feature "..."` | Build something new            |
+| `/audit`         | Run full site audit            |
+| `/pause`         | Save progress                  |
+| `/resume`        | Continue later                 |
+| `/help`          | Show all commands              |
 
 ---
 
