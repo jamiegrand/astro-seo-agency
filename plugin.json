@@ -94,6 +94,13 @@
       "category": "issues"
     },
     {
+      "name": "fix-batch",
+      "description": "Fix multiple issues in sequence without stopping",
+      "file": "commands/fix-batch.md",
+      "arguments": "[count]",
+      "category": "issues"
+    },
+    {
       "name": "audit",
       "description": "Run comprehensive site audit (seo/a11y/perf/full)",
       "file": "commands/audit.md",

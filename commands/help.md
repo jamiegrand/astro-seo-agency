@@ -9,6 +9,7 @@ description: Show all available commands and usage
 ```bash
 /start              # Begin your day - see priorities
 /fix-next           # Work on highest-impact issue
+/fix-batch          # Fix multiple issues fast
 /pause              # Save progress and exit
 /resume             # Continue tomorrow
 ```
@@ -30,7 +31,8 @@ description: Show all available commands and usage
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/fix-next` | Auto-select and fix highest priority issue | Daily maintenance |
+| `/fix-next` | Auto-select and fix highest priority issue | Complex issues, careful review |
+| `/fix-batch [n]` | Fix multiple issues in sequence (default: 5) | Clearing many similar issues fast |
 | `/audit [type]` | Run comprehensive audit (seo/a11y/perf/full) | Finding issues |
 
 ### SEO & Analytics
@@ -46,14 +48,6 @@ description: Show all available commands and usage
 | Command | Description | When to Use |
 |---------|-------------|-------------|
 | `/feature "desc"` | Plan and build new feature | Adding new functionality |
-| `/feature:plan` | Show current feature plan | Mid-feature check |
-| `/feature:work [n]` | Execute specific task | Manual task selection |
-| `/feature:complete` | Finalize feature | Feature done |
-
-### Deployment
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
 | `/deploy-check` | Pre-deployment verification | Before every deploy |
 
 ### Help
@@ -81,16 +75,41 @@ Initializes your work session by:
 
 ### `/fix-next`
 
-Automatically selects and implements the highest-impact issue:
+Fixes ONE issue with full analysis:
 1. Calculates impact scores for all open issues
 2. Selects highest priority
-3. Reads architecture context
-4. Plans implementation
-5. Makes changes (with approval)
+3. Full context analysis
+4. Plans implementation (with approval)
+5. Makes changes
 6. Verifies and commits
 7. Updates tracker
 
-**Requires:** Active issue tracker (GitHub or Markdown)
+**Best for:** Complex issues that need careful review
+
+**Speed:** ~10-15 minutes per issue
+
+---
+
+### `/fix-batch [count]`
+
+Fixes MULTIPLE issues in sequence:
+1. Builds queue of top issues
+2. Shows queue for approval
+3. Fixes each without stopping
+4. Skips complex issues automatically
+5. Commits each atomically
+6. Shows summary at end
+
+**Best for:** Clearing many similar/simple issues quickly
+
+**Speed:** ~3-5 minutes per issue
+
+**Examples:**
+```bash
+/fix-batch        # Fix 5 issues
+/fix-batch 10     # Fix 10 issues
+/fix-batch all    # Fix all open issues
+```
 
 ---
 
@@ -184,8 +203,17 @@ Pre-deployment verification:
 ### Daily Workflow
 ```
 Morning:  /start           → See priorities
-Work:     /fix-next        → Fix issues (repeat)
+Work:     /fix-batch       → Clear issues fast
+          /fix-next        → Handle complex ones
 Evening:  /pause           → Save progress
+```
+
+### Speed Run (Clear Many Issues)
+```
+/start                     → Get the list
+/fix-batch 10              → Fix 10 issues
+/fix-batch                  → Fix 5 more
+/deploy-check              → Verify & deploy
 ```
 
 ### Weekly Review
@@ -266,4 +294,4 @@ npm run build        # See full error
 
 ---
 
-*Astro SEO Agency Plugin v2.0.0*
+*Astro SEO Agency Plugin v2.1.1*
