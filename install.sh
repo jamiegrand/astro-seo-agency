@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Astro SEO Agency - Installation Script
-# Usage: curl -fsSL https://raw.githubusercontent.com/yourusername/astro-seo-agency/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/jamiegrand/astro-seo-agency/main/install.sh | bash
 
 set -e
 
@@ -42,7 +42,7 @@ check_project() {
 
 # Detect script location (for local installs)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-REPO_URL="https://raw.githubusercontent.com/yourusername/astro-seo-agency/main"
+REPO_URL="https://raw.githubusercontent.com/jamiegrand/astro-seo-agency/main"
 
 # Determine if running locally or from curl
 if [ -d "$SCRIPT_DIR/commands" ]; then
