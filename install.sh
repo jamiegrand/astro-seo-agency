@@ -286,14 +286,23 @@ create_claude_md() {
     # Check for existing CLAUDE.md
     if [ -f "CLAUDE.md" ]; then
         echo -e "\n${BOLD}Found existing CLAUDE.md${NC}"
-        echo ""
-        echo -e "  Options:"
-        echo -e "    ${CYAN}1${NC}) MERGE    - Add plugin features, keep your project context"
-        echo -e "    ${CYAN}2${NC}) REPLACE  - Backup existing, create fresh (saves to CLAUDE.md.backup)"
-        echo -e "    ${CYAN}3${NC}) SKIP     - Keep existing unchanged"
-        echo ""
-        read -p "  Choose option (1/2/3) [1]: " merge_choice
-        merge_choice=${merge_choice:-1}
+        
+        # Check if running interactively (has a terminal)
+        if [ -t 0 ]; then
+            # Interactive mode - ask user
+            echo ""
+            echo -e "  Options:"
+            echo -e "    ${CYAN}1${NC}) MERGE    - Add plugin features, keep your project context"
+            echo -e "    ${CYAN}2${NC}) REPLACE  - Backup existing, create fresh (saves to CLAUDE.md.backup)"
+            echo -e "    ${CYAN}3${NC}) SKIP     - Keep existing unchanged"
+            echo ""
+            read -p "  Choose option (1/2/3) [1]: " merge_choice
+            merge_choice=${merge_choice:-1}
+        else
+            # Non-interactive (piped) - default to MERGE
+            echo -e "  ${BLUE}Non-interactive mode detected, defaulting to MERGE${NC}"
+            merge_choice=1
+        fi
         
         case $merge_choice in
             1)
