@@ -1,0 +1,318 @@
+# {{PROJECT_NAME}} - Claude Code Instructions
+
+> Astro SEO Agency Plugin v2.0.0
+> Last configured: {{DATE}}
+
+---
+
+## Quick Start
+
+```bash
+/start              # Begin session with data-driven priorities
+/fix-next           # Fix highest-impact issue
+/feature "desc"     # Build new feature
+/pause              # Save and exit
+/resume             # Continue tomorrow
+```
+
+---
+
+## Project Context
+
+| Field | Value |
+|-------|-------|
+| **Framework** | Astro {{ASTRO_VERSION}} |
+| **Site URL** | {{SITE_URL}} |
+| **GA Property** | {{GA_PROPERTY_ID}} |
+| **GSC Property** | {{GSC_SITE_URL}} |
+| **Repository** | {{GITHUB_REPO}} |
+
+---
+
+## The 3-Layer Architecture
+
+This project follows a strict separation of concerns:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  LAYER 1: DATA (What to display)                                │
+│  └── src/data/*.js, src/content/**/*.md                         │
+│      Products, services, locations, blog posts, FAQs            │
+│      → CHANGE THIS for content updates                          │
+├─────────────────────────────────────────────────────────────────┤
+│  LAYER 2: COMPONENTS (How to display)                           │
+│  └── src/components/*.astro, src/layouts/*.astro                │
+│      Reusable UI, page templates                                │
+│      → CHANGE THIS only for new features or fixes               │
+├─────────────────────────────────────────────────────────────────┤
+│  LAYER 3: STYLES (Visual presentation)                          │
+│  └── src/styles/global.css, Tailwind utilities                  │
+│      Colors, typography, spacing                                │
+│      → CHANGE THIS for design updates                           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Golden Rule:** Prefer data changes over code changes. Most updates should modify Layer 1, not Layer 2.
+
+---
+
+## Astro Zone Ownership
+
+When building features, files are organized into zones to prevent conflicts:
+
+```yaml
+ALPHA (Foundation):
+  - src/layouts/
+  - src/styles/
+  - src/config/
+  - astro.config.mjs
+  
+BETA (Components & Data):
+  - src/components/
+  - src/data/
+  - src/content/
+  - src/utils/
+  
+GAMMA (Pages & Integration):
+  - src/pages/
+  - public/
+  - tests/
+```
+
+**For feature development:** Each zone can be worked on without conflicts. The `/feature` command respects these boundaries.
+
+---
+
+## MCP Tools Available
+
+{{#if GA_CONFIGURED}}
+### ✅ Google Analytics
+- Query traffic, behavior, conversions
+- Property ID: {{GA_PROPERTY_ID}}
+{{/if}}
+
+{{#if GSC_CONFIGURED}}
+### ✅ Google Search Console  
+- Query rankings, impressions, CTR
+- Find quick wins (position 4-15)
+- Site: {{GSC_SITE_URL}}
+{{/if}}
+
+{{#if GITHUB_CONFIGURED}}
+### ✅ GitHub
+- Create/manage issues
+- Commit changes
+- Create PRs
+{{/if}}
+
+### 🔧 Always Available
+- **Sequential Thinking** - Complex problem solving
+- **Context7** - Real-time framework docs
+
+---
+
+## Commands Reference
+
+### Daily Workflow
+| Command | Description |
+|---------|-------------|
+| `/start` | Query GA/GSC, show priorities, begin session |
+| `/fix-next` | Auto-select and implement highest-impact issue |
+| `/status` | Show current state and progress |
+| `/pause` | Save session, create handoff doc |
+| `/resume` | Restore session from handoff |
+
+### SEO & Content
+| Command | Description |
+|---------|-------------|
+| `/seo-wins` | Find GSC quick wins (pos 4-15, high impressions) |
+| `/content-roi` | Analyze content performance matrix |
+| `/impact [#]` | Measure before/after effect of changes |
+| `/audit` | Run comprehensive SEO/a11y/perf audit |
+
+### Feature Development
+| Command | Description |
+|---------|-------------|
+| `/feature "description"` | Plan and build new feature (GSD-style) |
+| `/feature:plan` | Show current feature plan |
+| `/feature:work [task]` | Execute specific task |
+| `/feature:complete` | Finalize and verify feature |
+
+### Deployment
+| Command | Description |
+|---------|-------------|
+| `/deploy-check` | Pre-deployment verification |
+| `/help` | Show all commands |
+
+---
+
+## Operating Principles
+
+### 1. Read Before Writing
+Never modify code without reading it first. Understand existing patterns.
+
+### 2. Self-Annealing Loop
+```
+Error → Read error → Diagnose → Fix → Test → Update docs → System stronger
+```
+
+### 3. Data-Driven Decisions
+Use GA/GSC data to prioritize work:
+```
+Impact Score = (Monthly Sessions × Severity) + (GSC Impressions × 0.1)
+```
+
+### 4. Fresh Context Per Task
+Complex tasks spawn subagents with full 200k context. No degradation.
+
+### 5. Atomic Commits
+One logical change per commit. Perfect bisect. Surgical rollback.
+
+### 6. Quality Gates
+Every change must pass:
+- [ ] TypeScript compiles (`npm run astro check`)
+- [ ] Build succeeds (`npm run build`)
+- [ ] No console errors in dev
+
+---
+
+## File Priorities
+
+When starting work, read files in this order:
+
+1. **AI-INFO.md** - Full architecture reference (if exists)
+2. **HANDOFF.md** - Session state (if resuming)
+3. **Relevant data files** - `src/data/*.js`
+4. **Affected components** - Only if modifying
+
+---
+
+## Issue Tracking
+
+{{#if GITHUB_ISSUES}}
+### GitHub Issues
+- Managed via GitHub MCP
+- Labels: `priority:*`, `phase:*`, `type:*`
+- Claude can create/update/close issues
+{{else}}
+### Markdown Tracker
+- File: `AUDIT_TRACKER.md`
+- Format: `### [ ] Issue #X: Title`
+- Update after completing issues
+{{/if}}
+
+---
+
+## Session Persistence
+
+### Pausing Work
+```
+/pause
+```
+Creates `.planning/HANDOFF.md` with:
+- Current task and progress
+- What's done, what's next
+- Open questions
+- How to resume
+
+### Resuming Work
+```
+/resume
+```
+Reads HANDOFF.md, restores full context, continues exactly where you stopped.
+
+---
+
+## Quality Gates
+
+Before any commit/deploy:
+
+```bash
+# Type checking
+npm run astro check
+
+# Build verification
+npm run build
+
+# Preview (manual)
+npm run preview
+```
+
+### Automated Checks
+The plugin runs these automatically:
+- TypeScript strict mode
+- Astro build
+- Link validation (if configured)
+
+---
+
+## Common Tasks
+
+### Add a Product
+```
+1. Edit src/data/products.js
+2. Add image to public/products/
+3. Test: npm run dev → visit /products/[slug]
+```
+
+### Add a Blog Post
+```
+1. Create src/content/blog/[slug].md
+2. Include required frontmatter (see content.config.ts)
+3. Test: npm run dev → visit /blog/[slug]
+```
+
+### Add a Location Page
+```
+1. Edit src/data/locations.js
+2. Follow existing schema exactly
+3. Test: npm run dev → visit /locations/[slug]
+```
+
+### Update Business Info
+```
+1. Search codebase for current value
+2. Update all occurrences
+3. Check schema markup in Layout.astro
+```
+
+---
+
+## Emergency Procedures
+
+### Build Failing
+```bash
+npm run astro check  # Find TypeScript errors
+# Read error, fix, rebuild
+```
+
+### Agent Stuck
+```
+/pause
+# Start fresh session
+/resume
+```
+
+### Need to Rollback
+```bash
+git log --oneline -10
+git revert HEAD
+```
+
+### Context Overload
+```
+/pause
+# Close and reopen Claude Code
+/resume
+```
+
+---
+
+## Project-Specific Notes
+
+{{PROJECT_NOTES}}
+
+---
+
+*Generated by Astro SEO Agency Plugin v2.0.0*
+*Full documentation: AI-INFO.md*

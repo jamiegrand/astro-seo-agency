@@ -1,0 +1,133 @@
+{
+  "name": "astro-seo-agency",
+  "version": "2.0.0",
+  "description": "Complete Astro.js project management with SEO workflows, analytics integration, and structured development",
+  "author": "Your Agency",
+  "homepage": "https://github.com/yourusername/astro-seo-agency",
+  
+  "keywords": [
+    "astro",
+    "seo",
+    "analytics",
+    "google-analytics",
+    "search-console",
+    "content-management",
+    "workflow"
+  ],
+
+  "hooks": {
+    "post-install": ".claude-plugin/hooks/post-install.sh",
+    "pre-session": ".claude-plugin/hooks/pre-session.sh"
+  },
+
+  "prompts": {
+    "setup": {
+      "description": "Initialize Astro project with full SEO workflow",
+      "file": "prompts/setup.md"
+    },
+    "brownfield": {
+      "description": "Analyze and integrate with existing Astro project",
+      "file": "prompts/brownfield.md"
+    }
+  },
+
+  "agents": {
+    "seo-analyst": {
+      "description": "SEO specialist with GA/GSC data access",
+      "file": "agents/seo-analyst.md"
+    },
+    "astro-maintainer": {
+      "description": "Astro.js code quality and maintenance specialist",
+      "file": "agents/astro-maintainer.md"
+    },
+    "content-strategist": {
+      "description": "Content planning based on performance data",
+      "file": "agents/content-strategist.md"
+    }
+  },
+
+  "commands": [
+    {
+      "name": "start",
+      "description": "Initialize work session with data-driven priorities",
+      "file": "commands/start.md"
+    },
+    {
+      "name": "fix-next",
+      "description": "Fix highest-impact issue automatically",
+      "file": "commands/fix-next.md"
+    },
+    {
+      "name": "seo-wins",
+      "description": "Find GSC quick wins (position 4-15)",
+      "file": "commands/seo-wins.md"
+    },
+    {
+      "name": "content-roi",
+      "description": "Analyze content performance",
+      "file": "commands/content-roi.md"
+    },
+    {
+      "name": "impact",
+      "description": "Measure before/after effect of changes",
+      "file": "commands/impact.md"
+    },
+    {
+      "name": "feature",
+      "description": "Plan and build a new feature (GSD-style)",
+      "file": "commands/feature.md"
+    },
+    {
+      "name": "pause",
+      "description": "Save session state for later",
+      "file": "commands/pause.md"
+    },
+    {
+      "name": "resume",
+      "description": "Continue from saved session",
+      "file": "commands/resume.md"
+    },
+    {
+      "name": "status",
+      "description": "Show current project and session status",
+      "file": "commands/status.md"
+    },
+    {
+      "name": "audit",
+      "description": "Run comprehensive site audit",
+      "file": "commands/audit.md"
+    },
+    {
+      "name": "deploy-check",
+      "description": "Pre-deployment verification",
+      "file": "commands/deploy-check.md"
+    },
+    {
+      "name": "help",
+      "description": "Show all available commands",
+      "file": "commands/help.md"
+    }
+  ],
+
+  "config": {
+    "requiredEnv": [],
+    "optionalEnv": [
+      "GA_PROPERTY_ID",
+      "GSC_SITE_URL",
+      "GOOGLE_APPLICATION_CREDENTIALS",
+      "GITHUB_TOKEN",
+      "BRAVE_API_KEY"
+    ],
+    "defaults": {
+      "framework": "astro",
+      "qualityGates": {
+        "typescript": true,
+        "build": true,
+        "lint": true
+      },
+      "sessionPersistence": true,
+      "freshContextPerTask": true,
+      "atomicCommits": true
+    }
+  }
+}
