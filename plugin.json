@@ -1,15 +1,15 @@
 {
   "name": "astro-seo-agency",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Complete Astro.js project management with SEO workflows, analytics integration, and structured development for Claude Code",
-  "author": "Your Agency",
+  "author": "Jamie Grand",
   "license": "MIT",
   "homepage": "https://github.com/jamiegrand/astro-seo-agency",
   "repository": {
     "type": "git",
     "url": "https://github.com/jamiegrand/astro-seo-agency.git"
   },
-
+  
   "keywords": [
     "astro",
     "seo",
@@ -149,7 +149,7 @@
       "description": "Start, pause, and resume work sessions"
     },
     "issues": {
-      "name": "Issue Resolution",
+      "name": "Issue Resolution", 
       "description": "Find and fix issues"
     },
     "seo": {
@@ -221,7 +221,7 @@
       },
       "github": {
         "description": "GitHub API for issue management",
-        "package": "@anthropic/mcp-github",
+        "package": "@anthropic/mcp-github", 
         "optional": true,
         "requiredFor": ["fix-next with GitHub issues"]
       },
@@ -240,6 +240,10 @@
       "CLAUDE.md",
       ".env.example"
     ],
-    "optional": ["AI-INFO.md", "AUDIT_TRACKER.md", ".env"]
+    "optional": [
+      "AI-INFO.md",
+      "AUDIT_TRACKER.md",
+      ".env"
+    ]
   }
 }

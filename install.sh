@@ -14,10 +14,13 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
+# Version
+VERSION="2.1.1"
+
 # Print banner
 echo ""
 echo -e "${CYAN}╔═══════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║${NC}  ${BOLD}ASTRO SEO AGENCY${NC} - Installation                                 ${CYAN}║${NC}"
+echo -e "${CYAN}║${NC}  ${BOLD}ASTRO SEO AGENCY${NC} v${VERSION} - Installation                        ${CYAN}║${NC}"
 echo -e "${CYAN}╚═══════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -53,6 +56,10 @@ else
     echo -e "${BLUE}Installing from GitHub...${NC}"
 fi
 
+# Track installation success
+INSTALL_ERRORS=0
+COMMANDS_INSTALLED=0
+
 # Create directories
 create_directories() {
     echo -e "\n${BOLD}Creating directories...${NC}"
@@ -77,14 +84,25 @@ install_file() {
         if [ -f "$SCRIPT_DIR/$src" ]; then
             cp "$SCRIPT_DIR/$src" "$dest"
             echo -e "  ${GREEN}✓${NC} $desc"
+            return 0
         else
             echo -e "  ${YELLOW}⚠${NC} $desc (not found in source)"
+            return 1
         fi
     else
         if curl -fsSL "$REPO_URL/$src" -o "$dest" 2>/dev/null; then
-            echo -e "  ${GREEN}✓${NC} $desc"
+            # Verify file was actually downloaded (not empty or error page)
+            if [ -s "$dest" ] && head -1 "$dest" | grep -q -v "404"; then
+                echo -e "  ${GREEN}✓${NC} $desc"
+                return 0
+            else
+                rm -f "$dest"
+                echo -e "  ${RED}✗${NC} $desc (invalid content)"
+                return 1
+            fi
         else
-            echo -e "  ${YELLOW}⚠${NC} $desc (download failed)"
+            echo -e "  ${RED}✗${NC} $desc (download failed)"
+            return 1
         fi
     fi
 }
@@ -109,8 +127,18 @@ install_commands() {
     )
     
     for cmd in "${commands[@]}"; do
-        install_file "commands/${cmd}.md" ".claude/commands/${cmd}.md" "/\$${cmd}"
+        if install_file "commands/${cmd}.md" ".claude/commands/${cmd}.md" "/${cmd}"; then
+            ((COMMANDS_INSTALLED++))
+        else
+            ((INSTALL_ERRORS++))
+        fi
     done
+    
+    echo -e "\n  Commands installed: ${COMMANDS_INSTALLED}/${#commands[@]}"
+    
+    if [ $INSTALL_ERRORS -gt 0 ]; then
+        echo -e "  ${YELLOW}⚠${NC} Some commands failed to install"
+    fi
 }
 
 # Create .env.example
@@ -159,22 +187,180 @@ ENVEOF
     fi
 }
 
-# Create CLAUDE.md template
-create_claude_md() {
-    if [ ! -f "CLAUDE.md" ]; then
-        # Detect project name from package.json
-        PROJECT_NAME=$(grep -o '"name": *"[^"]*"' package.json | head -1 | cut -d'"' -f4)
-        PROJECT_NAME=${PROJECT_NAME:-"My Astro Project"}
-        
-        # Detect Astro version
-        ASTRO_VERSION=$(grep -o '"astro": *"[^"]*"' package.json | head -1 | cut -d'"' -f4)
-        ASTRO_VERSION=${ASTRO_VERSION:-"5.x"}
-        
-        cat > CLAUDE.md << CLAUDEEOF
-# ${PROJECT_NAME} - Claude Code Instructions
+# Extract value from existing CLAUDE.md
+extract_from_claude_md() {
+    local file=$1
+    local pattern=$2
+    local default=$3
+    
+    if [ -f "$file" ]; then
+        local value=$(grep -i "$pattern" "$file" | head -1 | sed 's/.*| *\([^|]*\) *|.*/\1/' | xargs)
+        if [ -n "$value" ] && [ "$value" != "$pattern" ]; then
+            echo "$value"
+            return
+        fi
+    fi
+    echo "$default"
+}
 
-> Astro SEO Agency Plugin v2.0.0
-> Generated: $(date +%Y-%m-%d)
+# Extract project notes section from existing CLAUDE.md
+extract_project_notes() {
+    local file=$1
+    
+    if [ ! -f "$file" ]; then
+        echo ""
+        return
+    fi
+    
+    # Try to extract content between "Project-Specific Notes" and the next major heading or end
+    local in_notes=0
+    local notes=""
+    
+    while IFS= read -r line; do
+        if echo "$line" | grep -qi "project.specific\|project notes\|custom notes"; then
+            in_notes=1
+            continue
+        fi
+        
+        if [ $in_notes -eq 1 ]; then
+            # Stop at next major heading (# or ## at start) or end markers
+            if echo "$line" | grep -q "^#\|^---$\|^\*Generated\|^\*Astro SEO"; then
+                break
+            fi
+            notes="${notes}${line}"$'\n'
+        fi
+    done < "$file"
+    
+    # Trim whitespace
+    echo "$notes" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
+}
+
+# Extract any custom sections from existing CLAUDE.md
+extract_custom_sections() {
+    local file=$1
+    
+    if [ ! -f "$file" ]; then
+        echo ""
+        return
+    fi
+    
+    # Look for sections that aren't part of the standard template
+    local standard_sections="Quick Start|Project Context|3-Layer|Architecture|Commands Reference|Quality Gates|MCP Tools|Operating Principles|Session Persistence|Common Tasks|Emergency Procedures|Project-Specific Notes"
+    
+    local in_custom=0
+    local custom=""
+    local current_section=""
+    
+    while IFS= read -r line; do
+        # Detect section headers
+        if echo "$line" | grep -q "^## "; then
+            current_section=$(echo "$line" | sed 's/^## //')
+            
+            # Check if this is a standard section
+            if echo "$current_section" | grep -qiE "$standard_sections"; then
+                in_custom=0
+            else
+                in_custom=1
+                custom="${custom}"$'\n'"${line}"
+            fi
+            continue
+        fi
+        
+        if [ $in_custom -eq 1 ]; then
+            custom="${custom}"$'\n'"${line}"
+        fi
+    done < "$file"
+    
+    echo "$custom"
+}
+
+# Smart merge for CLAUDE.md
+create_claude_md() {
+    # Detect project info from package.json
+    PROJECT_NAME=$(grep -o '"name": *"[^"]*"' package.json | head -1 | cut -d'"' -f4)
+    PROJECT_NAME=${PROJECT_NAME:-"My Astro Project"}
+    
+    ASTRO_VERSION=$(grep -o '"astro": *"[^"]*"' package.json | head -1 | cut -d'"' -f4)
+    ASTRO_VERSION=${ASTRO_VERSION:-"5.x"}
+    
+    # Check for existing CLAUDE.md
+    if [ -f "CLAUDE.md" ]; then
+        echo -e "\n${BOLD}Found existing CLAUDE.md${NC}"
+        echo ""
+        echo -e "  Options:"
+        echo -e "    ${CYAN}1${NC}) MERGE    - Add plugin features, keep your project context"
+        echo -e "    ${CYAN}2${NC}) REPLACE  - Backup existing, create fresh (saves to CLAUDE.md.backup)"
+        echo -e "    ${CYAN}3${NC}) SKIP     - Keep existing unchanged"
+        echo ""
+        read -p "  Choose option (1/2/3) [1]: " merge_choice
+        merge_choice=${merge_choice:-1}
+        
+        case $merge_choice in
+            1)
+                echo -e "\n  ${BLUE}Merging...${NC}"
+                
+                # Extract existing values
+                EXISTING_SITE_URL=$(extract_from_claude_md "CLAUDE.md" "Site URL" "")
+                EXISTING_GA=$(extract_from_claude_md "CLAUDE.md" "GA Property" "")
+                EXISTING_GSC=$(extract_from_claude_md "CLAUDE.md" "GSC Property" "")
+                EXISTING_REPO=$(extract_from_claude_md "CLAUDE.md" "Repository" "")
+                EXISTING_NOTES=$(extract_project_notes "CLAUDE.md")
+                EXISTING_CUSTOM=$(extract_custom_sections "CLAUDE.md")
+                
+                # Create backup
+                cp "CLAUDE.md" "CLAUDE.md.pre-merge"
+                echo -e "  ${GREEN}✓${NC} Backup saved to CLAUDE.md.pre-merge"
+                
+                # Generate merged file
+                generate_claude_md "$PROJECT_NAME" "$ASTRO_VERSION" "$EXISTING_SITE_URL" "$EXISTING_GA" "$EXISTING_GSC" "$EXISTING_REPO" "$EXISTING_NOTES" "$EXISTING_CUSTOM"
+                echo -e "  ${GREEN}✓${NC} CLAUDE.md merged with plugin features"
+                ;;
+            2)
+                echo -e "\n  ${BLUE}Replacing...${NC}"
+                cp "CLAUDE.md" "CLAUDE.md.backup"
+                echo -e "  ${GREEN}✓${NC} Backup saved to CLAUDE.md.backup"
+                
+                generate_claude_md "$PROJECT_NAME" "$ASTRO_VERSION" "" "" "" "" "" ""
+                echo -e "  ${GREEN}✓${NC} CLAUDE.md created fresh"
+                ;;
+            3)
+                echo -e "  ${YELLOW}⚠${NC} CLAUDE.md unchanged"
+                return
+                ;;
+            *)
+                echo -e "  ${YELLOW}⚠${NC} Invalid choice, skipping CLAUDE.md"
+                return
+                ;;
+        esac
+    else
+        echo -e "\n${BOLD}Creating CLAUDE.md...${NC}"
+        generate_claude_md "$PROJECT_NAME" "$ASTRO_VERSION" "" "" "" "" "" ""
+        echo -e "  ${GREEN}✓${NC} CLAUDE.md created"
+    fi
+}
+
+# Generate CLAUDE.md content
+generate_claude_md() {
+    local project_name=$1
+    local astro_version=$2
+    local site_url=$3
+    local ga_property=$4
+    local gsc_property=$5
+    local repo=$6
+    local project_notes=$7
+    local custom_sections=$8
+    
+    # Set placeholders for empty values
+    site_url=${site_url:-"<!-- Add your site URL -->"}
+    ga_property=${ga_property:-"<!-- Add if configured -->"}
+    gsc_property=${gsc_property:-"<!-- Add if configured -->"}
+    repo=${repo:-"<!-- Add if using GitHub -->"}
+    
+    cat > CLAUDE.md << CLAUDEEOF
+# ${project_name} - Claude Code Instructions
+
+> Astro SEO Agency Plugin v${VERSION}
+> Last updated: $(date +%Y-%m-%d)
 
 ---
 
@@ -194,51 +380,74 @@ create_claude_md() {
 
 | Field | Value |
 |-------|-------|
-| **Framework** | Astro ${ASTRO_VERSION} |
-| **Site URL** | <!-- Add your site URL --> |
-| **GA Property** | <!-- Add if configured --> |
-| **GSC Property** | <!-- Add if configured --> |
+| **Framework** | Astro ${astro_version} |
+| **Site URL** | ${site_url} |
+| **GA Property** | ${ga_property} |
+| **GSC Property** | ${gsc_property} |
+| **Repository** | ${repo} |
 
 ---
 
 ## The 3-Layer Architecture
 
+This project follows a strict separation of concerns:
+
 \`\`\`
 ┌─────────────────────────────────────────────────────────────────┐
 │  LAYER 1: DATA (What to display)                                │
 │  └── src/data/*.js, src/content/**/*.md                         │
+│      Products, services, locations, blog posts, FAQs            │
 │      → CHANGE THIS for content updates                          │
 ├─────────────────────────────────────────────────────────────────┤
 │  LAYER 2: COMPONENTS (How to display)                           │
 │  └── src/components/*.astro, src/layouts/*.astro                │
+│      Reusable UI, page templates                                │
 │      → CHANGE THIS only for new features or fixes               │
 ├─────────────────────────────────────────────────────────────────┤
 │  LAYER 3: STYLES (Visual presentation)                          │
 │  └── src/styles/global.css, Tailwind utilities                  │
+│      Colors, typography, spacing                                │
 │      → CHANGE THIS for design updates                           │
 └─────────────────────────────────────────────────────────────────┘
 \`\`\`
 
-**Golden Rule:** Prefer data changes over code changes.
+**Golden Rule:** Prefer data changes over code changes. Most updates should modify Layer 1, not Layer 2.
 
 ---
 
 ## Commands Reference
 
+### Session Management
 | Command | Description |
 |---------|-------------|
-| \`/start\` | Begin session with priorities |
-| \`/fix-next\` | Fix highest-impact issue |
-| \`/seo-wins\` | Find GSC quick wins |
+| \`/start\` | Begin session with data-driven priorities |
+| \`/status\` | Show current project and session status |
+| \`/pause\` | Save session state for later |
+| \`/resume\` | Continue from saved session |
+
+### Issue Resolution
+| Command | Description |
+|---------|-------------|
+| \`/fix-next\` | Auto-select and fix highest priority issue |
+| \`/audit [type]\` | Run audit (seo / a11y / perf / full) |
+
+### SEO & Analytics
+| Command | Description |
+|---------|-------------|
+| \`/seo-wins\` | Find GSC quick wins (position 4-15) |
 | \`/content-roi\` | Analyze content performance |
-| \`/impact [#]\` | Measure change effect |
-| \`/feature "desc"\` | Build new feature |
-| \`/audit [type]\` | Run site audit |
-| \`/deploy-check\` | Pre-deploy verification |
-| \`/pause\` | Save session |
-| \`/resume\` | Continue session |
-| \`/status\` | Show project status |
-| \`/help\` | Show all commands |
+| \`/impact [#]\` | Measure before/after effect of changes |
+
+### Feature Development
+| Command | Description |
+|---------|-------------|
+| \`/feature "desc"\` | Plan and build new feature (GSD-style) |
+| \`/deploy-check\` | Pre-deployment verification |
+
+### Help
+| Command | Description |
+|---------|-------------|
+| \`/help\` | Show all commands and usage |
 
 ---
 
@@ -251,20 +460,58 @@ Every change must pass:
 
 ---
 
+## Operating Principles
+
+### 1. Read Before Writing
+Never modify code without understanding existing patterns.
+
+### 2. Data Over Code
+Most changes should modify data files, not components.
+
+### 3. Match Existing Patterns
+Find similar code, copy its structure, only change what's necessary.
+
+### 4. Atomic Commits
+One logical change per commit. Perfect bisect. Surgical rollback.
+
+---
+CLAUDEEOF
+
+    # Add custom sections if they exist
+    if [ -n "$custom_sections" ]; then
+        cat >> CLAUDE.md << CUSTOMEOF
+
+## Custom Sections (Preserved from previous CLAUDE.md)
+${custom_sections}
+
+---
+CUSTOMEOF
+    fi
+
+    # Add project notes section
+    cat >> CLAUDE.md << NOTESEOF
+
 ## Project-Specific Notes
 
+NOTESEOF
+
+    if [ -n "$project_notes" ]; then
+        echo "$project_notes" >> CLAUDE.md
+    else
+        cat >> CLAUDE.md << DEFAULTNOTES
 <!-- Add notes about your specific project here -->
 <!-- Examples: special patterns, gotchas, business context -->
+<!-- This section is preserved during plugin updates -->
+DEFAULTNOTES
+    fi
+
+    cat >> CLAUDE.md << FOOTEREOF
 
 ---
 
-*Generated by Astro SEO Agency Plugin*
-*Run \`/setup\` in Claude Code to customize this file*
-CLAUDEEOF
-        echo -e "  ${GREEN}✓${NC} CLAUDE.md"
-    else
-        echo -e "  ${YELLOW}⚠${NC} CLAUDE.md (already exists, skipping)"
-    fi
+*Generated by Astro SEO Agency Plugin v${VERSION}*
+*Full documentation: Run \`/help\` in Claude Code*
+FOOTEREOF
 }
 
 # Update .gitignore
@@ -287,6 +534,7 @@ credentials/
 .env.local
 .planning/HANDOFF.md
 .planning/SESSION.md
+*.pre-merge
 GITIGNOREEOF
     
     echo -e "  ${GREEN}✓${NC} .gitignore updated"
@@ -298,12 +546,26 @@ verify_installation() {
     
     local errors=0
     
-    # Check commands directory
-    if [ -d ".claude/commands" ] && [ "$(ls -A .claude/commands 2>/dev/null)" ]; then
-        local cmd_count=$(ls -1 .claude/commands/*.md 2>/dev/null | wc -l)
-        echo -e "  ${GREEN}✓${NC} Commands installed: ${cmd_count} files"
+    # Check commands directory - verify actual command files exist and have content
+    if [ -d ".claude/commands" ]; then
+        local valid_commands=0
+        for cmd_file in .claude/commands/*.md; do
+            if [ -f "$cmd_file" ] && [ -s "$cmd_file" ]; then
+                # Check if file has actual markdown content (not an error page)
+                if head -5 "$cmd_file" | grep -q -E "^---|^#|description:"; then
+                    ((valid_commands++))
+                fi
+            fi
+        done
+        
+        if [ $valid_commands -gt 0 ]; then
+            echo -e "  ${GREEN}✓${NC} Commands installed: ${valid_commands} valid files"
+        else
+            echo -e "  ${RED}✗${NC} No valid command files found"
+            ((errors++))
+        fi
     else
-        echo -e "  ${RED}✗${NC} Commands directory empty or missing"
+        echo -e "  ${RED}✗${NC} Commands directory missing"
         ((errors++))
     fi
     
@@ -319,7 +581,7 @@ verify_installation() {
     if [ -f "CLAUDE.md" ]; then
         echo -e "  ${GREEN}✓${NC} CLAUDE.md exists"
     else
-        echo -e "  ${YELLOW}⚠${NC} CLAUDE.md not created (may already exist)"
+        echo -e "  ${YELLOW}⚠${NC} CLAUDE.md not created"
     fi
     
     return $errors
@@ -327,23 +589,37 @@ verify_installation() {
 
 # Print completion message
 print_completion() {
+    local has_errors=$1
+    
     echo ""
-    echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${GREEN}✅ Installation complete!${NC}"
-    echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    if [ "$has_errors" -gt 0 ]; then
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${YELLOW}⚠️  Installation completed with warnings${NC}"
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "Some commands may not have installed correctly."
+        echo -e "You can try:"
+        echo -e "  1. Run the installer again"
+        echo -e "  2. Manually download commands from GitHub"
+        echo -e "  3. Check your internet connection"
+        echo ""
+    else
+        echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${GREEN}✅ Installation complete!${NC}"
+        echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    fi
+    
     echo ""
     echo -e "${BOLD}Next steps:${NC}"
     echo ""
     echo -e "  1. ${CYAN}Open your project in Claude Code${NC}"
     echo ""
-    echo -e "  2. ${CYAN}Run the setup wizard:${NC}"
-    echo -e "     ${GREEN}/setup${NC}"
-    echo ""
-    echo -e "  3. ${CYAN}(Optional) Configure analytics:${NC}"
+    echo -e "  2. ${CYAN}(Optional) Configure analytics:${NC}"
     echo -e "     ${GREEN}cp .env.example .env${NC}"
     echo -e "     Then edit .env with your credentials"
     echo ""
-    echo -e "  4. ${CYAN}Start working:${NC}"
+    echo -e "  3. ${CYAN}Start working:${NC}"
     echo -e "     ${GREEN}/start${NC}"
     echo ""
     echo -e "${BOLD}Quick command reference:${NC}"
@@ -370,14 +646,13 @@ main() {
     create_claude_md
     update_gitignore
     
-    if verify_installation; then
-        print_completion
-    else
-        echo ""
-        echo -e "${YELLOW}Installation completed with warnings.${NC}"
-        echo "Some files may not have been installed correctly."
-        echo "Try running /setup in Claude Code to complete configuration."
-    fi
+    verify_installation
+    local verify_result=$?
+    
+    # Calculate total errors
+    local total_errors=$((INSTALL_ERRORS + verify_result))
+    
+    print_completion $total_errors
 }
 
 # Run main

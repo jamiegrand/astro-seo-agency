@@ -24,6 +24,7 @@
 - **Structured Features** - GSD-style development with fresh context per task
 - **Impact Measurement** - Measure before/after effect of changes
 - **SEO Automation** - Find quick wins, audit content, optimize rankings
+- **Smart Merge** - Preserves your existing CLAUDE.md project context on install
 
 ---
 
@@ -74,21 +75,41 @@ cp astro-seo-agency/templates/CLAUDE.md.example ./CLAUDE.md
 
 ---
 
+## Installing on Existing Projects
+
+When you install on a project that already has a `CLAUDE.md`, the installer will ask:
+
+```
+Found existing CLAUDE.md
+
+Options:
+  1) MERGE    - Add plugin features, keep your project context
+  2) REPLACE  - Backup existing, create fresh (saves to CLAUDE.md.backup)
+  3) SKIP     - Keep existing unchanged
+
+Choose option (1/2/3) [1]:
+```
+
+**Recommended: Choose MERGE (option 1)**
+
+This will:
+- ✅ Keep your project name, site URL, and configuration
+- ✅ Preserve your project-specific notes
+- ✅ Preserve any custom sections you've added
+- ✅ Add the plugin's command reference and architecture docs
+- ✅ Save a backup to `CLAUDE.md.pre-merge`
+
+---
+
 ## Post-Installation Setup
 
 After installing, open your project in Claude Code and run:
 
 ```
-/setup
+/start
 ```
 
-This interactive wizard will:
-
-1. ✅ Detect your project configuration
-2. ✅ Configure analytics connections (optional)
-3. ✅ Generate CLAUDE.md and AI-INFO.md
-4. ✅ Set up issue tracking
-5. ✅ Run initial SEO audit (optional)
+This will initialize your first session with data-driven priorities.
 
 ### Configure Analytics (Optional but Recommended)
 
@@ -118,13 +139,11 @@ GITHUB_REPO=username/repo-name
 <summary>📖 How to get these credentials</summary>
 
 ### Google Analytics Property ID
-
 1. Go to [Google Analytics](https://analytics.google.com)
 2. Admin → Property Settings
 3. Copy the Property ID (numbers only)
 
 ### Google Search Console Setup
-
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project or select existing
 3. Enable the Search Console API
@@ -133,7 +152,6 @@ GITHUB_REPO=username/repo-name
 6. Add the service account email to your GSC property
 
 ### GitHub Token
-
 1. Go to GitHub → Settings → Developer settings → Personal access tokens
 2. Generate new token with `repo` scope
 3. Copy the token
@@ -164,39 +182,39 @@ GITHUB_REPO=username/repo-name
 
 ### 📋 Session Management
 
-| Command   | Description                                    |
-| --------- | ---------------------------------------------- |
-| `/start`  | Initialize session with data-driven priorities |
-| `/status` | Show current project and session status        |
-| `/pause`  | Save session state for later                   |
-| `/resume` | Continue from saved session                    |
+| Command | Description |
+|---------|-------------|
+| `/start` | Initialize session with data-driven priorities |
+| `/status` | Show current project and session status |
+| `/pause` | Save session state for later |
+| `/resume` | Continue from saved session |
 
 ### 🔧 Issue Resolution
 
-| Command         | Description                                |
-| --------------- | ------------------------------------------ |
-| `/fix-next`     | Auto-select and fix highest priority issue |
-| `/audit [type]` | Run audit (seo / a11y / perf / full)       |
+| Command | Description |
+|---------|-------------|
+| `/fix-next` | Auto-select and fix highest priority issue |
+| `/audit [type]` | Run audit (seo / a11y / perf / full) |
 
 ### 📈 SEO & Analytics
 
-| Command        | Description                            |
-| -------------- | -------------------------------------- |
-| `/seo-wins`    | Find GSC quick wins (position 4-15)    |
-| `/content-roi` | Analyze content performance            |
-| `/impact [#]`  | Measure before/after effect of changes |
+| Command | Description |
+|---------|-------------|
+| `/seo-wins` | Find GSC quick wins (position 4-15) |
+| `/content-roi` | Analyze content performance |
+| `/impact [#]` | Measure before/after effect of changes |
 
 ### 🚀 Feature Development
 
-| Command           | Description                 |
-| ----------------- | --------------------------- |
-| `/feature "desc"` | Plan and build new feature  |
-| `/deploy-check`   | Pre-deployment verification |
+| Command | Description |
+|---------|-------------|
+| `/feature "desc"` | Plan and build new feature |
+| `/deploy-check` | Pre-deployment verification |
 
 ### ❓ Help
 
-| Command | Description                 |
-| ------- | --------------------------- |
+| Command | Description |
+|---------|-------------|
 | `/help` | Show all commands and usage |
 
 ---
@@ -293,14 +311,14 @@ your-project/
 
 The plugin works great even without Google Analytics or Search Console configured:
 
-| Feature            | With Analytics                  | Without Analytics       |
-| ------------------ | ------------------------------- | ----------------------- |
-| `/start`           | Shows traffic data + priorities | Shows issue priorities  |
-| `/fix-next`        | Ranks by traffic impact         | Ranks by severity       |
-| `/seo-wins`        | Full GSC analysis               | Content-based SEO audit |
-| `/audit`           | ✅ Full functionality           | ✅ Full functionality   |
-| `/feature`         | ✅ Full functionality           | ✅ Full functionality   |
-| `/pause`/`/resume` | ✅ Full functionality           | ✅ Full functionality   |
+| Feature | With Analytics | Without Analytics |
+|---------|----------------|-------------------|
+| `/start` | Shows traffic data + priorities | Shows issue priorities |
+| `/fix-next` | Ranks by traffic impact | Ranks by severity |
+| `/seo-wins` | Full GSC analysis | Content-based SEO audit |
+| `/audit` | ✅ Full functionality | ✅ Full functionality |
+| `/feature` | ✅ Full functionality | ✅ Full functionality |
+| `/pause`/`/resume` | ✅ Full functionality | ✅ Full functionality |
 
 ---
 
@@ -315,10 +333,23 @@ ls -la .claude/commands/
 # Should see: start.md, fix-next.md, etc.
 ```
 
+### Download failed during installation
+
+This usually means the GitHub repository isn't accessible. Try:
+
+```bash
+# Check if you can reach GitHub
+curl -I https://raw.githubusercontent.com/jamiegrand/astro-seo-agency/main/install.sh
+
+# If that fails, clone and install locally
+git clone https://github.com/jamiegrand/astro-seo-agency.git
+cd your-astro-project
+bash ../astro-seo-agency/install.sh
+```
+
 ### "GSC not configured" message
 
 This is normal if you haven't set up Search Console. The plugin will:
-
 - Skip GSC-specific features
 - Use code-based SEO analysis instead
 - Still provide full functionality for other features
@@ -367,7 +398,7 @@ rm -rf .planning/SESSION.md
 curl -fsSL https://raw.githubusercontent.com/jamiegrand/astro-seo-agency/main/install.sh | bash
 ```
 
-Or manually copy the latest command files to `.claude/commands/`.
+When updating, choose **MERGE** to keep your existing project configuration while getting the latest commands.
 
 ---
 
