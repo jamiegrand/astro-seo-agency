@@ -1,9 +1,14 @@
 {
   "name": "astro-seo-agency",
-  "version": "2.0.0",
-  "description": "Complete Astro.js project management with SEO workflows, analytics integration, and structured development",
+  "version": "2.1.0",
+  "description": "Complete Astro.js project management with SEO workflows, analytics integration, and structured development for Claude Code",
   "author": "Your Agency",
+  "license": "MIT",
   "homepage": "https://github.com/yourusername/astro-seo-agency",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/astro-seo-agency.git"
+  },
   
   "keywords": [
     "astro",
@@ -12,37 +17,48 @@
     "google-analytics",
     "search-console",
     "content-management",
-    "workflow"
+    "workflow",
+    "claude-code"
   ],
 
-  "hooks": {
-    "post-install": ".claude-plugin/hooks/post-install.sh",
-    "pre-session": ".claude-plugin/hooks/pre-session.sh"
+  "engines": {
+    "astro": ">=4.0.0",
+    "node": ">=18.0.0"
+  },
+
+  "install": {
+    "script": "install.sh",
+    "postInstall": "Run /setup in Claude Code to complete configuration"
   },
 
   "prompts": {
     "setup": {
-      "description": "Initialize Astro project with full SEO workflow",
-      "file": "prompts/setup.md"
+      "description": "Interactive setup wizard for new or existing projects",
+      "file": "prompts/setup.md",
+      "triggers": ["/setup", "setup project", "configure plugin"]
     },
     "brownfield": {
       "description": "Analyze and integrate with existing Astro project",
-      "file": "prompts/brownfield.md"
+      "file": "prompts/brownfield.md",
+      "triggers": ["/brownfield", "analyze project", "existing project"]
     }
   },
 
   "agents": {
     "seo-analyst": {
-      "description": "SEO specialist with GA/GSC data access",
-      "file": "agents/seo-analyst.md"
+      "description": "SEO specialist with GA/GSC data access for ranking analysis",
+      "file": "agents/seo-analyst.md",
+      "capabilities": ["analytics-query", "seo-audit", "impact-measurement"]
     },
     "astro-maintainer": {
       "description": "Astro.js code quality and maintenance specialist",
-      "file": "agents/astro-maintainer.md"
+      "file": "agents/astro-maintainer.md",
+      "capabilities": ["code-review", "bug-fix", "refactoring"]
     },
     "content-strategist": {
       "description": "Content planning based on performance data",
-      "file": "agents/content-strategist.md"
+      "file": "agents/content-strategist.md",
+      "capabilities": ["content-audit", "gap-analysis", "calendar-planning"]
     }
   },
 
@@ -50,84 +66,184 @@
     {
       "name": "start",
       "description": "Initialize work session with data-driven priorities",
-      "file": "commands/start.md"
-    },
-    {
-      "name": "fix-next",
-      "description": "Fix highest-impact issue automatically",
-      "file": "commands/fix-next.md"
-    },
-    {
-      "name": "seo-wins",
-      "description": "Find GSC quick wins (position 4-15)",
-      "file": "commands/seo-wins.md"
-    },
-    {
-      "name": "content-roi",
-      "description": "Analyze content performance",
-      "file": "commands/content-roi.md"
-    },
-    {
-      "name": "impact",
-      "description": "Measure before/after effect of changes",
-      "file": "commands/impact.md"
-    },
-    {
-      "name": "feature",
-      "description": "Plan and build a new feature (GSD-style)",
-      "file": "commands/feature.md"
-    },
-    {
-      "name": "pause",
-      "description": "Save session state for later",
-      "file": "commands/pause.md"
-    },
-    {
-      "name": "resume",
-      "description": "Continue from saved session",
-      "file": "commands/resume.md"
+      "file": "commands/start.md",
+      "category": "session"
     },
     {
       "name": "status",
       "description": "Show current project and session status",
-      "file": "commands/status.md"
+      "file": "commands/status.md",
+      "category": "session"
+    },
+    {
+      "name": "pause",
+      "description": "Save session state for later",
+      "file": "commands/pause.md",
+      "category": "session"
+    },
+    {
+      "name": "resume",
+      "description": "Continue from saved session",
+      "file": "commands/resume.md",
+      "category": "session"
+    },
+    {
+      "name": "fix-next",
+      "description": "Automatically fix the highest-priority issue",
+      "file": "commands/fix-next.md",
+      "category": "issues"
     },
     {
       "name": "audit",
-      "description": "Run comprehensive site audit",
-      "file": "commands/audit.md"
+      "description": "Run comprehensive site audit (seo/a11y/perf/full)",
+      "file": "commands/audit.md",
+      "arguments": "[type]",
+      "category": "issues"
+    },
+    {
+      "name": "seo-wins",
+      "description": "Find SEO quick wins from Search Console data",
+      "file": "commands/seo-wins.md",
+      "category": "seo",
+      "requires": ["gsc"]
+    },
+    {
+      "name": "content-roi",
+      "description": "Analyze content performance and ROI",
+      "file": "commands/content-roi.md",
+      "category": "seo",
+      "requires": ["ga", "gsc"]
+    },
+    {
+      "name": "impact",
+      "description": "Measure before/after effect of changes",
+      "file": "commands/impact.md",
+      "arguments": "[issue-number or page-path]",
+      "category": "seo",
+      "requires": ["ga", "gsc"]
+    },
+    {
+      "name": "feature",
+      "description": "Plan and build a new feature (GSD-style workflow)",
+      "file": "commands/feature.md",
+      "arguments": "\"[description]\"",
+      "category": "development"
     },
     {
       "name": "deploy-check",
-      "description": "Pre-deployment verification",
-      "file": "commands/deploy-check.md"
+      "description": "Pre-deployment verification checklist",
+      "file": "commands/deploy-check.md",
+      "category": "development"
     },
     {
       "name": "help",
-      "description": "Show all available commands",
-      "file": "commands/help.md"
+      "description": "Show all available commands and usage",
+      "file": "commands/help.md",
+      "category": "help"
     }
   ],
+
+  "commandCategories": {
+    "session": {
+      "name": "Session Management",
+      "description": "Start, pause, and resume work sessions"
+    },
+    "issues": {
+      "name": "Issue Resolution", 
+      "description": "Find and fix issues"
+    },
+    "seo": {
+      "name": "SEO & Analytics",
+      "description": "SEO analysis and optimization"
+    },
+    "development": {
+      "name": "Development",
+      "description": "Build features and deploy"
+    },
+    "help": {
+      "name": "Help",
+      "description": "Documentation and assistance"
+    }
+  },
 
   "config": {
     "requiredEnv": [],
     "optionalEnv": [
-      "GA_PROPERTY_ID",
-      "GSC_SITE_URL",
-      "GOOGLE_APPLICATION_CREDENTIALS",
-      "GITHUB_TOKEN",
-      "BRAVE_API_KEY"
+      {
+        "name": "GA_PROPERTY_ID",
+        "description": "Google Analytics 4 Property ID",
+        "example": "123456789"
+      },
+      {
+        "name": "GSC_SITE_URL",
+        "description": "Google Search Console site URL",
+        "example": "https://example.com/"
+      },
+      {
+        "name": "GOOGLE_APPLICATION_CREDENTIALS",
+        "description": "Path to GSC service account JSON",
+        "example": "./credentials/gsc-service-account.json"
+      },
+      {
+        "name": "GITHUB_TOKEN",
+        "description": "GitHub personal access token",
+        "example": "ghp_xxxxxxxxxxxx"
+      },
+      {
+        "name": "GITHUB_REPO",
+        "description": "GitHub repository",
+        "example": "username/repo-name"
+      },
+      {
+        "name": "BRAVE_API_KEY",
+        "description": "Brave Search API key for competitor research",
+        "example": "BSA_xxxxxxxxxxxx"
+      }
     ],
     "defaults": {
       "framework": "astro",
+      "sessionPersistence": true,
+      "atomicCommits": true,
       "qualityGates": {
         "typescript": true,
-        "build": true,
-        "lint": true
-      },
-      "sessionPersistence": true,
-      "freshContextPerTask": true,
-      "atomicCommits": true
+        "build": true
+      }
     }
+  },
+
+  "mcp": {
+    "servers": {
+      "gsc": {
+        "description": "Google Search Console API access",
+        "package": "mcp-server-gsc",
+        "optional": true,
+        "requiredFor": ["seo-wins", "impact", "content-roi"]
+      },
+      "github": {
+        "description": "GitHub API for issue management",
+        "package": "@anthropic/mcp-github", 
+        "optional": true,
+        "requiredFor": ["fix-next with GitHub issues"]
+      },
+      "sequential-thinking": {
+        "description": "Complex problem solving",
+        "package": "@modelcontextprotocol/server-sequential-thinking",
+        "optional": true
+      }
+    }
+  },
+
+  "files": {
+    "created": [
+      ".claude/commands/*.md",
+      ".planning/",
+      "CLAUDE.md",
+      ".env.example"
+    ],
+    "optional": [
+      "AI-INFO.md",
+      "AUDIT_TRACKER.md",
+      ".env"
+    ]
   }
 }

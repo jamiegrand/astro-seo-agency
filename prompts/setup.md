@@ -1,389 +1,331 @@
 # Project Setup Wizard
 
-Initialize a new or existing Astro project with the complete SEO Agency workflow.
+Interactive setup for the Astro SEO Agency plugin.
 
 ---
 
-## Usage
+## Automatic Detection
 
-Run this setup when:
-- Starting a new Astro project
-- Adding the plugin to an existing project
-- Reconfiguring an existing setup
+First, I'll analyze your project automatically:
 
----
-
-## Step 1: Gather Project Information
+```bash
+# Detect project configuration
+cat package.json
+ls -la src/
+```
 
 ```markdown
-## 🚀 Astro SEO Agency Setup
+## 🔍 Project Analysis
 
-Let's configure your project. Please provide:
+### Detected Configuration
 
-### Required Information
+| Item | Value | Status |
+|------|-------|--------|
+| Project Name | [from package.json] | ✅ |
+| Astro Version | [version] | ✅ |
+| Tailwind | [yes/no] | ✅/❌ |
+| TypeScript | [yes/no] | ✅/❌ |
+| Content Collections | [yes/no] | ✅/❌ |
 
-1. **Project Name:** 
-   (e.g., "Sitech London", "My Agency Site")
+### Directory Structure
+```
+src/
+├── components/    [X files]
+├── content/       [X files]
+├── data/          [X files]
+├── layouts/       [X files]
+├── pages/         [X files]
+└── styles/        [X files]
+```
+
+### Existing Configuration
+- [ ] CLAUDE.md: [Found/Missing]
+- [ ] AI-INFO.md: [Found/Missing]
+- [ ] .env: [Found/Missing]
+- [ ] Issue tracker: [Found/Missing]
+```
+
+---
+
+## Step 1: Basic Information
+
+I've detected most settings automatically. Please confirm or update:
+
+```markdown
+### Project Settings
+
+1. **Project Name:** [detected]
+   → Press Enter to accept, or type a new name
 
 2. **Site URL:** 
-   (e.g., https://example.com)
+   → Enter your production URL (e.g., https://example.com)
 
-3. **Is this a new or existing project?**
-   - [ ] New project (greenfield)
-   - [ ] Existing project (brownfield)
-
-### Analytics (Recommended)
-
-4. **Google Analytics Property ID:**
-   (e.g., 509657124)
-   
-5. **Google Search Console URL:**
-   (Usually same as site URL)
-
-### Optional
-
-6. **GitHub Repository:**
-   (e.g., username/repo-name)
-
-7. **Business Type:**
-   - [ ] Local Business
-   - [ ] E-commerce
-   - [ ] SaaS
-   - [ ] Agency/Portfolio
-   - [ ] Blog/Content
+3. **Business Type:**
+   - [ ] Local Business (services in specific locations)
+   - [ ] E-commerce (products for sale)
+   - [ ] SaaS (software product)
+   - [ ] Agency/Portfolio (showcase work)
+   - [ ] Blog/Content (articles, guides)
    - [ ] Other
 
-8. **Primary Services/Products:**
-   (Brief list for schema markup)
+Type your choices or say "auto" to use detected values.
 ```
 
 ---
 
-## Step 2: Existing Project Detection
-
-If existing project:
-
-```bash
-# Check for existing configuration
-ls -la CLAUDE.md AI-INFO.md .claude/
-ls -la src/data/ src/content/ src/components/
-cat package.json | grep -E "astro|tailwind"
-```
+## Step 2: Analytics Configuration
 
 ```markdown
-### Existing Setup Detected
+### Analytics Setup (Optional)
 
-| Item | Status | Action |
-|------|--------|--------|
-| CLAUDE.md | ✅ Found / ❌ Missing | [Merge/Create] |
-| AI-INFO.md | ✅ Found / ❌ Missing | [Update/Create] |
-| .claude/commands/ | ✅ Found / ❌ Missing | [Add/Create] |
-| Issue tracker | ✅ Found / ❌ Missing | [Keep/Create] |
+Analytics integration enables:
+- Traffic-based priority scoring
+- SEO quick wins detection
+- Impact measurement
+- Content ROI analysis
 
-**Recommendation:** [Merge existing with new / Fresh setup]
+**Do you want to configure analytics?**
 
-How would you like to proceed?
-- **"merge"** - Keep existing, add new features
-- **"replace"** - Start fresh with new configuration
-- **"review"** - Show me what would change
+1. **"yes"** - Configure Google Analytics + Search Console
+2. **"later"** - Skip for now, configure later
+3. **"no"** - Use without analytics (still fully functional)
+```
+
+### If "yes":
+
+```markdown
+### Google Analytics
+
+Enter your GA4 Property ID (numbers only):
+→ Find it: GA Admin → Property Settings → Property ID
+
+**GA_PROPERTY_ID:** _______________
+
+---
+
+### Google Search Console
+
+Enter your site URL exactly as it appears in GSC:
+→ Usually: https://your-site.com/ (with trailing slash)
+
+**GSC_SITE_URL:** _______________
+
+---
+
+### GSC Authentication
+
+For Search Console, you need a service account:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create or select a project
+3. Enable "Search Console API"
+4. Create a Service Account
+5. Download the JSON key
+6. Save it to: `./credentials/gsc-service-account.json`
+7. Add the service account email to your GSC property
+
+**Have you completed this setup?**
+- "done" - I've set up the service account
+- "help" - Show me detailed instructions
+- "skip" - Skip GSC for now
 ```
 
 ---
 
-## Step 3: Create Directory Structure
+## Step 3: Issue Tracking
 
-```bash
-# Create required directories
-mkdir -p .claude/commands
-mkdir -p .planning/archive
-mkdir -p AI
+```markdown
+### Issue Tracking Setup
 
-# Create if not exists
-touch .env.example
+Choose how to track SEO issues and tasks:
+
+**Option A: GitHub Issues** (Recommended for teams)
+- Integrated with your repository
+- Labels, milestones, assignments
+- Requires GitHub token
+
+**Option B: Markdown Tracker** (Simple, local)
+- Single file: AUDIT_TRACKER.md
+- Works offline
+- No setup required
+
+**Option C: None** 
+- Manual tracking
+- Commands still work
+
+Which do you prefer? (A/B/C)
+```
+
+### If GitHub:
+
+```markdown
+### GitHub Configuration
+
+**Repository:** [detected or enter username/repo]
+
+**GitHub Token:**
+1. Go to: GitHub → Settings → Developer settings → Personal access tokens
+2. Generate new token with 'repo' scope
+3. Enter token below (stored in .env, gitignored)
+
+**GITHUB_TOKEN:** _______________
+
+[Token entered]
+✅ Validating access... 
+✅ Repository access confirmed
+```
+
+### If Markdown:
+
+```markdown
+### Markdown Tracker
+
+Creating AUDIT_TRACKER.md...
+
+✅ Tracker created
+
+You can:
+- Add issues manually
+- Run `/audit` to populate automatically
+- Use `/fix-next` to work through issues
 ```
 
 ---
 
 ## Step 4: Generate Configuration Files
 
-### CLAUDE.md
-
-Generate from template with provided values:
-- Project name
-- Site URL
-- GA Property ID
-- GSC URL
-- Framework version (detected)
-- Business type
-- Custom notes
-
-### AI-INFO.md (For Existing Projects)
-
-If existing project, generate comprehensive AI-INFO.md:
+Based on your choices, generating:
 
 ```markdown
-# [Project Name] - Architecture Reference
+### 📝 Generating Files
 
-## Quick Reference
-- Framework: Astro [version]
-- Styling: Tailwind [version]
-- Site: [URL]
+| File | Status |
+|------|--------|
+| CLAUDE.md | ✅ Creating... |
+| AI-INFO.md | ✅ Analyzing project... |
+| .env | ✅ Writing credentials... |
+| .gitignore | ✅ Updating... |
 
-## Data Architecture
-[Discovered from src/data/]
+#### CLAUDE.md Preview
+```markdown
+# [Project Name] - Claude Code Instructions
 
-## Component Patterns
-[Discovered from src/components/]
-
-## Page Routes
-[Discovered from src/pages/]
-
-## Content Collections
-[Discovered from src/content/]
-
-## Styling Conventions
-[Discovered from styles]
-
-## Business Context
-[From user input]
+| Field | Value |
+|-------|-------|
+| Framework | Astro [version] |
+| Site URL | [url] |
+| Analytics | [Configured/Not configured] |
+...
 ```
 
-### .env.example
-
-```bash
-# Google Analytics
-GA_PROPERTY_ID=
-
-# Google Search Console
-GSC_SITE_URL=
-GOOGLE_APPLICATION_CREDENTIALS=
-
-# GitHub (optional)
-GITHUB_TOKEN=
-GITHUB_REPO=
-
-# Brave Search (optional)
-BRAVE_API_KEY=
-```
-
-### .mcp.json (Project-scoped)
-
-```json
-{
-  "mcpServers": {
-    "gsc": {
-      "command": "npx",
-      "args": ["-y", "mcp-server-gsc"],
-      "env": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
-      }
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@anthropic/mcp-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
-    },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "context7-mcp"]
-    }
-  }
-}
+**Look good?** (yes/edit)
 ```
 
 ---
 
-## Step 5: Install Commands
-
-Copy all command files to `.claude/commands/`:
-
-```
-.claude/commands/
-├── start.md
-├── fix-next.md
-├── seo-wins.md
-├── content-roi.md
-├── impact.md
-├── feature.md
-├── pause.md
-├── resume.md
-├── status.md
-├── audit.md
-├── deploy-check.md
-└── help.md
-```
-
----
-
-## Step 6: Set Up Issue Tracking
+## Step 5: Initial Audit (Optional)
 
 ```markdown
-### Issue Tracking Setup
+### 🔍 Initial SEO Audit
 
-**Option A: GitHub Issues (Recommended for teams)**
-- [ ] Enable GitHub MCP
-- [ ] Create labels: priority:critical, priority:high, etc.
-- [ ] Create initial issues from audit
-
-**Option B: Markdown Tracker (Simple, local)**
-- [ ] Create AUDIT_TRACKER.md
-- [ ] Add initial issues
-- [ ] Configure phases
-
-Which would you prefer?
-```
-
-If Markdown Tracker:
-```markdown
-# [Project Name] - Issue Tracker
-
-## Overview
-- **Total Issues:** 0
-- **Complete:** 0
-- **In Progress:** 0
-
----
-
-## Phase 1: Critical Fixes
-
-### [ ] Issue #1: [Title]
-- **Priority:** Critical
-- **Type:** [SEO/Bug/A11y/Perf]
-- **Affected Pages:** [URLs]
-- **Description:** [Description]
-- **Estimated Time:** [X] min
-- **Files to Modify:**
-  - `path/to/file`
-
----
-
-## Phase 2: High Priority
-[To be populated after audit]
-
----
-
-## Phase 3: Medium Priority
-[To be populated after audit]
-
----
-
-## Completed
-[Completed issues moved here]
-```
-
----
-
-## Step 7: Run Initial Audit (Optional)
-
-```markdown
-### Initial SEO Audit
-
-Would you like me to run an initial SEO audit to populate your issue tracker?
+Would you like me to run an initial audit to find issues?
 
 This will check:
-- [ ] Meta tags on all pages
-- [ ] Schema markup
-- [ ] Image optimization
-- [ ] Accessibility basics
-- [ ] Internal linking
+- Meta tags on all pages
+- Schema markup validity
+- Image optimization
+- Accessibility basics
+- Internal linking
 
 **Options:**
-- **"Yes, full audit"** - Run comprehensive audit
-- **"Yes, quick scan"** - Check critical items only
-- **"Skip"** - Set up later with `/audit`
+- **"full"** - Complete audit (takes 2-3 minutes)
+- **"quick"** - Critical issues only (30 seconds)
+- **"skip"** - Do this later with `/audit`
+```
+
+### If audit selected:
+
+```markdown
+### Running Audit...
+
+[Progress indicator]
+
+Checking meta tags... ✅
+Checking schema... ✅
+Checking images... ✅
+Checking accessibility... ✅
+Checking links... ✅
+
+---
+
+### 📊 Audit Results
+
+| Category | Issues Found |
+|----------|--------------|
+| SEO | X critical, X high |
+| Accessibility | X critical, X high |
+| Performance | X warnings |
+
+**Top Priority Issues:**
+1. [Issue] - Critical
+2. [Issue] - Critical
+3. [Issue] - High
+
+These have been added to your issue tracker.
+
+Run `/fix-next` to start fixing them!
 ```
 
 ---
 
-## Step 8: Verification
+## Step 6: Completion
 
 ```markdown
-### ✅ Setup Verification
+## ✅ Setup Complete!
 
-| Check | Status |
-|-------|--------|
-| CLAUDE.md exists | ✅ / ❌ |
-| AI-INFO.md exists | ✅ / ❌ |
-| Commands installed | ✅ / ❌ |
-| .planning/ directory | ✅ / ❌ |
-| Issue tracker ready | ✅ / ❌ |
-| Build passes | ✅ / ❌ |
+### Configuration Summary
 
-### Test Commands
+| Setting | Value |
+|---------|-------|
+| Project | [name] |
+| Site URL | [url] |
+| Analytics | ✅ Configured / ⏭️ Skipped |
+| Issue Tracker | GitHub / Markdown / None |
+| Initial Issues | [X] found |
 
-Try these commands to verify setup:
+### Files Created/Updated
+- ✅ CLAUDE.md
+- ✅ AI-INFO.md
+- ✅ .env
+- ✅ .gitignore
+- ✅ .planning/
 
+---
+
+### 🚀 You're Ready!
+
+**Start your first session:**
 ```bash
-/help          # Should show all commands
-/status        # Should show project status
-/start         # Should initialize session
+/start
 ```
+
+**Or jump right in:**
+```bash
+/fix-next    # Fix highest priority issue
+/seo-wins    # Find ranking opportunities
+/audit       # Run full audit
 ```
 
 ---
 
-## Step 9: Final Summary
-
-```markdown
-## 🎉 Setup Complete!
-
-### Project: [Name]
-**Site:** [URL]
-**Framework:** Astro [version]
-
-### Configuration Created
-- ✅ CLAUDE.md - Project instructions
-- ✅ AI-INFO.md - Architecture reference
-- ✅ .claude/commands/ - [X] commands installed
-- ✅ .planning/ - Session persistence
-- ✅ Issue tracker - [GitHub/Markdown]
-
-### MCP Servers
-| Server | Status |
-|--------|--------|
-| Google Analytics | [Configured/Needs setup] |
-| Search Console | [Configured/Needs setup] |
-| GitHub | [Configured/Needs setup] |
-
-### Next Steps
-
-1. **Add credentials** (if not done):
-   ```bash
-   cp .env.example .env
-   # Edit .env with your values
-   ```
-
-2. **Start your first session:**
-   ```bash
-   /start
-   ```
-
-3. **Run initial audit** (recommended):
-   ```bash
-   /audit full
-   ```
-
-4. **Begin work:**
-   ```bash
-   /fix-next
-   ```
-
----
-
-### Quick Reference
+### Quick Reference Card
 
 | Task | Command |
 |------|---------|
-| Start session | `/start` |
+| Start day | `/start` |
 | Fix issues | `/fix-next` |
-| SEO opportunities | `/seo-wins` |
-| Content analysis | `/content-roi` |
+| SEO analysis | `/seo-wins` |
+| Content review | `/content-roi` |
 | Build feature | `/feature "desc"` |
 | Save progress | `/pause` |
 | Continue | `/resume` |
@@ -391,5 +333,65 @@ Try these commands to verify setup:
 
 ---
 
-Happy building! 🚀
+Happy building! 🎉
+```
+
+---
+
+## Error Handling
+
+### If package.json not found:
+
+```markdown
+## ⚠️ Not in a Project Directory
+
+I couldn't find a package.json file.
+
+**Please either:**
+1. Navigate to your Astro project root
+2. Create a new Astro project first:
+   ```bash
+   npm create astro@latest
+   ```
+3. Run `/setup` again from the project directory
+```
+
+### If not an Astro project:
+
+```markdown
+## ⚠️ Not an Astro Project
+
+This appears to be a [detected framework] project, not Astro.
+
+This plugin is specifically designed for Astro.js projects.
+
+**Options:**
+1. **Continue anyway** - Some features may not work correctly
+2. **Cancel** - Exit setup
+
+The following commands may still work:
+- `/feature` - Generic feature development
+- `/pause` / `/resume` - Session management
+- `/status` - Project status
+
+SEO-specific commands require Astro project structure.
+```
+
+### If credentials fail validation:
+
+```markdown
+## ⚠️ Credential Validation Failed
+
+**Google Analytics:**
+❌ Could not connect with Property ID: [id]
+
+Possible issues:
+- Property ID is incorrect
+- GA4 API not enabled
+- Insufficient permissions
+
+**Options:**
+1. **"retry"** - Enter a different Property ID
+2. **"skip"** - Continue without GA (can configure later)
+3. **"help"** - Show detailed setup instructions
 ```

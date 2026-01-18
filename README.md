@@ -1,6 +1,6 @@
 # Astro SEO Agency Plugin
 
-> Complete Astro.js project management with SEO workflows, analytics integration, and structured development.
+> Complete Astro.js project management with SEO workflows, analytics integration, and structured development for Claude Code.
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
@@ -17,7 +17,7 @@
 
 ---
 
-## What It Does
+## Features
 
 - **Data-Driven Priorities** - Uses GA and GSC data to prioritize work by traffic impact
 - **Session Persistence** - Pause and resume exactly where you left off
@@ -29,153 +29,177 @@
 
 ## Installation
 
+### Option 1: Quick Install (Recommended)
+
 ```bash
-# Add the marketplace
-/plugin marketplace add jamiegrand/astro-seo-agency
+# Navigate to your Astro project
+cd your-astro-project
 
-# Install the plugin
-/plugin install astro-seo-agency
+# Download and run the installer
+curl -fsSL https://raw.githubusercontent.com/yourusername/astro-seo-agency/main/install.sh | bash
+```
 
-# Run setup
+### Option 2: Manual Install
+
+```bash
+# 1. Clone the plugin repository
+git clone https://github.com/yourusername/astro-seo-agency.git /tmp/astro-seo-agency
+
+# 2. Run the install script
+cd your-astro-project
+bash /tmp/astro-seo-agency/install.sh
+
+# 3. Clean up
+rm -rf /tmp/astro-seo-agency
+```
+
+### Option 3: Copy Files Manually
+
+If you prefer manual control:
+
+```bash
+# 1. Create directories
+mkdir -p .claude/commands
+mkdir -p .planning/archive
+
+# 2. Copy command files
+cp -r astro-seo-agency/commands/* .claude/commands/
+
+# 3. Copy configuration templates
+cp astro-seo-agency/templates/CLAUDE.md.example ./CLAUDE.md
+
+# 4. Run setup
+# In Claude Code, type: /setup
+```
+
+---
+
+## Post-Installation Setup
+
+After installing, open your project in Claude Code and run:
+
+```
 /setup
 ```
+
+This interactive wizard will:
+1. ✅ Detect your project configuration
+2. ✅ Configure analytics connections (optional)
+3. ✅ Generate CLAUDE.md and AI-INFO.md
+4. ✅ Set up issue tracking
+5. ✅ Run initial SEO audit (optional)
+
+### Configure Analytics (Optional but Recommended)
+
+Create a `.env` file in your project root:
+
+```bash
+# Copy the example
+cp .env.example .env
+
+# Edit with your values
+```
+
+```env
+# Google Analytics - for traffic data
+GA_PROPERTY_ID=123456789
+
+# Google Search Console - for ranking data
+GSC_SITE_URL=https://your-site.com/
+GOOGLE_APPLICATION_CREDENTIALS=./credentials/gsc-service-account.json
+
+# GitHub - for issue management (optional)
+GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+GITHUB_REPO=username/repo-name
+```
+
+<details>
+<summary>📖 How to get these credentials</summary>
+
+### Google Analytics Property ID
+1. Go to [Google Analytics](https://analytics.google.com)
+2. Admin → Property Settings
+3. Copy the Property ID (numbers only)
+
+### Google Search Console Setup
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select existing
+3. Enable the Search Console API
+4. Create a Service Account
+5. Download the JSON key file
+6. Add the service account email to your GSC property
+
+### GitHub Token
+1. Go to GitHub → Settings → Developer settings → Personal access tokens
+2. Generate new token with `repo` scope
+3. Copy the token
+
+</details>
 
 ---
 
 ## Quick Start
 
 ```bash
-# Start your day
+# Start your day - see data-driven priorities
 /start
 
-# Fix the highest-impact issue
+# Fix the highest-impact issue automatically
 /fix-next
 
-# Save progress
+# Save your progress when stopping
 /pause
 
-# Continue tomorrow
+# Continue tomorrow exactly where you left off
 /resume
 ```
 
 ---
 
-## Commands
+## All Commands
 
-### Session Management
+### 📋 Session Management
 
-| Command   | Description                                    |
-| --------- | ---------------------------------------------- |
-| `/start`  | Initialize session with data-driven priorities |
-| `/status` | Show current project and session status        |
-| `/pause`  | Save session state, create handoff document    |
-| `/resume` | Restore session from handoff                   |
+| Command | Description |
+|---------|-------------|
+| `/start` | Initialize session with data-driven priorities |
+| `/status` | Show current project and session status |
+| `/pause` | Save session state for later |
+| `/resume` | Continue from saved session |
 
-### Issue Resolution
+### 🔧 Issue Resolution
 
-| Command         | Description                                  |
-| --------------- | -------------------------------------------- |
-| `/fix-next`     | Auto-select and fix highest priority issue   |
-| `/audit [type]` | Run comprehensive audit (seo/a11y/perf/full) |
+| Command | Description |
+|---------|-------------|
+| `/fix-next` | Auto-select and fix highest priority issue |
+| `/audit [type]` | Run audit (seo / a11y / perf / full) |
 
-### SEO & Analytics
+### 📈 SEO & Analytics
 
-| Command        | Description                            |
-| -------------- | -------------------------------------- |
-| `/seo-wins`    | Find GSC quick wins (position 4-15)    |
-| `/content-roi` | Analyze content performance            |
-| `/impact [#]`  | Measure before/after effect of changes |
+| Command | Description |
+|---------|-------------|
+| `/seo-wins` | Find GSC quick wins (position 4-15) |
+| `/content-roi` | Analyze content performance |
+| `/impact [#]` | Measure before/after effect of changes |
 
-### Feature Development
+### 🚀 Feature Development
 
-| Command             | Description                            |
-| ------------------- | -------------------------------------- |
-| `/feature "desc"`   | Plan and build new feature (GSD-style) |
-| `/feature:plan`     | Show current feature plan              |
-| `/feature:work [n]` | Execute specific task                  |
-
-### Deployment
-
-| Command         | Description                 |
-| --------------- | --------------------------- |
+| Command | Description |
+|---------|-------------|
+| `/feature "desc"` | Plan and build new feature |
 | `/deploy-check` | Pre-deployment verification |
-| `/help`         | Show all commands           |
+
+### ❓ Help
+
+| Command | Description |
+|---------|-------------|
+| `/help` | Show all commands and usage |
 
 ---
 
-## Workflow Examples
+## How It Works
 
-### Daily Maintenance
-
-```bash
-# Morning: See what needs work
-/start
-
-# Output shows:
-# - Traffic overview (GA)
-# - Quick wins (GSC)
-# - Prioritized issues (by impact score)
-
-# Work on highest priority
-/fix-next
-
-# Repeat until done
-/fix-next
-/fix-next
-
-# Save progress
-/pause
-```
-
-### Weekly SEO Review
-
-```bash
-# Find ranking opportunities
-/seo-wins
-
-# Output shows:
-# - Almost there (position 4-10, low CTR)
-# - Low hanging fruit (position 11-20)
-# - Content gaps
-# - Declining queries
-
-# Implement quick wins
-/fix-next
-```
-
-### Building a New Feature
-
-```bash
-# Start feature development
-/feature "Add schema markup for location pages"
-
-# Answer clarifying questions
-# Review the plan
-# Say "go" to execute
-
-# Each task runs with fresh context
-# Atomic commits for each task
-# Quality gates on every step
-```
-
-### Measuring Impact
-
-```bash
-# After making changes, wait 14 days, then:
-/impact 15
-
-# Output shows:
-# - Before/after comparison
-# - Traffic changes
-# - Ranking changes
-# - ROI calculation
-```
-
----
-
-## Architecture
-
-### The 3-Layer Model
+### The 3-Layer Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -193,29 +217,9 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Golden Rule:** Prefer data changes over code changes.
+### Impact-Based Prioritization
 
-### Zone Ownership (For Features)
-
-```yaml
-ALPHA (Foundation):
-  - src/layouts/
-  - src/styles/
-  - src/config/
-
-BETA (Components & Data):
-  - src/components/
-  - src/data/
-  - src/content/
-
-GAMMA (Pages & Integration):
-  - src/pages/
-  - public/
-```
-
-### Impact Scoring
-
-All issues are prioritized by:
+All issues are scored by potential traffic impact:
 
 ```
 Impact Score = (Monthly Sessions × Severity) + (GSC Impressions × 0.1)
@@ -225,90 +229,160 @@ Higher score = fix first.
 
 ---
 
-## Configuration
+## Workflow Examples
 
-### Required Files
+### Daily Maintenance
 
-After setup, your project will have:
+```bash
+/start          # See priorities based on analytics
+/fix-next       # Work on highest impact issue
+/fix-next       # Continue with next priority
+/pause          # Save progress when done
+```
+
+### Weekly SEO Review
+
+```bash
+/seo-wins       # Find ranking opportunities
+/content-roi    # Review content performance
+```
+
+### Building Features
+
+```bash
+/feature "Add contact form with validation"
+# → Answer clarifying questions
+# → Review the generated plan
+# → Type "go" to execute
+```
+
+### Measuring Results
+
+```bash
+# After making changes, wait 14+ days, then:
+/impact 15      # Measure effect of issue #15
+```
+
+---
+
+## Project Structure After Install
 
 ```
 your-project/
 ├── .claude/
-│   └── commands/           # All slash commands
+│   └── commands/          # Slash commands
+│       ├── start.md
+│       ├── fix-next.md
+│       ├── seo-wins.md
+│       └── ...
 ├── .planning/
-│   └── archive/            # Archived handoffs
-├── AI/
-│   └── (role files)        # Optional agent definitions
-├── CLAUDE.md               # Project instructions
-├── AI-INFO.md              # Architecture reference
-├── .mcp.json               # MCP server config
-└── .env                    # Credentials (gitignored)
-```
-
-### Environment Variables
-
-```bash
-# .env
-GA_PROPERTY_ID=your-property-id
-GSC_SITE_URL=https://your-site.com/
-GOOGLE_APPLICATION_CREDENTIALS=./credentials/gsc.json
-GITHUB_TOKEN=your-token  # Optional
-```
-
-### MCP Servers
-
-| Server                | Purpose          | Required     |
-| --------------------- | ---------------- | ------------ |
-| Google Analytics      | Traffic data     | Recommended  |
-| Google Search Console | Rankings, CTR    | Recommended  |
-| GitHub                | Issue management | Optional     |
-| Sequential Thinking   | Complex problems | Auto-enabled |
-| Context7              | Framework docs   | Auto-enabled |
-
----
-
-## For Existing Projects
-
-```bash
-# Run brownfield analysis
-/brownfield
-
-# This will:
-# 1. Scan your project structure
-# 2. Detect existing configuration
-# 3. Analyze SEO status
-# 4. Generate missing files
-# 5. Create initial issues
+│   └── archive/           # Archived sessions
+├── CLAUDE.md              # Project instructions for Claude
+├── AI-INFO.md             # Architecture reference (generated)
+├── .env                   # Your credentials (gitignored)
+└── .env.example           # Credential template
 ```
 
 ---
 
-## Session Persistence
+## Works Without Analytics
+
+The plugin works great even without Google Analytics or Search Console configured:
+
+| Feature | With Analytics | Without Analytics |
+|---------|----------------|-------------------|
+| `/start` | Shows traffic data + priorities | Shows issue priorities |
+| `/fix-next` | Ranks by traffic impact | Ranks by severity |
+| `/seo-wins` | Full GSC analysis | Content-based SEO audit |
+| `/audit` | ✅ Full functionality | ✅ Full functionality |
+| `/feature` | ✅ Full functionality | ✅ Full functionality |
+| `/pause`/`/resume` | ✅ Full functionality | ✅ Full functionality |
+
+---
+
+## Troubleshooting
+
+### Commands not showing up
 
 ```bash
-# When you pause
-/pause
-# Creates .planning/HANDOFF.md
+# Verify commands are installed
+ls -la .claude/commands/
 
-# When you resume
-/resume
-# Restores full context
-# Continues exactly where you stopped
+# Should see: start.md, fix-next.md, etc.
+```
+
+### "GSC not configured" message
+
+This is normal if you haven't set up Search Console. The plugin will:
+- Skip GSC-specific features
+- Use code-based SEO analysis instead
+- Still provide full functionality for other features
+
+### Build errors after changes
+
+```bash
+# Check TypeScript
+npm run astro check
+
+# Full build test
+npm run build
+```
+
+### Need to start fresh
+
+```bash
+# Remove session state
+rm -rf .planning/HANDOFF.md
+rm -rf .planning/SESSION.md
+
+# Run setup again
+/setup
 ```
 
 ---
 
-## Compared to Other Solutions
+## Requirements
 
-| Feature             | This Plugin  | GSD | PROAGENTS | SUPER-AGENT |
-| ------------------- | ------------ | --- | --------- | ----------- |
-| SEO Integration     | ✅ Full      | ❌  | ❌        | ❌          |
-| GA/GSC Data         | ✅ Built-in  | ❌  | ❌        | ❌          |
-| Session Persistence | ✅           | ❌  | ❌        | ✅          |
-| Astro-Specific      | ✅           | ❌  | ❌        | ❌          |
-| Feature Development | ✅ GSD-style | ✅  | ✅        | ✅          |
-| Impact Measurement  | ✅           | ❌  | ❌        | ❌          |
-| Complexity          | Medium       | Low | Medium    | High        |
+- **Astro** 4.0+ (optimized for Astro 5)
+- **Node.js** 18+
+- **Claude Code** (VS Code extension or CLI)
+
+### Optional
+
+- Google Analytics 4 property
+- Google Search Console access
+- GitHub repository (for issue tracking)
+
+---
+
+## Updating
+
+```bash
+# Re-run the installer to update commands
+curl -fsSL https://raw.githubusercontent.com/yourusername/astro-seo-agency/main/install.sh | bash
+```
+
+Or manually copy the latest command files to `.claude/commands/`.
+
+---
+
+## Uninstalling
+
+```bash
+# Remove plugin files
+rm -rf .claude/commands/
+rm -rf .planning/
+rm -f CLAUDE.md AI-INFO.md
+
+# Remove from .gitignore (optional)
+# Edit .gitignore and remove the "Astro SEO Agency" section
+```
+
+---
+
+## Contributing
+
+Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ---
 
@@ -318,4 +392,4 @@ MIT
 
 ---
 
-_Built for Astro.js agencies and freelancers who want data-driven, structured workflows._
+**Built for Astro.js developers who want data-driven, structured workflows.**
