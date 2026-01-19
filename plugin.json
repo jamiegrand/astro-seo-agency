@@ -145,10 +145,11 @@
     },
     {
       "name": "astro-check",
-      "description": "Query Astro project info via MCP (routes, config, integrations)",
+      "description": "Query Astro project info via MCP (routes, config, integrations, mcp status)",
       "file": "commands/astro-check.md",
+      "arguments": "[mcp|config|routes|docs \"query\"|health]",
       "category": "development",
-      "requires": ["astro-mcp"]
+      "requires": []
     },
     {
       "name": "help",

@@ -48,6 +48,7 @@ description: Show all available commands and usage
 | Command | Description | When to Use |
 |---------|-------------|-------------|
 | `/astro-check` | Full project report (config, routes, health) | Understanding project state |
+| `/astro-check mcp` | MCP server status and diagnostics | Troubleshooting MCP issues |
 | `/astro-check routes` | List all routes | Before adding new pages |
 | `/astro-check docs "query"` | Search Astro documentation | Finding best practices |
 
@@ -190,18 +191,25 @@ Query Astro project information:
 - Project configuration
 - All routes (static, dynamic, API)
 - Installed integrations
-- Server status
+- MCP server status
 - Search documentation
 
 **Subcommands:**
 ```bash
 /astro-check              # Full report
+/astro-check mcp          # MCP server diagnostics
 /astro-check config       # Configuration only
 /astro-check routes       # Routes only
 /astro-check routes blog  # Filter routes
 /astro-check docs "query" # Search docs
 /astro-check health       # Quick health check
 ```
+
+**`/astro-check mcp` provides:**
+- Connection status for all MCP servers
+- Feature availability based on MCP status
+- Setup instructions for missing servers
+- Troubleshooting guidance
 
 ---
 
