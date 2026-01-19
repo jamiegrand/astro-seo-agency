@@ -1,6 +1,6 @@
 {
   "name": "astro-seo-agency",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "Complete Astro.js project management with SEO workflows, analytics integration, and structured development for Claude Code",
   "author": "Jamie Grand",
   "license": "MIT",
@@ -18,7 +18,8 @@
     "search-console",
     "content-management",
     "workflow",
-    "claude-code"
+    "claude-code",
+    "mcp"
   ],
 
   "engines": {
@@ -53,7 +54,7 @@
     "astro-maintainer": {
       "description": "Astro.js code quality and maintenance specialist",
       "file": "agents/astro-maintainer.md",
-      "capabilities": ["code-review", "bug-fix", "refactoring"]
+      "capabilities": ["code-review", "bug-fix", "refactoring", "astro-mcp"]
     },
     "content-strategist": {
       "description": "Content planning based on performance data",
@@ -143,6 +144,13 @@
       "category": "development"
     },
     {
+      "name": "astro-check",
+      "description": "Query Astro project info via MCP (routes, config, integrations)",
+      "file": "commands/astro-check.md",
+      "category": "development",
+      "requires": ["astro-mcp"]
+    },
+    {
       "name": "help",
       "description": "Show all available commands and usage",
       "file": "commands/help.md",
@@ -220,6 +228,37 @@
 
   "mcp": {
     "servers": {
+      "astro-docs": {
+        "description": "Official Astro documentation - real-time access to latest Astro docs",
+        "url": "https://mcp.docs.astro.build/mcp",
+        "type": "http",
+        "optional": false,
+        "recommended": true,
+        "requiredFor": ["fix-next", "feature", "audit"],
+        "capabilities": ["search_astro_docs"],
+        "install": {
+          "claude-desktop": {
+            "command": "npx",
+            "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+          },
+          "vscode": {
+            "type": "http",
+            "url": "https://mcp.docs.astro.build/mcp"
+          }
+        }
+      },
+      "astro-mcp": {
+        "description": "Astro project integration - runtime info, routes, config, integrations",
+        "package": "astro-mcp",
+        "type": "integration",
+        "optional": true,
+        "recommended": true,
+        "requiredFor": ["astro-check", "status", "deploy-check"],
+        "capabilities": ["get-astro-config", "list-astro-routes", "get-astro-server-address", "search-astro-docs", "get-integration-docs"],
+        "install": {
+          "astro": "npx astro add astro-mcp"
+        }
+      },
       "gsc": {
         "description": "Google Search Console API access",
         "package": "mcp-server-gsc",

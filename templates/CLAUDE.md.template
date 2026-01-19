@@ -1,6 +1,6 @@
 # {{PROJECT_NAME}} - Claude Code Instructions
 
-> Astro SEO Agency Plugin v2.0.0
+> Astro SEO Agency Plugin v2.2.0
 > Last configured: {{DATE}}
 
 ---
@@ -11,6 +11,7 @@
 /start              # Begin session with data-driven priorities
 /fix-next           # Fix highest-impact issue
 /feature "desc"     # Build new feature
+/astro-check        # Query project info via MCP
 /pause              # Save and exit
 /resume             # Continue tomorrow
 ```
@@ -23,9 +24,65 @@
 |-------|-------|
 | **Framework** | Astro {{ASTRO_VERSION}} |
 | **Site URL** | {{SITE_URL}} |
+| **Output Mode** | {{OUTPUT_MODE}} |
 | **GA Property** | {{GA_PROPERTY_ID}} |
 | **GSC Property** | {{GSC_SITE_URL}} |
 | **Repository** | {{GITHUB_REPO}} |
+
+---
+
+## Astro MCP Integration
+
+This project uses Astro MCP servers for enhanced AI assistance.
+
+### Astro Docs MCP (Documentation)
+- **Status:** {{ASTRO_DOCS_MCP_STATUS}}
+- **URL:** https://mcp.docs.astro.build/mcp
+- **Purpose:** Real-time access to official Astro documentation
+
+**Setup (if not configured):**
+```json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    }
+  }
+}
+```
+
+### astro-mcp Integration (Project Awareness)
+- **Status:** {{ASTRO_MCP_STATUS}}
+- **URL:** http://localhost:4321/__mcp/sse (when dev server running)
+- **Purpose:** Routes, configuration, content locations
+
+**Setup (if not installed):**
+```bash
+npx astro add astro-mcp
+```
+
+### MCP Tools Available
+
+| Tool | Server | Purpose |
+|------|--------|---------|
+| `search_astro_docs` | Astro Docs | Search documentation |
+| `get-astro-config` | astro-mcp | Project configuration |
+| `list-astro-routes` | astro-mcp | All routes |
+| `get-astro-server-address` | astro-mcp | Server status |
+| `get-integration-docs` | astro-mcp | Integration help |
+
+### When MCP Is Used
+
+| Command | Astro Docs | astro-mcp |
+|---------|------------|-----------|
+| `/start` | Deprecation check | Project health |
+| `/fix-next` | Best practices | Affected routes |
+| `/feature` | Implementation patterns | Route conflicts |
+| `/audit` | Current recommendations | Route validation |
+| `/seo-wins` | - | URL to file mapping |
+| `/content-roi` | - | Content locations |
+| `/deploy-check` | Deploy guidance | Config validation |
 
 ---
 
@@ -53,6 +110,40 @@ This project follows a strict separation of concerns:
 ```
 
 **Golden Rule:** Prefer data changes over code changes. Most updates should modify Layer 1, not Layer 2.
+
+---
+
+## Content Structure
+
+### Content Collections
+{{#if CONTENT_COLLECTIONS}}
+| Collection | Location | Items |
+|------------|----------|-------|
+{{#each CONTENT_COLLECTIONS}}
+| {{name}} | src/content/{{name}}/ | {{count}} |
+{{/each}}
+{{else}}
+No content collections detected. Consider using them for blog posts, docs, etc.
+{{/if}}
+
+### Data Files
+{{#if DATA_FILES}}
+| File | Location | Generates |
+|------|----------|-----------|
+{{#each DATA_FILES}}
+| {{name}} | src/data/{{file}} | {{routes}} |
+{{/each}}
+{{else}}
+No data files detected in src/data/.
+{{/if}}
+
+### Route Summary
+| Type | Count |
+|------|-------|
+| Static Pages | {{STATIC_ROUTES}} |
+| Dynamic Routes | {{DYNAMIC_ROUTES}} |
+| API Endpoints | {{API_ROUTES}} |
+| **Total** | **{{TOTAL_ROUTES}}** |
 
 ---
 
@@ -85,29 +176,32 @@ GAMMA (Pages & Integration):
 
 ## MCP Tools Available
 
+### Always Available
+- **Astro Docs MCP** - Real-time Astro documentation
+- **Sequential Thinking** - Complex problem solving
+
+### When Dev Server Running (`npm run dev`)
+- **astro-mcp** - Project configuration, routes, integrations
+
 {{#if GA_CONFIGURED}}
-### ✅ Google Analytics
+### Google Analytics
 - Query traffic, behavior, conversions
 - Property ID: {{GA_PROPERTY_ID}}
 {{/if}}
 
 {{#if GSC_CONFIGURED}}
-### ✅ Google Search Console  
+### Google Search Console  
 - Query rankings, impressions, CTR
 - Find quick wins (position 4-15)
 - Site: {{GSC_SITE_URL}}
 {{/if}}
 
 {{#if GITHUB_CONFIGURED}}
-### ✅ GitHub
+### GitHub
 - Create/manage issues
 - Commit changes
 - Create PRs
 {{/if}}
-
-### 🔧 Always Available
-- **Sequential Thinking** - Complex problem solving
-- **Context7** - Real-time framework docs
 
 ---
 
@@ -116,7 +210,7 @@ GAMMA (Pages & Integration):
 ### Daily Workflow
 | Command | Description |
 |---------|-------------|
-| `/start` | Query GA/GSC, show priorities, begin session |
+| `/start` | Query analytics + astro-mcp, show priorities |
 | `/fix-next` | Auto-select and implement highest-impact issue |
 | `/status` | Show current state and progress |
 | `/pause` | Save session, create handoff doc |
@@ -125,53 +219,61 @@ GAMMA (Pages & Integration):
 ### SEO & Content
 | Command | Description |
 |---------|-------------|
-| `/seo-wins` | Find GSC quick wins (pos 4-15, high impressions) |
-| `/content-roi` | Analyze content performance matrix |
+| `/seo-wins` | Find GSC quick wins with file locations |
+| `/content-roi` | Analyze content performance by source |
 | `/impact [#]` | Measure before/after effect of changes |
-| `/audit` | Run comprehensive SEO/a11y/perf audit |
+| `/audit [type]` | Run SEO/a11y/perf/astro audit |
+
+### Astro Tools
+| Command | Description |
+|---------|-------------|
+| `/astro-check` | Full project report via MCP |
+| `/astro-check routes` | List all routes |
+| `/astro-check docs "query"` | Search Astro documentation |
 
 ### Feature Development
 | Command | Description |
 |---------|-------------|
-| `/feature "description"` | Plan and build new feature (GSD-style) |
-| `/feature:plan` | Show current feature plan |
-| `/feature:work [task]` | Execute specific task |
-| `/feature:complete` | Finalize and verify feature |
+| `/feature "description"` | Plan and build new feature |
+| `/deploy-check` | Pre-deployment verification |
 
-### Deployment
+### Help
 | Command | Description |
 |---------|-------------|
-| `/deploy-check` | Pre-deployment verification |
 | `/help` | Show all commands |
 
 ---
 
 ## Operating Principles
 
-### 1. Read Before Writing
-Never modify code without reading it first. Understand existing patterns.
+### 1. Consult Astro Docs First
+Before any Astro-related code change, search the Astro Docs MCP for current best practices.
 
-### 2. Self-Annealing Loop
+### 2. Check Project State
+Use astro-mcp to understand routes, config, and content locations before making changes.
+
+### 3. Read Before Writing
+Never modify code without understanding existing patterns and constraints.
+
+### 4. Data Over Code
+Most changes should modify data files (Layer 1), not components (Layer 2).
+
+### 5. Self-Annealing Loop
 ```
-Error → Read error → Diagnose → Fix → Test → Update docs → System stronger
+Error → Search Astro docs → Diagnose → Fix → Test → System stronger
 ```
 
-### 3. Data-Driven Decisions
-Use GA/GSC data to prioritize work:
-```
-Impact Score = (Monthly Sessions × Severity) + (GSC Impressions × 0.1)
-```
-
-### 4. Fresh Context Per Task
-Complex tasks spawn subagents with full 200k context. No degradation.
-
-### 5. Atomic Commits
+### 6. Atomic Commits
 One logical change per commit. Perfect bisect. Surgical rollback.
 
-### 6. Quality Gates
+---
+
+## Quality Gates
+
 Every change must pass:
 - [ ] TypeScript compiles (`npm run astro check`)
 - [ ] Build succeeds (`npm run build`)
+- [ ] Routes verified (via astro-mcp if available)
 - [ ] No console errors in dev
 
 ---
@@ -182,8 +284,9 @@ When starting work, read files in this order:
 
 1. **AI-INFO.md** - Full architecture reference (if exists)
 2. **HANDOFF.md** - Session state (if resuming)
-3. **Relevant data files** - `src/data/*.js`
-4. **Affected components** - Only if modifying
+3. **Query astro-mcp** - Current routes, config (if dev server running)
+4. **Relevant data files** - `src/data/*.js`
+5. **Affected components** - Only if modifying
 
 ---
 
@@ -192,7 +295,7 @@ When starting work, read files in this order:
 {{#if GITHUB_ISSUES}}
 ### GitHub Issues
 - Managed via GitHub MCP
-- Labels: `priority:*`, `phase:*`, `type:*`
+- Labels: `priority:*`, `phase:*`, `type:*`, `astro`
 - Claude can create/update/close issues
 {{else}}
 ### Markdown Tracker
@@ -211,69 +314,51 @@ When starting work, read files in this order:
 ```
 Creates `.planning/HANDOFF.md` with:
 - Current task and progress
+- Project state snapshot (from astro-mcp)
+- Astro docs consulted
 - What's done, what's next
-- Open questions
-- How to resume
 
 ### Resuming Work
 ```
 /resume
 ```
-Reads HANDOFF.md, restores full context, continues exactly where you stopped.
-
----
-
-## Quality Gates
-
-Before any commit/deploy:
-
-```bash
-# Type checking
-npm run astro check
-
-# Build verification
-npm run build
-
-# Preview (manual)
-npm run preview
-```
-
-### Automated Checks
-The plugin runs these automatically:
-- TypeScript strict mode
-- Astro build
-- Link validation (if configured)
+Reads HANDOFF.md, restores full context including Astro docs findings.
 
 ---
 
 ## Common Tasks
 
-### Add a Product
+### Add a New Page
 ```
-1. Edit src/data/products.js
-2. Add image to public/products/
-3. Test: npm run dev → visit /products/[slug]
+1. Run `/astro-check routes` to check for conflicts
+2. Search Astro docs: `/astro-check docs "pages"`
+3. Create src/pages/[page-name].astro
+4. Use existing page as template
+5. Verify route: `/astro-check routes [name]`
 ```
 
 ### Add a Blog Post
 ```
 1. Create src/content/blog/[slug].md
-2. Include required frontmatter (see content.config.ts)
-3. Test: npm run dev → visit /blog/[slug]
+2. Include required frontmatter (check content/config.ts)
+3. Write content in Markdown
+4. Images go in src/assets/blog/
 ```
 
-### Add a Location Page
+### Add a Product/Service
 ```
-1. Edit src/data/locations.js
+1. Edit src/data/products.js or services.js
 2. Follow existing schema exactly
-3. Test: npm run dev → visit /locations/[slug]
+3. Add image to public/[type]/
+4. Verify route generated: `/astro-check routes`
 ```
 
-### Update Business Info
+### Update Astro Patterns
 ```
-1. Search codebase for current value
-2. Update all occurrences
-3. Check schema markup in Layout.astro
+1. Search docs: `/astro-check docs "[topic]"`
+2. Review current recommendation
+3. Apply to codebase
+4. Verify build passes
 ```
 
 ---
@@ -283,7 +368,9 @@ The plugin runs these automatically:
 ### Build Failing
 ```bash
 npm run astro check  # Find TypeScript errors
-# Read error, fix, rebuild
+
+# Search Astro docs for error
+/astro-check docs "[error message]"
 ```
 
 ### Agent Stuck
@@ -299,11 +386,10 @@ git log --oneline -10
 git revert HEAD
 ```
 
-### Context Overload
+### MCP Not Working
 ```
-/pause
-# Close and reopen Claude Code
-/resume
+# Astro Docs MCP - check config, restart editor
+# astro-mcp - ensure dev server running: npm run dev
 ```
 
 ---
@@ -314,5 +400,6 @@ git revert HEAD
 
 ---
 
-*Generated by Astro SEO Agency Plugin v2.0.0*
+*Generated by Astro SEO Agency Plugin v2.2.0*
 *Full documentation: AI-INFO.md*
+*MCP Integration: prompts/astro-mcp-integration.md*

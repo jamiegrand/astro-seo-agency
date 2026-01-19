@@ -6,7 +6,7 @@ description: Show current project and session status
 
 ## Step 1: Project Overview
 
-Read project configuration and display:
+Read project configuration and query astro-mcp:
 
 ```markdown
 ## 📊 Project Status: [Project Name]
@@ -17,22 +17,61 @@ Read project configuration and display:
 | Field | Value |
 |-------|-------|
 | Framework | Astro [version] |
+| Output Mode | [static/server/hybrid] |
 | Site URL | [url] |
 | Repository | [repo] |
 | Last Deploy | [date/time if known] |
 
-### Configuration
-| Feature | Status |
-|---------|--------|
-| Google Analytics | ✅ Connected / ❌ Not configured |
-| Search Console | ✅ Connected / ❌ Not configured |
-| GitHub Issues | ✅ Connected / ❌ Not configured |
-| Session Persistence | ✅ Enabled |
+### Astro Configuration (via astro-mcp)
+| Setting | Value |
+|---------|-------|
+| TypeScript | [strict/relaxed] |
+| Image Service | [sharp/squoosh] |
+| Adapter | [adapter or none] |
+| Integrations | [count] active |
+
+### MCP Status
+| Server | Status |
+|--------|--------|
+| Astro Docs MCP | ✅ / ❌ |
+| astro-mcp | ✅ / ❌ |
+| Google Analytics | ✅ / ❌ |
+| Search Console | ✅ / ❌ |
+| GitHub | ✅ / ❌ |
 ```
 
 ---
 
-## Step 2: Session State
+## Step 2: Route Summary (via astro-mcp)
+
+Query `list-astro-routes`:
+
+```markdown
+### 🗺️ Routes Overview
+
+| Type | Count |
+|------|-------|
+| Static Pages | X |
+| Dynamic Routes | X |
+| API Endpoints | X |
+| **Total** | **X** |
+
+#### Recent Routes (if tracking available)
+| Route | Added | Status |
+|-------|-------|--------|
+| /[route] | [date] | ✅ Live |
+
+#### Route Health
+| Check | Status |
+|-------|--------|
+| All routes build | ✅ / ❌ |
+| No orphan pages | ✅ / ⚠️ |
+| Sitemap coverage | X% |
+```
+
+---
+
+## Step 3: Session State
 
 ### Check for Active Session
 
@@ -43,6 +82,7 @@ If `.planning/SESSION.md` exists:
 - **Duration:** [X hours]
 - **Focus:** [current task/feature]
 - **Tasks Completed:** [X]
+- **Astro Docs Consulted:** [X] times
 ```
 
 If `.planning/HANDOFF.md` exists:
@@ -61,7 +101,7 @@ Start a new session with `/start`
 
 ---
 
-## Step 3: Issue Tracker Status
+## Step 4: Issue Tracker Status
 
 ### GitHub Issues (If Configured)
 ```markdown
@@ -74,6 +114,14 @@ Start a new session with `/start`
 | 🟡 Medium | X | X | X |
 | 🟢 Low | X | X | X |
 | **Total** | **X** | **X** | **X** |
+
+#### By Type
+| Type | Count |
+|------|-------|
+| Astro/Code | X |
+| SEO | X |
+| Content | X |
+| Bug | X |
 
 #### Next Up
 1. #[num] - [title] - [priority]
@@ -100,7 +148,7 @@ Start a new session with `/start`
 
 ---
 
-## Step 4: Git Status
+## Step 5: Git Status
 
 ```bash
 git status
@@ -124,7 +172,7 @@ git log --oneline -5
 
 ---
 
-## Step 5: Build Status
+## Step 6: Build Status
 
 ```bash
 npm run build 2>&1 | tail -20
@@ -136,12 +184,48 @@ npm run build 2>&1 | tail -20
 **Last Check:** [timestamp]
 **Status:** ✅ Passing / ❌ Failing
 
-[If failing: show error summary]
+[If failing:]
+**Error Summary:**
+```
+[error]
+```
+
+**Astro Docs Suggestion:**
+[Search for error and provide guidance]
 ```
 
 ---
 
-## Step 6: Analytics Summary (If Configured)
+## Step 7: Content Summary (via astro-mcp)
+
+```markdown
+### 📝 Content Summary
+
+#### Content Collections
+| Collection | Location | Items |
+|------------|----------|-------|
+| blog | src/content/blog/ | X |
+| docs | src/content/docs/ | X |
+
+#### Data-Driven Content
+| Source | Location | Items | Routes |
+|--------|----------|-------|--------|
+| Products | src/data/products.js | X | /products/* |
+| Services | src/data/services.js | X | /services/* |
+
+#### Total Content
+| Type | Count |
+|------|-------|
+| Blog Posts | X |
+| Products | X |
+| Services | X |
+| Static Pages | X |
+| **Total** | **X** |
+```
+
+---
+
+## Step 8: Analytics Summary (If Configured)
 
 ```markdown
 ### 📈 Traffic Summary (Last 7 Days)
@@ -167,7 +251,7 @@ npm run build 2>&1 | tail -20
 
 ---
 
-## Step 7: Feature Status
+## Step 9: Feature Status
 
 If `.planning/FEATURE-PLAN.md` exists:
 ```markdown
@@ -181,11 +265,13 @@ If `.planning/FEATURE-PLAN.md` exists:
 | [Task 1] | ✅ Complete | ALPHA |
 | [Task 2] | 🔄 In Progress | BETA |
 | [Task 3] | ⏳ Pending | GAMMA |
+
+**Astro Docs Consulted:** [topics]
 ```
 
 ---
 
-## Step 8: Health Checks
+## Step 10: Health Checks
 
 ```markdown
 ### 🏥 Project Health
@@ -195,12 +281,20 @@ If `.planning/FEATURE-PLAN.md` exists:
 | TypeScript | ✅ / ❌ | [time] |
 | Build | ✅ / ❌ | [time] |
 | Dependencies | ✅ / ⚠️ Outdated | [time] |
-| Security | ✅ / ⚠️ Vulnerabilities | [time] |
+| Astro Version | ✅ / ⚠️ Update available | [time] |
+| Routes Valid | ✅ / ❌ | [time] |
 
 [If issues found:]
 #### ⚠️ Attention Needed
 - [Issue 1]
 - [Issue 2]
+
+#### Astro-Specific Checks
+| Check | Status |
+|-------|--------|
+| Using current APIs | ✅ / ⚠️ |
+| No deprecated patterns | ✅ / ⚠️ |
+| Integrations up to date | ✅ / ⚠️ |
 ```
 
 ---
@@ -213,14 +307,23 @@ If `.planning/FEATURE-PLAN.md` exists:
 ### Quick Stats
 | Metric | Value |
 |--------|-------|
+| Astro Version | [X.X.X] |
+| Output Mode | [static/server/hybrid] |
+| Total Routes | X |
 | Open Issues | X |
-| Build Status | ✅ |
+| Build Status | ✅ / ❌ |
 | Last Commit | [X hours ago] |
 | Sessions (7d) | X |
 | GSC Position | X.X |
 
 ### Session
 [Active / Paused / None]
+
+### MCP Servers
+| Server | Status |
+|--------|--------|
+| Astro Docs | ✅ / ❌ |
+| astro-mcp | ✅ / ❌ |
 
 ### Next Priority
 [#X: Title - Impact Score: Y]
@@ -237,9 +340,23 @@ If `.planning/FEATURE-PLAN.md` exists:
 | `/feature "desc"` | Start new feature |
 | `/audit` | Run full site audit |
 | `/seo-wins` | Find ranking opportunities |
+| `/astro-check` | Full Astro project report |
 
 ### Quick Actions
 - **"fix [issue]"** - Work on specific issue
 - **"deploy"** - Run deploy checklist
 - **"refresh"** - Update all status data
+- **"astro health"** - Check Astro-specific status
 ```
+
+---
+
+## MCP Usage Summary
+
+| Section | Astro Docs MCP | astro-mcp |
+|---------|----------------|-----------|
+| Project Info | - | Config, version |
+| Routes | - | Full route list |
+| Build errors | Error solutions | - |
+| Health | Current version, deprecations | Integration status |
+| Content | - | Collections, data files |

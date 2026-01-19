@@ -11,7 +11,34 @@ If not available, will provide guidance on manual GSC analysis.
 
 ---
 
-## Step 1: Query GSC Data
+## Step 1: Query Project Structure (via astro-mcp)
+
+**First, understand the content structure to map queries to files:**
+
+### Get Routes and Content Locations
+
+```markdown
+### 📁 Project Structure
+
+#### Content Sources (via astro-mcp)
+| Type | Location | Routes |
+|------|----------|--------|
+| Blog | src/content/blog/ | /blog/[slug] |
+| Products | src/data/products.js | /products/[id] |
+| Services | src/data/services.js | /services/[slug] |
+| Pages | src/pages/ | Various |
+
+#### Total Indexable Routes
+| Type | Count |
+|------|-------|
+| Static | X |
+| Dynamic | X |
+| **Total** | **X** |
+```
+
+---
+
+## Step 2: Query GSC Data
 
 ### Request Data (Last 28 Days)
 ```
@@ -25,24 +52,38 @@ Rows: 1000
 ```markdown
 ## GSC Not Connected
 
-To use this command fully, configure the GSC MCP server:
-
-```bash
-claude mcp add gsc -- npx -y mcp-server-gsc
-```
+To use this command fully, configure the GSC MCP server.
 
 **In the meantime, I can:**
 1. Analyze your content for SEO issues
 2. Check schema markup
-3. Review internal linking
-4. Audit meta tags
+3. Review internal linking using route data
+4. Audit meta tags across all routes
 
 Would you like me to do a content-based SEO audit instead?
 ```
 
 ---
 
-## Step 2: Categorize Opportunities
+## Step 3: Map Queries to Content Files (NEW)
+
+**Using astro-mcp route data, map each GSC URL to its source file:**
+
+```markdown
+### 🗺️ Query to File Mapping
+
+| URL | Query | Source File | Type |
+|-----|-------|-------------|------|
+| /blog/seo-tips | "seo tips" | src/content/blog/seo-tips.md | Collection |
+| /products/widget | "widget" | src/data/products.js → widget | Data |
+| /services/consulting | "consulting" | src/pages/services/consulting.astro | Page |
+
+This mapping helps identify exactly which file to edit for each optimization.
+```
+
+---
+
+## Step 4: Categorize Opportunities
 
 ### Category A: "Almost There" 🎯
 **Criteria:** Position 4-10, CTR < 5%, Impressions > 200
@@ -66,38 +107,42 @@ Something changed. Investigate and recover.
 
 ---
 
-## Step 3: Analyze Each Opportunity
+## Step 5: Analyze Each Opportunity
 
 For top 5 opportunities in each category:
 
-### Current State
+### Current State with File Location
 ```markdown
-| Query | Position | Impressions | Clicks | CTR | Page |
-|-------|----------|-------------|--------|-----|------|
-| [query] | X.X | X | X | X% | /path/ |
+| Query | Position | Impressions | Clicks | CTR | Page | Source File |
+|-------|----------|-------------|--------|-----|------|-------------|
+| [query] | X.X | X | X | X% | /path/ | src/content/... |
 ```
 
 ### Page Analysis
 
-Read the current page and check:
-- Title tag (current vs optimal)
-- Meta description (current vs optimal)
+Read the source file and check:
+- Title tag (from frontmatter or component)
+- Meta description
 - H1 heading
 - Content relevance to query
 - Word count
 - Internal links TO this page
 - Schema markup
 
-### Competitor Context (If Brave Search Available)
-```
-Search: [query]
-Analyze: What's ranking #1-3?
-Compare: What are they doing differently?
+### Astro-Specific SEO Check (NEW)
+
+Search Astro docs for SEO best practices:
+```markdown
+**Astro SEO Guidance:**
+- Use `<title>` in layout or per-page
+- Meta description in frontmatter or component
+- Consider @astrojs/sitemap for XML sitemap
+- Use canonical URLs via Astro.url
 ```
 
 ---
 
-## Step 4: Generate Recommendations
+## Step 6: Generate Recommendations
 
 ```markdown
 ## 🎯 SEO Quick Wins Report
@@ -133,6 +178,7 @@ These pages rank well but don't get clicks. Fix titles and meta descriptions.
 | Clicks | X |
 | CTR | X% (should be ~5-10%) |
 | Page | /path/ |
+| **Source File** | `src/content/blog/[slug].md` |
 
 **Current Title:** 
 `[current title]`
@@ -146,18 +192,22 @@ These pages rank well but don't get clicks. Fix titles and meta descriptions.
 **Suggested Meta:**
 `[optimized meta with query and CTA, <155 chars]`
 
+**How to Fix:**
+```markdown
+# Edit: src/content/blog/[slug].md
+
+---
+title: "[new title]"
+description: "[new meta description]"
+---
+```
+
 **Additional Recommendations:**
-- [Add query to H1 if not present]
-- [Add internal links from high-traffic pages]
-- [Update content to better match intent]
+- Add internal links from: [high-traffic pages]
+- Consider adding schema markup (see Astro docs)
 
 **Estimated Impact:** +[X] clicks/month
 **Effort:** ~15 minutes
-
----
-
-#### 2. "[Query]"
-[Repeat format]
 
 ---
 
@@ -171,8 +221,8 @@ These pages are close to page 1. Small improvements = big traffic gains.
 |--------|-------|
 | Position | X.X (need <10) |
 | Impressions | X |
-| Clicks | X |
 | Page | /path/ |
+| **Source File** | `src/data/products.js` → [item] |
 
 **Ranking Gap Analysis:**
 - Current position: X.X
@@ -180,19 +230,20 @@ These pages are close to page 1. Small improvements = big traffic gains.
 - Needed improvement: X positions
 
 **Recommendations:**
+
 1. **Add internal links** from these high-traffic pages:
-   - /[page1]/ (X sessions/month)
-   - /[page2]/ (X sessions/month)
+   - /[page1]/ (X sessions/month) → Add link in `src/pages/[page1].astro`
+   - /[page2]/ (X sessions/month) → Add link in `src/content/blog/[page2].md`
    
 2. **Expand content:**
    - Current word count: X
+   - Edit file: `[source file path]`
    - Add section about: [subtopic]
-   - Target word count: X
 
 3. **Improve on-page SEO:**
-   - [Specific recommendation]
+   - [Specific recommendation with file location]
 
-**Estimated Impact:** +[X] clicks/month (position 15→8 = ~5x traffic)
+**Estimated Impact:** +[X] clicks/month
 **Effort:** ~1 hour
 
 ---
@@ -210,29 +261,42 @@ You're getting impressions for queries without dedicated pages.
 | Search Intent | [Informational/Transactional/etc] |
 
 **Currently Ranking:** /[wrong-page]/
+**Source:** `[file path]`
 **Problem:** Page doesn't target this query specifically
 
 **Recommendation: Create Dedicated Page**
 
-```markdown
-**Suggested URL:** /[suggested-slug]/
-**Suggested Title:** [Title targeting query]
-**Suggested H1:** [H1 targeting query]
+Based on your project structure (via astro-mcp):
 
-**Content Outline:**
-1. [Section 1 - address primary intent]
-2. [Section 2 - supporting information]
-3. [Section 3 - related topics]
-4. [FAQ section]
-5. [CTA]
+```markdown
+**Best Location:** src/content/blog/[suggested-slug].md
+
+**Create File:**
+---
+title: "[Title targeting query]"
+description: "[Meta description]"
+pubDate: [date]
+---
+
+# [H1 targeting query]
+
+[Content outline...]
+```
+
+**Or if product/service:**
+```javascript
+// Add to src/data/products.js
+{
+  id: "[slug]",
+  name: "[Name]",
+  description: "[Description targeting query]",
+  // ... other fields matching your schema
+}
+```
 
 **Internal Links From:**
-- /[high-traffic-page-1]/
-- /[high-traffic-page-2]/
-
-**Schema Markup:**
-- [Appropriate schema type]
-```
+- /[high-traffic-page-1]/ → Edit `[file path]`
+- /[high-traffic-page-2]/ → Edit `[file path]`
 
 **Estimated Impact:** +[X] clicks/month
 **Effort:** ~2-3 hours
@@ -241,7 +305,7 @@ You're getting impressions for queries without dedicated pages.
 
 ### 📉 Category D: Declining Queries
 
-These were performing well but have dropped. Investigate and recover.
+These were performing well but have dropped.
 
 #### 1. "[Query]" - Position Dropped X → Y
 
@@ -249,21 +313,18 @@ These were performing well but have dropped. Investigate and recover.
 |--------|---------|----------|--------|
 | Position | Y | X | ⬇️ +Z |
 | Clicks | X | X | ⬇️ -X% |
-| Impressions | X | X | [trend] |
+
+**Source File:** `[file path]`
 
 **Potential Causes:**
 - [ ] Content became outdated
 - [ ] Competitor published better content
 - [ ] Technical issue (check indexing)
-- [ ] Algorithm update impact
-
-**Investigation Steps:**
-1. Check page in Google Search Console for issues
-2. Search query manually - what's now ranking above you?
-3. Check if content is still accurate/relevant
 
 **Recovery Recommendations:**
-- [Specific recommendations based on analysis]
+1. Update content in `[file path]`
+2. Refresh publish date (if using pubDate)
+3. Add new internal links
 
 ---
 
@@ -271,28 +332,21 @@ These were performing well but have dropped. Investigate and recover.
 
 ### This Week (Quick Wins - 2 hours total)
 
-| Task | Query | Impact | Time |
-|------|-------|--------|------|
-| Update title/meta | [query 1] | +X clicks | 15m |
-| Update title/meta | [query 2] | +X clicks | 15m |
-| Add internal links | [page] | +X clicks | 30m |
-| [Task] | [query] | +X clicks | Xm |
+| Task | File to Edit | Impact | Time |
+|------|--------------|--------|------|
+| Update title/meta | `src/content/blog/[slug].md` | +X clicks | 15m |
+| Update title/meta | `src/data/products.js` | +X clicks | 15m |
+| Add internal links | `src/pages/index.astro` | +X clicks | 30m |
 
 **Total estimated impact:** +[X] clicks/month
 
 ### Next Week (Medium Effort - 4 hours)
 
-| Task | Impact | Time |
-|------|--------|------|
-| Create new page for [gap] | +X clicks | 2h |
-| Expand content on [page] | +X clicks | 1h |
-| Fix declining [query] | +X clicks | 1h |
-
-### Ongoing
-
-- Monitor position changes weekly
-- Update content quarterly
-- Build internal links continuously
+| Task | Location | Impact | Time |
+|------|----------|--------|------|
+| Create new page | `src/content/blog/` | +X clicks | 2h |
+| Expand content | `[file path]` | +X clicks | 1h |
+| Fix declining | `[file path]` | +X clicks | 1h |
 
 ---
 
@@ -301,48 +355,69 @@ These were performing well but have dropped. Investigate and recover.
 Would you like me to add these as issues?
 
 **Options:**
-1. **"Add all"** - Create issues for all opportunities
+1. **"Add all"** - Create issues with file locations
 2. **"Add quick wins"** - Just Category A items
 3. **"Add [number]"** - Specific items only
 4. **"No"** - Just keep this report
 
-Issues will be created with:
+Issues will include:
 - Priority based on impact
 - Labels: `seo`, `quick-win`
-- Linked pages and queries
+- **Exact file paths to edit**
+- Suggested changes
 ```
 
 ---
 
-## Step 5: Implementation Support
+## Step 7: Implementation Support
 
 If user wants to implement immediately:
 
 ```markdown
 ## Let's Implement: [Selected Item]
 
-### Current File
-Reading [file path]...
+### Source File
+`[file path from astro-mcp mapping]`
+
+### Current Content
+[Read and display relevant section]
 
 ### Proposed Changes
 
-**Title Tag:**
-```html
-<!-- Before -->
-<title>[current]</title>
-
-<!-- After -->
-<title>[new]</title>
+**For Content Collection (Markdown):**
+```markdown
+---
+title: "[new title]"
+description: "[new description]"
+---
 ```
 
-**Meta Description:**
-```html
-<!-- Before -->
-<meta name="description" content="[current]">
+**For Data File (JS):**
+```javascript
+{
+  // Updated fields
+  title: "[new title]",
+  description: "[new description]",
+}
+```
 
-<!-- After -->
-<meta name="description" content="[new]">
+**For Astro Component:**
+```astro
+<title>[new title]</title>
+<meta name="description" content="[new description]" />
 ```
 
 Apply these changes? (yes/no)
 ```
+
+---
+
+## MCP Usage Summary
+
+| Step | Astro Docs MCP | astro-mcp |
+|------|----------------|-----------|
+| Structure | - | Routes, content locations |
+| Mapping | - | URL to file mapping |
+| Analysis | SEO best practices | - |
+| Recommendations | Meta tag patterns | File paths for edits |
+| Implementation | - | Verify route after changes |

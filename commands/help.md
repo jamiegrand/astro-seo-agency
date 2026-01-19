@@ -33,7 +33,7 @@ description: Show all available commands and usage
 |---------|-------------|-------------|
 | `/fix-next` | Auto-select and fix highest priority issue | Complex issues, careful review |
 | `/fix-batch [n]` | Fix multiple issues in sequence (default: 5) | Clearing many similar issues fast |
-| `/audit [type]` | Run comprehensive audit (seo/a11y/perf/full) | Finding issues |
+| `/audit [type]` | Run comprehensive audit (seo/a11y/perf/astro/full) | Finding issues |
 
 ### SEO & Analytics
 
@@ -42,6 +42,14 @@ description: Show all available commands and usage
 | `/seo-wins` | Find GSC quick wins (position 4-15) | Weekly SEO review |
 | `/content-roi` | Analyze content performance | Monthly content review |
 | `/impact [#]` | Measure before/after effect | 14+ days after changes |
+
+### Astro Tools (NEW)
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `/astro-check` | Full project report (config, routes, health) | Understanding project state |
+| `/astro-check routes` | List all routes | Before adding new pages |
+| `/astro-check docs "query"` | Search Astro documentation | Finding best practices |
 
 ### Feature Development
 
@@ -58,18 +66,61 @@ description: Show all available commands and usage
 
 ---
 
+## 🔌 Astro MCP Integration (NEW)
+
+This plugin uses two MCP servers for enhanced Astro development:
+
+### Astro Docs MCP
+**Purpose:** Real-time access to official Astro documentation
+**URL:** `https://mcp.docs.astro.build/mcp`
+
+- Prevents outdated recommendations
+- Searches current best practices
+- Used automatically by `/fix-next`, `/feature`, `/audit`
+
+### astro-mcp Integration
+**Purpose:** Runtime project information
+**URL:** `http://localhost:4321/__mcp/sse` (requires dev server)
+
+- Gets project configuration
+- Lists all routes
+- Checks for conflicts
+- Used automatically by `/start`, `/feature`, `/deploy-check`
+
+### Setup
+
+**Astro Docs MCP (add to MCP config):**
+```json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    }
+  }
+}
+```
+
+**astro-mcp (install in project):**
+```bash
+npx astro add astro-mcp
+```
+
+---
+
 ## 🔧 Command Details
 
 ### `/start`
 
 Initializes your work session by:
-1. Querying Google Analytics (7-day traffic)
-2. Querying Search Console (rankings, quick wins)
-3. Checking issue tracker
-4. Calculating priority scores
-5. Recommending focus for the session
+1. Querying Astro project state (via astro-mcp)
+2. Checking for Astro deprecations (via Astro Docs MCP)
+3. Querying Google Analytics (7-day traffic)
+4. Querying Search Console (rankings, quick wins)
+5. Checking issue tracker
+6. Calculating priority scores
 
-**Output:** Prioritized task list with impact scores
+**Output:** Project health + prioritized task list with impact scores
 
 ---
 
@@ -78,15 +129,14 @@ Initializes your work session by:
 Fixes ONE issue with full analysis:
 1. Calculates impact scores for all open issues
 2. Selects highest priority
-3. Full context analysis
-4. Plans implementation (with approval)
-5. Makes changes
-6. Verifies and commits
-7. Updates tracker
+3. **Consults Astro Docs MCP for best practices** (NEW)
+4. **Queries astro-mcp for affected routes** (NEW)
+5. Plans implementation (with approval)
+6. Makes changes using current Astro patterns
+7. Verifies and commits
+8. Updates tracker
 
 **Best for:** Complex issues that need careful review
-
-**Speed:** ~10-15 minutes per issue
 
 ---
 
@@ -98,67 +148,21 @@ Fixes MULTIPLE issues in sequence:
 3. Fixes each without stopping
 4. Skips complex issues automatically
 5. Commits each atomically
-6. Shows summary at end
 
 **Best for:** Clearing many similar/simple issues quickly
-
-**Speed:** ~3-5 minutes per issue
-
-**Examples:**
-```bash
-/fix-batch        # Fix 5 issues
-/fix-batch 10     # Fix 10 issues
-/fix-batch all    # Fix all open issues
-```
 
 ---
 
 ### `/feature "description"`
 
-Structured feature development (GSD-style):
-1. **Clarify** - Extract requirements, ask questions
-2. **Plan** - Break into tasks (max 3 at a time)
-3. **Execute** - Fresh context per task
-4. **Verify** - Quality gates on each task
-5. **Ship** - Atomic commits
-
-**Best for:** New features, significant changes
-
----
-
-### `/seo-wins`
-
-Finds SEO opportunities from GSC data:
-- **Almost There:** Position 4-10, low CTR
-- **Low Hanging Fruit:** Position 11-20, high impressions
-- **Content Gaps:** Queries without dedicated pages
-- **Declining:** Queries losing position
-
-**Requires:** Google Search Console MCP configured
-
----
-
-### `/content-roi`
-
-Analyzes all content performance:
-- Traffic scores
-- Engagement scores
-- SEO scores
-- Categorizes: Top / Solid / Update / Underperform / Remove
-
-**Output:** Action plan for content optimization
-
----
-
-### `/impact [issue-number]`
-
-Measures the effect of changes:
-- Compares 30 days before vs after
-- GA metrics: sessions, bounce, duration
-- GSC metrics: impressions, clicks, position
-- Calculates ROI
-
-**Best used:** 14-30 days after making changes
+Structured feature development with Astro awareness:
+1. **Clarify** - Extract requirements
+2. **Consult Astro Docs** - Search for best practices (NEW)
+3. **Analyze Project** - Check routes for conflicts (NEW)
+4. **Plan** - Break into tasks
+5. **Execute** - Fresh context per task
+6. **Verify** - Including route verification (NEW)
+7. **Ship** - Atomic commits
 
 ---
 
@@ -168,18 +172,36 @@ Comprehensive site audit:
 - `seo` - Schema, meta tags, content, linking
 - `a11y` - WCAG 2.1 AA compliance
 - `perf` - Core Web Vitals, image optimization
+- `astro` - Astro best practices, deprecated patterns (NEW)
 - `full` - All of the above (default)
 
-**Output:** Scored report with prioritized fixes
+**Astro audit includes:**
+- Configuration validation against docs
+- Route health analysis
+- Deprecated pattern detection
+- Integration audit
+- Component hydration review
 
 ---
 
-### `/pause` / `/resume`
+### `/astro-check`
 
-Session persistence:
-- `/pause` creates `.planning/HANDOFF.md`
-- `/resume` restores full context
-- Walk away, come back tomorrow, continue exactly
+Query Astro project information:
+- Project configuration
+- All routes (static, dynamic, API)
+- Installed integrations
+- Server status
+- Search documentation
+
+**Subcommands:**
+```bash
+/astro-check              # Full report
+/astro-check config       # Configuration only
+/astro-check routes       # Routes only
+/astro-check routes blog  # Filter routes
+/astro-check docs "query" # Search docs
+/astro-check health       # Quick health check
+```
 
 ---
 
@@ -189,12 +211,10 @@ Pre-deployment verification:
 - Build verification
 - Critical pages check
 - SEO essentials
+- **Astro config validation** (NEW)
+- **Route verification** (NEW)
 - Asset verification
 - Link checking
-- Git status
-- Performance baseline
-
-**Run before:** Every deployment
 
 ---
 
@@ -202,39 +222,24 @@ Pre-deployment verification:
 
 ### Daily Workflow
 ```
-Morning:  /start           → See priorities
+Morning:  /start           → See priorities + project health
 Work:     /fix-batch       → Clear issues fast
           /fix-next        → Handle complex ones
 Evening:  /pause           → Save progress
 ```
 
-### Speed Run (Clear Many Issues)
+### Before Building Features
 ```
-/start                     → Get the list
-/fix-batch 10              → Fix 10 issues
-/fix-batch                  → Fix 5 more
-/deploy-check              → Verify & deploy
+/astro-check routes        → Check for conflicts
+/astro-check docs "topic"  → Find best practices
+/feature "description"     → Build with guidance
 ```
 
 ### Weekly Review
 ```
-Monday:   /seo-wins        → Find opportunities
-Friday:   /content-roi     → Review performance
-```
-
-### Feature Development
-```
-/feature "Add contact form"
-→ Answer clarifying questions
-→ Review plan
-→ "go" to execute
-```
-
-### Measuring Impact
-```
-# After making SEO changes
-# Wait 14 days, then:
-/impact 15
+/audit astro               → Check Astro best practices
+/seo-wins                  → Find ranking opportunities
+/content-roi               → Review performance
 ```
 
 ---
@@ -243,11 +248,13 @@ Friday:   /content-roi     → Review performance
 
 ### MCP Servers
 
-| Server | Purpose | Setup |
-|--------|---------|-------|
-| Google Analytics | Traffic data | Configured in plugin |
-| Search Console | Rankings, CTR | `claude mcp add gsc` |
-| GitHub | Issue management | `claude mcp add github` |
+| Server | Purpose | Required |
+|--------|---------|----------|
+| Astro Docs MCP | Documentation access | Recommended |
+| astro-mcp | Project runtime info | Recommended |
+| Google Analytics | Traffic data | Optional |
+| Search Console | Rankings, CTR | Optional |
+| GitHub | Issue management | Optional |
 
 ### Environment Variables
 
@@ -262,10 +269,12 @@ GITHUB_TOKEN=your-token
 
 ## 🆘 Troubleshooting
 
-### "GSC not configured"
-```bash
-claude mcp add gsc -- npx -y mcp-server-gsc
-```
+### "Astro Docs MCP not available"
+Check MCP configuration. The server is remote and should always be accessible.
+
+### "astro-mcp not available"
+1. Install: `npx astro add astro-mcp`
+2. Start dev server: `npm run dev`
 
 ### "No issues found"
 Ensure AUDIT_TRACKER.md exists or GitHub Issues is configured.
@@ -276,22 +285,19 @@ npm run astro check  # Find TypeScript errors
 npm run build        # See full error
 ```
 
-### "Context seems wrong"
-```
-/pause
-# Close and reopen Claude Code
-/resume
-```
+---
+
+## 📚 How MCP Servers Are Used
+
+| Command | Astro Docs MCP | astro-mcp |
+|---------|----------------|-----------|
+| `/start` | Deprecation check | Project health |
+| `/fix-next` | Best practices | Affected routes |
+| `/feature` | Implementation patterns | Route conflicts |
+| `/audit` | Current recommendations | Route validation |
+| `/deploy-check` | Deploy best practices | Config validation |
+| `/astro-check` | Doc search | Full report |
 
 ---
 
-## 📚 Related Documentation
-
-- `AI-INFO.md` - Project architecture reference
-- `CLAUDE.md` - Project-specific instructions
-- `.planning/HANDOFF.md` - Session state (when paused)
-- `.planning/FEATURE-PLAN.md` - Active feature plan
-
----
-
-*Astro SEO Agency Plugin v2.1.1*
+*Astro SEO Agency Plugin v2.2.0*

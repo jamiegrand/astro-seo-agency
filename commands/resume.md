@@ -32,6 +32,8 @@ What would you like to do?
 Loading context...
 ```
 
+---
+
 ## Step 2: Load Handoff Context
 
 Read `.planning/HANDOFF.md` and extract:
@@ -40,6 +42,10 @@ Read `.planning/HANDOFF.md` and extract:
 - What's next
 - Open questions
 - Technical state
+- **Astro docs consulted (for continuity)**
+- **Project state snapshot**
+
+---
 
 ## Step 3: Verify Environment
 
@@ -73,13 +79,68 @@ The project doesn't build cleanly. This might be due to:
 [build error output]
 ```
 
+**Searching Astro Docs for solution...**
+[Search result if Astro-related error]
+
 Options:
 1. **Fix now** - Let me diagnose and fix
 2. **Ignore** - Continue anyway (risky)
 3. **Reset** - Start fresh with `/start`
 ```
 
-## Step 4: Restore Context
+### Check astro-mcp Availability
+
+```markdown
+### 🔌 MCP Status
+
+| Server | Status |
+|--------|--------|
+| Astro Docs MCP | ✅ / ❌ |
+| astro-mcp | ✅ / ❌ |
+
+[If astro-mcp unavailable:]
+ℹ️ **Dev server not running**
+
+Start with `npm run dev` for full project awareness.
+Continuing with Astro Docs MCP only.
+```
+
+---
+
+## Step 4: Compare Project State (via astro-mcp)
+
+If dev server is running, compare current state to snapshot:
+
+```markdown
+### 📊 Project State Comparison
+
+#### Configuration
+| Setting | At Pause | Now | Changed |
+|---------|----------|-----|---------|
+| Astro Version | [ver] | [ver] | ✅/⚠️ |
+| Output Mode | [mode] | [mode] | ✅/⚠️ |
+| Integrations | [X] | [X] | ✅/⚠️ |
+
+#### Routes
+| Metric | At Pause | Now | Changed |
+|--------|----------|-----|---------|
+| Total | X | X | ✅/⚠️ |
+| Static | X | X | ✅/⚠️ |
+| Dynamic | X | X | ✅/⚠️ |
+
+[If changes detected:]
+⚠️ **Project Changed Since Pause**
+
+Changes detected:
+- [Change 1]
+- [Change 2]
+
+This might affect your previous work. Review changes?
+```
+
+---
+
+## Step 5: Restore Context
 
 ### Read Required Files
 Based on "What We Were Doing" in handoff:
@@ -93,7 +154,28 @@ If there was an active task/feature:
 - Determine current task number
 - Load task-specific context
 
-## Step 5: Present Restoration Summary
+### Restore Astro Docs Context (NEW)
+
+From handoff's "Astro Docs Reference" section:
+```markdown
+### 📚 Restoring Astro Docs Context
+
+Previously researched topics:
+
+#### [Topic 1]
+**Finding:** [key point]
+**Applied to:** [file/feature]
+
+#### [Topic 2]
+**Finding:** [key point]
+**Applied to:** [file/feature]
+
+These findings are still relevant for continuing your work.
+```
+
+---
+
+## Step 6: Present Restoration Summary
 
 ```markdown
 ## ✅ Session Restored
@@ -121,6 +203,12 @@ If there was an active task/feature:
 2. **Then:** [following step]
 3. **After that:** [subsequent step]
 
+### Files to Continue Working On
+| File | Task |
+|------|------|
+| `[path]` | [what to do] |
+| `[path]` | [what to do] |
+
 ---
 
 ### 🔧 Environment Status
@@ -130,7 +218,32 @@ If there was an active task/feature:
 | Git branch | [branch] ✅ |
 | Working directory | [clean/dirty] |
 | Build | [pass/fail] |
-| Dependencies | [ok/needs update] |
+| Dev server | [running/stopped] |
+| astro-mcp | [available/unavailable] |
+| Astro Docs MCP | [available/unavailable] |
+
+---
+
+### 📊 Project State
+
+| Metric | At Pause | Now |
+|--------|----------|-----|
+| Routes | X | X |
+| Integrations | X | X |
+| Build | ✅ | ✅/❌ |
+
+[If changed:]
+⚠️ Some things changed - see comparison above.
+
+---
+
+### 📚 Astro Docs Context Restored
+
+Topics from previous session:
+- [Topic 1]: [key finding]
+- [Topic 2]: [key finding]
+
+Ready to continue using these patterns.
 
 ---
 
@@ -147,26 +260,32 @@ If there was an active task/feature:
 **Recommended next action:**
 [Specific action based on where they left off]
 
+**File to open:** `[path]`
+
 Commands:
 - **"continue"** - Pick up exactly where you left off
 - **"/fix-next"** - Switch to highest priority issue instead
 - **"/start"** - Get fresh priorities (ignores previous focus)
 - **"/status"** - See full project status first
+- **"/astro-check"** - Verify project state
 ```
 
-## Step 6: Handle "Continue"
+---
+
+## Step 7: Handle "Continue"
 
 When user says "continue" or similar:
 
 1. Re-read the specific files being worked on
 2. Show the exact state of the code
 3. Remind of what was being done
-4. Ask for confirmation before making changes
+4. **Remind of relevant Astro docs findings**
+5. Ask for confirmation before making changes
 
 ```markdown
 ## Continuing: [Task Name]
 
-### Current State of [filename]
+### Current State of `[filename]`
 ```[language]
 [relevant code section]
 ```
@@ -174,13 +293,18 @@ When user says "continue" or similar:
 ### What We Were Doing
 [Specific description of the change in progress]
 
+### Astro Docs Guidance (from previous session)
+[Relevant finding that applies]
+
 ### Next Change
 I'm about to: [description of next edit]
 
 Proceed? (yes/no)
 ```
 
-## Step 7: Archive Old Handoff
+---
+
+## Step 8: Archive Old Handoff
 
 Once successfully resumed:
 - Move HANDOFF.md to `.planning/archive/HANDOFF-[timestamp].md`
@@ -192,9 +316,13 @@ Resumed: [timestamp]
 From handoff: [original pause timestamp]
 Focus: [task/feature]
 Completed: []
+Astro Docs Context: [topics restored]
+MCP Status: [availability]
 ```
 
-## Step 8: Error Recovery
+---
+
+## Step 9: Error Recovery
 
 ### If Context Seems Stale
 ```markdown
@@ -204,8 +332,9 @@ The handoff is from [X days ago]. Things may have changed.
 
 Recommend:
 1. Run `/start` for fresh priorities
-2. Check for any new issues/changes
-3. Then return to this task if still relevant
+2. Run `/astro-check` to verify project state
+3. Check for any new issues/changes
+4. Then return to this task if still relevant
 ```
 
 ### If Files Changed
@@ -216,7 +345,26 @@ These files changed outside the previous session:
 - [file]: [X commits since]
 - [file]: [X commits since]
 
-This might affect your previous work. Review changes?
+This might affect your previous work. 
+
+Options:
+1. **Review changes** - See what changed
+2. **Continue anyway** - Trust the changes
+3. **Start fresh** - Run `/start`
+```
+
+### If Astro Version Changed
+```markdown
+⚠️ **Astro Version Changed**
+
+| At Pause | Now |
+|----------|-----|
+| [X.X.X] | [Y.Y.Y] |
+
+**Searching Astro Docs for breaking changes...**
+[Search result]
+
+Previous Astro docs findings may need verification.
 ```
 
 ### If Feature Plan Outdated
@@ -230,3 +378,14 @@ Options:
 2. **Continue anyway** - Trust the original plan
 3. **Replan** - `/feature "[description]"` to start fresh
 ```
+
+---
+
+## MCP Usage Summary
+
+| Step | Astro Docs MCP | astro-mcp |
+|------|----------------|-----------|
+| Verify | Error solutions | Check availability |
+| Compare | - | Current vs snapshot state |
+| Restore | Previous findings | Route/config verification |
+| Continue | Verify patterns still valid | Confirm routes |

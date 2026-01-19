@@ -37,18 +37,78 @@ If build fails:
 [error output]
 ```
 
+**Searching Astro Docs for solution...**
+[Search result for error]
+
 **Diagnosis:**
-[What's wrong]
+[What's wrong based on docs]
 
 **Fix:**
-[How to fix]
+[How to fix per Astro docs]
 
 Would you like me to fix this issue?
 ```
 
 ---
 
-## Step 2: Critical Pages Check
+## Step 2: Astro Configuration Validation (NEW)
+
+Query `get-astro-config` and validate against Astro docs:
+
+```markdown
+### ⚙️ Astro Configuration Check
+
+| Setting | Value | Recommended | Status |
+|---------|-------|-------------|--------|
+| output | [static/server/hybrid] | [per deployment target] | ✅/⚠️ |
+| site | [url] | Must be set for sitemap | ✅/⚠️ |
+| trailingSlash | [value] | [per host requirements] | ✅/⚠️ |
+| build.format | [value] | directory | ✅/⚠️ |
+| build.assets | [value] | _astro | ✅/⚠️ |
+
+#### Deployment Target Analysis
+[Search Astro docs for deployment to detected platform]
+
+**Detected adapter:** [adapter name or none]
+**Recommended for [platform]:** [from docs]
+**Status:** ✅ Correct / ⚠️ Consider changing
+```
+
+---
+
+## Step 3: Route Verification (NEW)
+
+Query `list-astro-routes` and verify against build output:
+
+```markdown
+### 🗺️ Route Verification
+
+#### Routes in Config vs Build
+
+| Route | In Astro | In Build | Status |
+|-------|----------|----------|--------|
+| / | ✅ | ✅ | ✅ |
+| /about | ✅ | ✅ | ✅ |
+| /blog/[slug] | ✅ | ✅ (X pages) | ✅ |
+| /api/contact | ✅ | ⚠️ | Check adapter |
+
+#### Dynamic Route Generation
+
+| Pattern | Expected | Generated | Status |
+|---------|----------|-----------|--------|
+| /blog/[slug] | X posts | X pages | ✅/❌ |
+| /products/[id] | X products | X pages | ✅/❌ |
+
+#### Missing Routes
+[Any routes in config not in build]
+
+#### Orphan Files
+[Any files in build not matching routes]
+```
+
+---
+
+## Step 4: Critical Pages Check
 
 Verify critical pages exist in build output:
 
@@ -64,18 +124,19 @@ Verify critical pages exist in build output:
 | /blog/ | ✅ / ❌ | |
 | /sitemap.xml | ✅ / ❌ | |
 | /robots.txt | ✅ / ❌ | |
+| /404 | ✅ / ❌ | |
 ```
 
 ---
 
-## Step 3: SEO Essentials
+## Step 5: SEO Essentials
 
 Check critical SEO elements:
 
 ```markdown
 ### 🔍 SEO Checklist
 
-#### Meta Tags
+#### Meta Tags (Sample Check)
 | Page | Title | Description | OG Tags |
 |------|-------|-------------|---------|
 | Homepage | ✅ / ❌ | ✅ / ❌ | ✅ / ❌ |
@@ -90,11 +151,46 @@ Check critical SEO elements:
 | Canonical tags | ✅ / ❌ | |
 | Schema markup | ✅ / ❌ | |
 | No noindex on important pages | ✅ / ❌ | |
+
+#### Sitemap Validation
+[If @astrojs/sitemap installed - from astro-mcp config]
+- Integration configured: ✅
+- URLs in sitemap: [X]
+- Matches route count: ✅/❌
 ```
 
 ---
 
-## Step 4: Asset Verification
+## Step 6: Integration Verification (NEW)
+
+Query integrations from `get-astro-config`:
+
+```markdown
+### 🔌 Integration Status
+
+| Integration | Configured | Build Output | Status |
+|-------------|------------|--------------|--------|
+| @astrojs/sitemap | ✅ | sitemap.xml present | ✅ |
+| @astrojs/tailwind | ✅ | CSS bundled | ✅ |
+| @astrojs/image | ✅ | Images optimized | ✅ |
+| [adapter] | ✅ | Server files present | ✅ |
+
+#### Integration-Specific Checks
+
+**@astrojs/sitemap:**
+- Site URL configured: ✅/❌
+- Sitemap generated: ✅/❌
+- URL count: [X]
+
+**Image Service:**
+- Service: [sharp/squoosh]
+- Optimized images in build: [X]
+- Formats: [webp/avif enabled]
+```
+
+---
+
+## Step 7: Asset Verification
 
 ```markdown
 ### 🖼️ Assets Check
@@ -105,6 +201,7 @@ Check critical SEO elements:
 | All images in /dist | ✅ / ❌ |
 | No broken references | ✅ / ❌ |
 | Optimized formats (webp) | ✅ / ❌ |
+| Total image size | [X] MB |
 
 #### Fonts
 | Check | Status |
@@ -122,7 +219,7 @@ Check critical SEO elements:
 
 ---
 
-## Step 5: Links Verification
+## Step 8: Links Verification
 
 ```bash
 # If link checker available
@@ -151,7 +248,7 @@ npx linkinator ./dist --recurse
 
 ---
 
-## Step 6: Git Status
+## Step 9: Git Status
 
 ```bash
 git status
@@ -187,7 +284,7 @@ Files:
 
 ---
 
-## Step 7: Environment Check
+## Step 10: Environment Check
 
 ```markdown
 ### ⚙️ Environment
@@ -199,16 +296,22 @@ Files:
 | Astro version | [X.X.X] |
 | Dependencies up to date | ✅ / ⚠️ |
 
-[If version mismatch:]
+#### Astro Version Check
+[Search Astro docs for latest version]
+
+| Current | Latest | Status |
+|---------|--------|--------|
+| [X.X.X] | [X.X.X] | ✅ Current / ⚠️ Update available |
+
+[If version mismatch with production:]
 ⚠️ **Version Warning**
 
-Local Node version ([X]) differs from production ([Y]).
-This might cause issues.
+Local Astro version ([X]) may differ from production.
 ```
 
 ---
 
-## Step 8: Performance Baseline
+## Step 11: Performance Baseline
 
 ```markdown
 ### ⚡ Performance (Estimated)
@@ -221,17 +324,21 @@ Based on build output:
 | JS bundle | X KB | <100 KB | ✅ / ⚠️ |
 | CSS bundle | X KB | <50 KB | ✅ / ⚠️ |
 | Largest image | X KB | <500 KB | ✅ / ⚠️ |
+| Total pages | X | - | - |
 
-[If issues:]
-⚠️ **Performance Concern**
+#### Astro Performance Features
+[Check config for performance settings]
 
-[Item] exceeds target. Consider:
-- [Optimization suggestion]
+| Feature | Status | Recommendation |
+|---------|--------|----------------|
+| Image optimization | ✅/❌ | [from docs] |
+| CSS inlining | ✅/❌ | [from docs] |
+| Prefetch | ✅/❌ | Consider enabling |
 ```
 
 ---
 
-## Step 9: Final Summary
+## Step 12: Final Summary
 
 ```markdown
 ## 🚀 Deploy Check Summary
@@ -246,8 +353,11 @@ Based on build output:
 | Category | Status | Issues |
 |----------|--------|--------|
 | Build | ✅ / ❌ | [X] |
+| Astro Config | ✅ / ❌ | [X] |
+| Routes | ✅ / ❌ | [X] |
 | Critical Pages | ✅ / ❌ | [X] |
 | SEO | ✅ / ❌ | [X] |
+| Integrations | ✅ / ❌ | [X] |
 | Assets | ✅ / ❌ | [X] |
 | Links | ✅ / ❌ | [X] |
 | Git | ✅ / ❌ | [X] |
@@ -260,33 +370,37 @@ Based on build output:
 [If ready:]
 ### Deploy Commands
 
-**Manual:**
+**For [detected adapter/platform]:**
 ```bash
-# If using Netlify CLI
+# Netlify
 netlify deploy --prod
 
-# If using Vercel CLI
+# Vercel
 vercel --prod
 
-# If using custom
-[your deploy command]
+# Cloudflare
+wrangler pages deploy dist
+
+# Static hosting
+# Upload dist/ folder
 ```
 
 **After Deploy:**
 1. Verify live site loads
 2. Check critical pages
-3. Verify analytics tracking
-4. Monitor for errors
+3. Verify sitemap accessible
+4. Test forms/API routes
+5. Monitor analytics
 
 ---
 
 [If issues:]
 ### ❌ Issues to Fix Before Deploy
 
-| Priority | Issue | Fix |
-|----------|-------|-----|
-| 🔴 Critical | [issue] | [fix] |
-| 🟡 Warning | [issue] | [fix] |
+| Priority | Issue | Category | Fix |
+|----------|-------|----------|-----|
+| 🔴 Critical | [issue] | [cat] | [fix] |
+| 🟡 Warning | [issue] | [cat] | [fix] |
 
 **Fix these issues?**
 - "Fix all" - Attempt to fix automatically
@@ -302,18 +416,17 @@ vercel --prod
 ```markdown
 ## 📡 Post-Deploy Checklist
 
-After deployment, verify:
-
 ### Immediate (Within 5 minutes)
 - [ ] Homepage loads
 - [ ] Critical pages accessible
 - [ ] No console errors
 - [ ] Forms working (if applicable)
+- [ ] API routes responding (if applicable)
 
 ### Within 1 Hour
 - [ ] Google Search Console: No new errors
 - [ ] Analytics: Data flowing
-- [ ] Core Web Vitals: No regression
+- [ ] Sitemap: Accessible and valid
 
 ### Within 24 Hours
 - [ ] All pages indexed correctly
@@ -321,8 +434,20 @@ After deployment, verify:
 - [ ] No significant metric drops
 
 **Set reminder?**
-I can remind you to check these metrics in:
 - [ ] 1 hour
 - [ ] 24 hours
 - [ ] Both
 ```
+
+---
+
+## MCP Usage Summary
+
+| Step | Astro Docs MCP | astro-mcp |
+|------|----------------|-----------|
+| Build errors | Search for solutions | - |
+| Config validation | Best practices | Get current config |
+| Route verification | - | List all routes |
+| Integration check | Integration docs | Installed integrations |
+| Version check | Latest version info | Current version |
+| Performance | Optimization tips | Current settings |

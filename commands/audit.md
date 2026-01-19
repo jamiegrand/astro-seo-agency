@@ -1,11 +1,11 @@
 ---
-argument-hint: "[seo|a11y|perf|full]"
+argument-hint: "[seo|a11y|perf|astro|full]"
 description: Run comprehensive site audit
 ---
 
 # Site Audit: $1
 
-Default: "full" (all categories)
+Default: "full" (all categories including Astro-specific)
 
 ---
 
@@ -16,7 +16,201 @@ Default: "full" (all categories)
 | `seo` | Schema, meta tags, content, internal linking |
 | `a11y` | WCAG 2.1 AA compliance |
 | `perf` | Core Web Vitals, image optimization |
+| `astro` | Astro best practices, deprecated patterns (NEW) |
 | `full` | All of the above |
+
+---
+
+## Astro Audit (NEW)
+
+**Uses Astro Docs MCP and astro-mcp integration for comprehensive Astro-specific checks.**
+
+### 1. Configuration Audit
+
+Query `get-astro-config` and validate against Astro docs:
+
+```markdown
+### ⚙️ Astro Configuration Audit
+
+#### Core Settings
+| Setting | Current | Recommended | Status |
+|---------|---------|-------------|--------|
+| output | [value] | [from docs] | ✅/⚠️ |
+| site | [value] | (should be set) | ✅/⚠️ |
+| trailingSlash | [value] | [depends on host] | ✅/⚠️ |
+| build.format | [value] | directory | ✅/⚠️ |
+| build.assets | [value] | _astro | ✅/⚠️ |
+
+#### TypeScript Configuration
+| Setting | Current | Recommended | Status |
+|---------|---------|-------------|--------|
+| Mode | [strict/relaxed] | strict | ✅/⚠️ |
+| Paths configured | [yes/no] | yes | ✅/⚠️ |
+
+#### Issues Found
+- [ ] [Issue with recommendation from docs]
+- [ ] [Issue with recommendation from docs]
+```
+
+### 2. Route Audit
+
+Query `list-astro-routes` and analyze:
+
+```markdown
+### 🗺️ Route Audit
+
+#### Route Health
+| Metric | Count | Status |
+|--------|-------|--------|
+| Total routes | X | - |
+| Static pages | X | - |
+| Dynamic routes | X | - |
+| API endpoints | X | - |
+| Pre-rendered | X% | ✅ >80% / ⚠️ <80% |
+
+#### Route Issues
+| Route | Issue | Recommendation |
+|-------|-------|----------------|
+| /[route] | No getStaticPaths | Add for pre-rendering |
+| /[route] | Missing trailing slash | Standardize |
+| /api/[route] | No error handling | Add try/catch |
+
+#### Orphan Detection
+Routes not linked from anywhere:
+- /[orphan-page] - Consider adding to navigation
+- /[orphan-page] - Consider redirect or removal
+
+#### Duplicate Content Risk
+| Pattern | Routes | Risk |
+|---------|--------|------|
+| Similar slugs | /blog, /blogs | ⚠️ Canonicalize |
+```
+
+### 3. Deprecated Patterns Audit
+
+Search Astro docs for deprecations and scan codebase:
+
+```markdown
+### ⚠️ Deprecated Patterns Audit
+
+**Searched Astro docs for:** "deprecated", "breaking changes astro [version]"
+
+#### Deprecated APIs Found
+| File | Line | Pattern | Current Recommendation |
+|------|------|---------|------------------------|
+| [file] | [line] | `Astro.request.url` | Use `Astro.url` |
+| [file] | [line] | `getStaticPaths()` return | Use new format |
+| [file] | [line] | Old image import | Use `astro:assets` |
+
+#### Migration Priority
+| Pattern | Occurrences | Effort | Priority |
+|---------|-------------|--------|----------|
+| [pattern] | X | Low | High |
+| [pattern] | X | Medium | Medium |
+```
+
+### 4. Integration Audit
+
+Check integrations against docs:
+
+```markdown
+### 🔌 Integration Audit
+
+#### Installed Integrations
+| Integration | Version | Latest | Status |
+|-------------|---------|--------|--------|
+| @astrojs/tailwind | X.X | X.X | ✅/⚠️ |
+| @astrojs/sitemap | X.X | X.X | ✅/⚠️ |
+| @astrojs/mdx | X.X | X.X | ✅/⚠️ |
+
+#### Configuration Check
+| Integration | Config | Optimal | Status |
+|-------------|--------|---------|--------|
+| sitemap | [settings] | [from docs] | ✅/⚠️ |
+| image | [settings] | [from docs] | ✅/⚠️ |
+
+#### Recommended Additions
+Based on project type and Astro docs:
+| Integration | Why | Install |
+|-------------|-----|---------|
+| @astrojs/partytown | Third-party scripts | `npx astro add partytown` |
+| astro-compress | Build optimization | `npm i astro-compress` |
+
+#### Missing Common Integrations
+| Integration | Benefit | Recommended |
+|-------------|---------|-------------|
+| sitemap | SEO | ✅ Yes |
+| robots-txt | SEO | ⚠️ Consider |
+```
+
+### 5. Component Patterns Audit
+
+Analyze components against Astro best practices:
+
+```markdown
+### 🧩 Component Patterns Audit
+
+#### Hydration Audit
+| Component | Directive | Recommendation |
+|-----------|-----------|----------------|
+| [file] | client:load | Consider client:visible |
+| [file] | client:only | Document SSR limitations |
+| [file] | (none) | ✅ Server-only optimal |
+
+**Hydration Summary:**
+- Server-only components: X (ideal)
+- client:load: X (review if needed)
+- client:visible: X (good for below-fold)
+- client:idle: X (good for non-critical)
+- client:only: X (review necessity)
+
+#### Props Typing
+| Component | Props Typed | Status |
+|-----------|-------------|--------|
+| [file] | ✅ interface Props | ✅ |
+| [file] | ❌ No types | ⚠️ Add types |
+
+#### Slot Usage
+| Component | Has Slots | Named Slots | Status |
+|-----------|-----------|-------------|--------|
+| [file] | ✅ | ✅ | ✅ Good |
+| [file] | ❌ | - | Consider for flexibility |
+```
+
+### 6. Content Collections Audit
+
+If using content collections:
+
+```markdown
+### 📝 Content Collections Audit
+
+#### Schema Validation
+| Collection | Schema | Issues |
+|------------|--------|--------|
+| blog | ✅ Defined | None |
+| products | ⚠️ Missing fields | Add 'image' field |
+
+#### Content Health
+| Collection | Items | With Images | With Meta |
+|------------|-------|-------------|-----------|
+| blog | X | X (Y%) | X (Y%) |
+| products | X | X (Y%) | X (Y%) |
+
+#### Recommended Schema Improvements
+Based on Astro docs best practices:
+```typescript
+// Suggested schema updates
+const blog = defineCollection({
+  type: 'content',
+  schema: ({ image }) => z.object({
+    // Add image validation
+    cover: image().optional(),
+    // Add better date handling
+    pubDate: z.coerce.date(),
+  })
+});
+```
+```
 
 ---
 
@@ -45,7 +239,7 @@ Check `src/layouts/Layout.astro` and page components for:
 
 ### 2. Meta Tags
 
-Scan all pages in `src/pages/`:
+Scan all pages (using route list from astro-mcp):
 
 ```markdown
 ### Meta Tag Audit
@@ -81,40 +275,23 @@ For each content page:
 
 ### 4. Internal Linking
 
-Cross-reference with data files:
+Cross-reference with route data:
 
 ```markdown
 ### Internal Linking Matrix
 
-| Asset | Type | Incoming Links | Pages Linking |
-|-------|------|----------------|---------------|
-| /products/maxim-3000/ | Product | 3 | [list] |
-| /services/septic-tank/ | Service | 0 | ⚠️ Orphan |
-| /locations/london/ | Location | 5 | [list] |
+| Page | Type | Incoming Links | Linking Pages |
+|------|------|----------------|---------------|
+| /products/[slug]/ | Product | 3 | [list] |
+| /services/[slug]/ | Service | 0 | ⚠️ Orphan |
 
-### Orphan Content (No Internal Links)
-- [ ] /products/[slug] - Needs links from blog
-- [ ] /services/[slug] - Needs links from homepage
+### Orphan Content
+- [ ] /[slug] - Needs links from high-traffic pages
 
 ### Link Opportunities
-| From (High Traffic) | To (Needs Links) | Suggested Anchor |
-|---------------------|------------------|------------------|
+| From (High Traffic) | To (Needs Links) | Anchor |
+|---------------------|------------------|--------|
 | [page] | [page] | [text] |
-```
-
-### 5. GSC Data Integration (If Available)
-
-```markdown
-### Search Performance Issues
-
-| Page | Impressions | Clicks | CTR | Position | Issue |
-|------|-------------|--------|-----|----------|-------|
-| [page] | 5000 | 50 | 1% | 8.5 | Low CTR |
-| [page] | 200 | 10 | 5% | 18 | Needs ranking boost |
-
-### Quick Wins
-1. [Query] - Pos 6, CTR 2% → Improve title
-2. [Query] - Pos 12, 1000 impr → Add content
 ```
 
 ---
@@ -123,8 +300,6 @@ Cross-reference with data files:
 
 ### 1. Semantic HTML
 
-Scan components and layouts:
-
 ```markdown
 ### Semantic Structure
 
@@ -132,7 +307,6 @@ Scan components and layouts:
 |-----------|-------|----------|-----|
 | Header | Skip link missing | High | Add skip-to-main |
 | Modal | No focus trap | High | Implement trap |
-| Card | Using div for button | Medium | Use <button> |
 
 ### Landmark Usage
 - [ ] `<main>` present: ✅/❌
@@ -141,105 +315,70 @@ Scan components and layouts:
 - [ ] `<footer>` present: ✅/❌
 ```
 
-### 2. Interactive Elements
-
-```markdown
-### Keyboard & ARIA Audit
-
-| Element | Keyboard Accessible | ARIA Labels | Focus Visible |
-|---------|---------------------|-------------|---------------|
-| Nav menu | ✅/❌ | ✅/❌ | ✅/❌ |
-| Modal | ✅/❌ | ✅/❌ | ✅/❌ |
-| Accordion | ✅/❌ | ✅/❌ | ✅/❌ |
-| Forms | ✅/❌ | ✅/❌ | ✅/❌ |
-
-### Missing Labels
-- [ ] [Component]: Icon button needs aria-label
-- [ ] [Component]: Form input needs label association
-```
-
-### 3. Images
+### 2. Images (Enhanced with Astro)
 
 ```markdown
 ### Image Accessibility
 
+**Astro Image Component Usage:**
+| Pattern | Count | Status |
+|---------|-------|--------|
+| Using `<Image>` from astro:assets | X | ✅ |
+| Using `<img>` | X | ⚠️ Convert |
+| Remote images | X | Check patterns |
+
+**Alt Text Audit:**
 | Location | Images | With Alt | Decorative | Issues |
 |----------|--------|----------|------------|--------|
 | Components | X | X | X | [count] |
-| Pages | X | X | X | [count] |
 | Content | X | X | X | [count] |
-
-### Issues
-- [ ] [file]: Image missing alt text
-- [ ] [file]: Decorative image needs alt=""
-```
-
-### 4. Color Contrast
-
-```markdown
-### Contrast Check (from global.css)
-
-| Element | Foreground | Background | Ratio | Pass |
-|---------|------------|------------|-------|------|
-| Body text | #333 | #fff | 12.6:1 | ✅ |
-| Primary button | #fff | #0056b3 | 4.5:1 | ✅ |
-| Secondary text | #666 | #f5f5f5 | 3.2:1 | ⚠️ |
-
-### Contrast Issues
-- [ ] [element]: Ratio 3.2:1, needs 4.5:1
 ```
 
 ---
 
 ## Performance Audit
 
-### 1. Image Optimization
+### 1. Image Optimization (Astro-Enhanced)
 
 ```markdown
 ### Image Analysis
 
-| Directory | Count | Optimized | Lazy Load | WebP |
-|-----------|-------|-----------|-----------|------|
-| public/products/ | X | ✅/❌ | ✅/❌ | ✅/❌ |
-| public/services/ | X | ✅/❌ | ✅/❌ | ✅/❌ |
-| src/assets/ | X | ✅/❌ | ✅/❌ | ✅/❌ |
+**Astro Configuration:**
+| Setting | Value | Optimal | Status |
+|---------|-------|---------|--------|
+| Image service | [sharp/squoosh] | sharp | ✅/⚠️ |
+| Remote patterns | X configured | - | - |
 
-### Large Images (>500KB)
-- [ ] [file]: X MB - Needs compression
-- [ ] [file]: X MB - Needs resizing
+**Image Usage:**
+| Pattern | Count | Recommendation |
+|---------|-------|----------------|
+| Optimized (astro:assets) | X | ✅ |
+| Unoptimized (<img>) | X | Convert |
+| Missing dimensions | X | Add width/height |
+| Missing loading="lazy" | X | Add for below-fold |
 
-### Missing Optimization
-- [ ] Hero images need `loading="eager"`
-- [ ] Below-fold images need `loading="lazy"`
+### Large Images
+| File | Size | Recommendation |
+|------|------|----------------|
+| [file] | X MB | Compress or resize |
 ```
 
-### 2. JavaScript/CSS
+### 2. JavaScript Analysis
 
 ```markdown
-### Bundle Analysis
+### Client-Side JavaScript
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| JS Bundle | X KB | <100KB | ✅/⚠️/❌ |
-| CSS Bundle | X KB | <50KB | ✅/⚠️/❌ |
-| Unused CSS | X% | <20% | ✅/⚠️/❌ |
+**Hydration Analysis (from component audit):**
+| Directive | Components | Bundle Impact |
+|-----------|------------|---------------|
+| client:load | X | Immediate load |
+| client:visible | X | Deferred ✅ |
+| client:idle | X | Background |
+| None (server) | X | No JS ✅ |
 
-### Issues
-- [ ] [component]: Imports unused library
-- [ ] [file]: Contains render-blocking script
-```
-
-### 3. Core Web Vitals Factors
-
-```markdown
-### CWV Optimization Check
-
-| Factor | Status | Impact | Fix |
-|--------|--------|--------|-----|
-| LCP image preload | ✅/❌ | High | Add fetchpriority="high" |
-| Font display swap | ✅/❌ | Medium | Add font-display: swap |
-| Preconnect hints | ✅/❌ | Medium | Add preconnect links |
-| CLS prevention | ✅/❌ | High | Add explicit dimensions |
+**Recommendations:**
+- [ ] Move X components from client:load to client:visible
+- [ ] Consider client:only="react" for [component]
 ```
 
 ---
@@ -251,6 +390,7 @@ Scan components and layouts:
 
 **Audit Date:** [timestamp]
 **Scope:** $1
+**Astro Version:** [version]
 
 ### Scores
 
@@ -259,6 +399,7 @@ Scan components and layouts:
 | SEO | X/100 | X critical, X high, X medium |
 | Accessibility | X/100 | X critical, X high, X medium |
 | Performance | X/100 | X critical, X high, X medium |
+| Astro Best Practices | X/100 | X critical, X high, X medium |
 | **Overall** | **X/100** | **X total issues** |
 
 ---
@@ -268,20 +409,32 @@ Scan components and layouts:
 1. **[Issue]** - [Category]
    - Location: [file]
    - Impact: [description]
-   - Fix: [solution]
-
-2. **[Issue]** - [Category]
-   ...
+   - Fix: [solution from Astro docs if applicable]
 
 ### 🟡 High Priority Issues
 
 1. **[Issue]** - [Category]
-   ...
+   - Astro docs recommendation: [if applicable]
 
 ### 🟢 Medium Priority Issues
 
 1. **[Issue]** - [Category]
-   ...
+
+---
+
+### 🚀 Astro-Specific Recommendations
+
+Based on current Astro docs:
+
+1. **[Recommendation]**
+   - Current: [state]
+   - Docs suggest: [improvement]
+   - Impact: [benefit]
+
+2. **[Recommendation]**
+   - Current: [state]
+   - Docs suggest: [improvement]
+   - Impact: [benefit]
 
 ---
 
@@ -289,40 +442,38 @@ Scan components and layouts:
 
 If all issues fixed:
 - SEO: +X% organic traffic potential
-- Accessibility: WCAG 2.1 AA compliant
 - Performance: +X Lighthouse points
+- Astro: Following all current best practices
 
 ---
 
-### 🎯 Recommended Action Plan
+### 🎯 Action Plan
 
-**Week 1: Critical Fixes**
+**Week 1: Critical + Astro Updates**
 - [ ] [Task 1] - Est: X min
-- [ ] [Task 2] - Est: X min
+- [ ] Update deprecated patterns - Est: X min
 
 **Week 2: High Priority**
-- [ ] [Task 1] - Est: X min
-- [ ] [Task 2] - Est: X min
-
-**Ongoing: Medium Priority**
 - [ ] [Task 1] - Est: X min
 
 ---
 
 ### Add to Tracker?
 
-Should I add these issues to your issue tracker?
-- **Yes** - Creates issues with appropriate priority labels
+Should I add these issues to your tracker?
+- **Yes** - Creates issues with priority labels
 - **No** - Just show this report
 ```
 
 ---
 
-## Post-Audit Actions
+## MCP Usage in Audit
 
-| Command | Description |
-|---------|-------------|
-| "Add to tracker" | Create issues for all findings |
-| "Fix critical" | Start fixing critical issues immediately |
-| "/fix-next" | Work on highest-impact issue |
-| "Export report" | Save as markdown file |
+| Check | Astro Docs MCP | astro-mcp |
+|-------|----------------|-----------|
+| Config validation | Best practice lookup | Get current config |
+| Route audit | - | Get all routes |
+| Deprecated patterns | Search deprecations | - |
+| Integration audit | Integration docs | Installed integrations |
+| Component patterns | Hydration best practices | - |
+| Image optimization | Image service docs | Image config |

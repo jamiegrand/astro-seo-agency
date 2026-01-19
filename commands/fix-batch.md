@@ -24,6 +24,7 @@ Fix multiple issues in one session without confirmation prompts between each.
 - [ ] Git status clean
 - [ ] Build passing
 - [ ] Issues identified
+- [ ] Astro MCP available (optional but recommended)
 ```
 
 ### Verify Clean State
@@ -52,6 +53,23 @@ npm run build
 
 If failing, stop and fix build first.
 
+### Check Astro MCP Availability (NEW)
+
+```markdown
+### 🔌 MCP Status
+
+| Server | Status |
+|--------|--------|
+| Astro Docs MCP | ✅/❌ |
+| astro-mcp (project) | ✅/❌ |
+
+[If available:]
+✅ Will consult Astro docs for best practices during fixes
+
+[If not available:]
+ℹ️ Continuing without MCP - using training knowledge only
+```
+
 ---
 
 ## Step 2: Load Issue Queue
@@ -64,20 +82,34 @@ Calculate impact scores and sort:
 Impact Score = (Affected Page Sessions × Severity) + (GSC Impressions × 0.1)
 ```
 
+### Categorize by Type (NEW)
+
+```markdown
+### Issue Categories
+
+| Type | Count | MCP Helpful |
+|------|-------|-------------|
+| Astro/Code | X | ✅ Will consult docs |
+| SEO/Meta | X | ✅ Will consult docs |
+| Content | X | - |
+| Styling | X | - |
+```
+
 ### Build Queue
 
 ```markdown
 ### 📋 Issue Queue (Top $1)
 
-| # | Issue | Priority | Impact | Est. |
-|---|-------|----------|--------|------|
-| 1 | #XX: [Title] | High | XXX | 10m |
-| 2 | #XX: [Title] | High | XXX | 15m |
-| 3 | #XX: [Title] | Medium | XXX | 10m |
-| 4 | #XX: [Title] | Medium | XXX | 20m |
-| 5 | #XX: [Title] | Medium | XXX | 10m |
+| # | Issue | Priority | Impact | Est. | Type |
+|---|-------|----------|--------|------|------|
+| 1 | #XX: [Title] | High | XXX | 10m | Astro |
+| 2 | #XX: [Title] | High | XXX | 15m | SEO |
+| 3 | #XX: [Title] | Medium | XXX | 10m | Content |
+| 4 | #XX: [Title] | Medium | XXX | 20m | Astro |
+| 5 | #XX: [Title] | Medium | XXX | 10m | Styling |
 
 **Total Estimated Time:** ~65 minutes
+**Astro-related issues:** X (will consult docs)
 
 ---
 
@@ -92,7 +124,29 @@ Wait for confirmation before proceeding.
 
 ---
 
-## Step 3: Execute Batch
+## Step 3: Pre-Batch Astro Docs Lookup (NEW)
+
+**For efficiency, batch-query common topics before starting:**
+
+```markdown
+### 📚 Pre-Loading Astro Guidance
+
+Based on issue types in queue, searching:
+- [x] "astro image optimization" (for issues #X, #Y)
+- [x] "astro meta tags seo" (for issue #Z)
+- [x] "astro content collections" (for issue #W)
+
+**Cached for batch use:**
+- Image pattern: Use `<Image>` from `astro:assets`
+- Meta pattern: Use `<meta>` in Layout head
+- Content pattern: Use `getCollection()` API
+```
+
+This prevents repeated doc lookups during batch execution.
+
+---
+
+## Step 4: Execute Batch
 
 ### For Each Issue in Queue:
 
@@ -102,17 +156,26 @@ Wait for confirmation before proceeding.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-#### 3.1 Quick Context Load
+#### 4.1 Quick Context Load
 - Read affected files (minimal context)
 - Identify the specific change needed
+- **Check pre-loaded Astro guidance if applicable**
 - NO lengthy analysis - batch mode is fast
 
-#### 3.2 Implement Fix
+#### 4.2 Astro Docs Check (Quick)
+
+For Astro-related issues only:
+```markdown
+**Astro Pattern:** [from pre-loaded or quick search]
+```
+
+#### 4.3 Implement Fix
 - Make the change
 - Keep it focused and minimal
+- **Use verified Astro patterns from docs**
 - Match existing patterns
 
-#### 3.3 Quick Verify
+#### 4.4 Quick Verify
 
 ```bash
 npm run astro check
@@ -120,9 +183,10 @@ npm run astro check
 
 If TypeScript fails:
 - Attempt auto-fix (once)
+- **Quick doc search if Astro-related error**
 - If still failing: **mark as skipped**, continue to next
 
-#### 3.4 Commit
+#### 4.5 Commit
 
 ```bash
 git add [specific files]
@@ -132,12 +196,13 @@ Fixes: #[issue-number]
 Batch: [N] of [Total]"
 ```
 
-#### 3.5 Log Result
+#### 4.6 Log Result
 
 ```markdown
 ✅ #XX: [Title] - Fixed in [X]s
    Files: [list]
    Commit: [short hash]
+   Astro docs: [used/not needed]
 ```
 
 ### Continue to Next Issue
@@ -146,12 +211,16 @@ No pause, no confirmation - move directly to next issue.
 
 ---
 
-## Step 4: Handle Failures
+## Step 5: Handle Failures
 
 ### On TypeScript Error (Auto-Recoverable)
 
 ```markdown
 ⚠️ TypeScript error on #XX
+
+[If Astro-related:]
+Searching Astro docs for solution...
+[Quick search result]
 
 Attempting auto-fix...
 [If fixed] ✅ Recovered, continuing
@@ -168,6 +237,10 @@ Attempting auto-fix...
 [error output]
 ```
 
+[If Astro error:]
+**Astro Docs says:**
+[Quick search for error]
+
 **Batch paused.** Options:
 1. "fix" - Let me fix the build error, then continue
 2. "rollback" - Revert last commit, skip this issue
@@ -179,14 +252,14 @@ Attempting auto-fix...
 ```markdown
 ⏭️ Skipping #XX - Requires manual review
 
-**Reason:** [Too complex for batch / Needs clarification / etc.]
+**Reason:** [Too complex for batch / Needs clarification / Needs deeper Astro docs research]
 
 Added to "manual review" list. Continuing...
 ```
 
 ---
 
-## Step 5: Final Build Verification
+## Step 6: Final Build Verification
 
 After all issues processed:
 
@@ -196,9 +269,21 @@ npm run build
 
 Must pass before completing batch.
 
+### Route Verification (NEW - if astro-mcp available)
+
+```markdown
+### Route Check (via astro-mcp)
+
+| Check | Status |
+|-------|--------|
+| All routes present | ✅ |
+| No new conflicts | ✅ |
+| Build output valid | ✅ |
+```
+
 ---
 
-## Step 6: Batch Summary
+## Step 7: Batch Summary
 
 ```markdown
 ## ✅ Batch Complete
@@ -214,17 +299,17 @@ Must pass before completing batch.
 
 ### Fixed Issues
 
-| Issue | Time | Commit |
-|-------|------|--------|
-| #XX: [Title] | Xs | `abc123` |
-| #XX: [Title] | Xs | `def456` |
-| #XX: [Title] | Xs | `ghi789` |
+| Issue | Time | Commit | Astro Docs |
+|-------|------|--------|------------|
+| #XX: [Title] | Xs | `abc123` | ✅ Used |
+| #XX: [Title] | Xs | `def456` | - |
+| #XX: [Title] | Xs | `ghi789` | ✅ Used |
 
 ### Skipped Issues (Need Manual Review)
 
-| Issue | Reason |
-|-------|--------|
-| #XX: [Title] | [reason] |
+| Issue | Reason | Suggestion |
+|-------|--------|------------|
+| #XX: [Title] | [reason] | Use `/fix-next` for deeper analysis |
 
 ### Session Stats
 
@@ -234,6 +319,7 @@ Must pass before completing batch.
 | Avg per Issue | X seconds |
 | Commits Made | X |
 | Files Changed | X |
+| Astro Docs Consulted | X times |
 
 ---
 
@@ -253,11 +339,12 @@ Options:
 
 ---
 
-## Step 7: Update Tracker
+## Step 8: Update Tracker
 
 For each fixed issue, update tracker:
 - Mark as complete
 - Add commit reference
+- Note if Astro docs were consulted
 - Note batch completion
 
 ---
@@ -271,6 +358,7 @@ For each fixed issue, update tracker:
 - Fixes 5 issues
 - Skips on complexity
 - Stops on build failure
+- Consults Astro docs for relevant issues
 
 ### Extended
 ```
@@ -296,6 +384,22 @@ For each fixed issue, update tracker:
 3. **Auto-skip complex** - Doesn't get stuck on hard issues
 4. **Atomic commits** - Each issue = one commit (easy rollback)
 5. **Final build check** - Ensures everything works at end
+6. **Astro docs pre-load** - Efficient batch lookup (NEW)
+7. **Route verification** - Confirms no broken routes (NEW)
+
+---
+
+## MCP Usage in Batch Mode
+
+| Step | Astro Docs MCP | astro-mcp |
+|------|----------------|-----------|
+| Setup | - | Check availability |
+| Pre-load | Batch search common topics | - |
+| Per issue | Quick pattern lookup | - |
+| Errors | Search for solutions | - |
+| Final | - | Verify routes |
+
+**Efficiency:** Batch mode pre-loads common Astro patterns to avoid repeated lookups.
 
 ---
 
@@ -306,5 +410,6 @@ For each fixed issue, update tracker:
 | Issues per run | 1 | 5+ |
 | Confirmation | After each step | Only at start |
 | Context depth | Full analysis | Quick scan |
+| Astro docs | Deep search | Pre-loaded patterns |
 | Best for | Complex issues | Similar/simple issues |
-| Speed | ~15 min/issue | ~3-5 min/issue |
+| Speed | ~10-15 min/issue | ~3-5 min/issue |

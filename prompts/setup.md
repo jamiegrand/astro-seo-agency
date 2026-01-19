@@ -1,6 +1,6 @@
 # Project Setup Wizard
 
-Interactive setup for the Astro SEO Agency plugin.
+Interactive setup for the Astro SEO Agency plugin with Astro MCP integration.
 
 ---
 
@@ -43,6 +43,7 @@ src/
 - [ ] AI-INFO.md: [Found/Missing]
 - [ ] .env: [Found/Missing]
 - [ ] Issue tracker: [Found/Missing]
+- [ ] astro-mcp: [Installed/Not installed]
 ```
 
 ---
@@ -66,6 +67,7 @@ I've detected most settings automatically. Please confirm or update:
    - [ ] SaaS (software product)
    - [ ] Agency/Portfolio (showcase work)
    - [ ] Blog/Content (articles, guides)
+   - [ ] Documentation site
    - [ ] Other
 
 Type your choices or say "auto" to use detected values.
@@ -73,7 +75,125 @@ Type your choices or say "auto" to use detected values.
 
 ---
 
-## Step 2: Analytics Configuration
+## Step 2: Astro MCP Setup (NEW)
+
+```markdown
+### 🔌 Astro MCP Integration
+
+This plugin works best with two MCP servers that provide:
+- **Real-time Astro documentation** (always current, no outdated info)
+- **Project awareness** (routes, config, content locations)
+
+#### Astro Docs MCP (Recommended)
+Gives Claude access to official Astro documentation.
+
+**Status:** [Checking...]
+
+**Setup:**
+Add to your MCP configuration (Claude Desktop, VS Code, etc.):
+```json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    }
+  }
+}
+```
+
+#### astro-mcp Integration (Recommended)
+Gives Claude awareness of your project's routes and configuration.
+
+**Status:** [Checking package.json...]
+
+[If not installed:]
+**Install now?**
+```bash
+npx astro add astro-mcp
+```
+
+[If installed:]
+✅ Already installed! Make sure to run `npm run dev` for full functionality.
+
+---
+
+**Configure MCP servers?**
+1. **"yes"** - I'll guide you through setup
+2. **"later"** - Skip for now (can configure anytime)
+3. **"skip"** - Don't use MCP features
+```
+
+### If "yes" for MCP Setup:
+
+```markdown
+### Astro Docs MCP Setup
+
+This is a remote server - no installation needed, just configuration.
+
+**For Claude Desktop:**
+1. Open Claude Desktop settings
+2. Go to MCP Servers
+3. Add new server with:
+   - Name: `astro-docs`
+   - Command: `npx`
+   - Args: `-y`, `mcp-remote`, `https://mcp.docs.astro.build/mcp`
+
+**For VS Code:**
+Create `.vscode/mcp.json`:
+```json
+{
+  "servers": {
+    "Astro Docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
+```
+
+**Verify:** Ask me "search Astro docs for content collections"
+
+---
+
+### astro-mcp Integration Setup
+
+This runs inside your Astro project.
+
+**Step 1: Install**
+```bash
+npx astro add astro-mcp
+```
+
+**Step 2: Verify** (in astro.config.mjs)
+```javascript
+import mcp from 'astro-mcp';
+
+export default defineConfig({
+  integrations: [mcp()]
+});
+```
+
+**Step 3: Start dev server**
+```bash
+npm run dev
+```
+
+**Verify:** Run `/astro-check` to see your project info
+
+---
+
+**MCP Setup Status:**
+- [ ] Astro Docs MCP configured
+- [ ] astro-mcp installed
+- [ ] Dev server running
+
+Continue? (yes / help with [item] / skip)
+```
+
+---
+
+## Step 3: Analytics Configuration
 
 ```markdown
 ### Analytics Setup (Optional)
@@ -132,7 +252,7 @@ For Search Console, you need a service account:
 
 ---
 
-## Step 3: Issue Tracking
+## Step 4: Issue Tracking
 
 ```markdown
 ### Issue Tracking Setup
@@ -192,7 +312,7 @@ You can:
 
 ---
 
-## Step 4: Generate Configuration Files
+## Step 5: Generate Configuration Files
 
 Based on your choices, generating:
 
@@ -205,6 +325,7 @@ Based on your choices, generating:
 | AI-INFO.md | ✅ Analyzing project... |
 | .env | ✅ Writing credentials... |
 | .gitignore | ✅ Updating... |
+| .vscode/mcp.json | ✅ Creating (if VS Code)... |
 
 #### CLAUDE.md Preview
 ```markdown
@@ -215,6 +336,7 @@ Based on your choices, generating:
 | Framework | Astro [version] |
 | Site URL | [url] |
 | Analytics | [Configured/Not configured] |
+| Astro MCP | [Configured/Not configured] |
 ...
 ```
 
@@ -223,7 +345,41 @@ Based on your choices, generating:
 
 ---
 
-## Step 5: Initial Audit (Optional)
+## Step 6: Verify Astro MCP (NEW)
+
+```markdown
+### 🔌 Verifying MCP Setup
+
+#### Astro Docs MCP
+[Attempting to search docs...]
+
+[If working:]
+✅ **Astro Docs MCP working!**
+Successfully searched for "astro basics"
+
+[If not working:]
+⚠️ **Astro Docs MCP not responding**
+- Check your MCP configuration
+- Restart Claude/editor after adding config
+- Try again with `/astro-check docs "test"`
+
+#### astro-mcp
+[Checking for dev server...]
+
+[If working:]
+✅ **astro-mcp working!**
+Found [X] routes, [X] integrations
+
+[If not working:]
+⚠️ **astro-mcp not available**
+- Is dev server running? `npm run dev`
+- Is astro-mcp installed? Check astro.config.mjs
+- Run `/astro-check` after starting dev server
+```
+
+---
+
+## Step 7: Initial Audit (Optional)
 
 ```markdown
 ### 🔍 Initial SEO Audit
@@ -236,9 +392,11 @@ This will check:
 - Image optimization
 - Accessibility basics
 - Internal linking
+- **Astro best practices** (via Astro Docs MCP)
+- **Route completeness** (via astro-mcp)
 
 **Options:**
-- **"full"** - Complete audit (takes 2-3 minutes)
+- **"full"** - Complete audit including Astro checks (takes 2-3 minutes)
 - **"quick"** - Critical issues only (30 seconds)
 - **"skip"** - Do this later with `/audit`
 ```
@@ -255,6 +413,8 @@ Checking schema... ✅
 Checking images... ✅
 Checking accessibility... ✅
 Checking links... ✅
+Checking Astro patterns... ✅ (via Astro Docs MCP)
+Verifying routes... ✅ (via astro-mcp)
 
 ---
 
@@ -265,11 +425,16 @@ Checking links... ✅
 | SEO | X critical, X high |
 | Accessibility | X critical, X high |
 | Performance | X warnings |
+| Astro Best Practices | X recommendations |
 
 **Top Priority Issues:**
 1. [Issue] - Critical
 2. [Issue] - Critical
 3. [Issue] - High
+
+**Astro-Specific Findings:**
+- [Finding based on docs check]
+- [Finding based on route analysis]
 
 These have been added to your issue tracker.
 
@@ -278,7 +443,7 @@ Run `/fix-next` to start fixing them!
 
 ---
 
-## Step 6: Completion
+## Step 8: Completion
 
 ```markdown
 ## ✅ Setup Complete!
@@ -289,6 +454,8 @@ Run `/fix-next` to start fixing them!
 |---------|-------|
 | Project | [name] |
 | Site URL | [url] |
+| Astro Docs MCP | ✅ Configured / ⏭️ Skipped |
+| astro-mcp | ✅ Installed / ⏭️ Skipped |
 | Analytics | ✅ Configured / ⏭️ Skipped |
 | Issue Tracker | GitHub / Markdown / None |
 | Initial Issues | [X] found |
@@ -299,6 +466,13 @@ Run `/fix-next` to start fixing them!
 - ✅ .env
 - ✅ .gitignore
 - ✅ .planning/
+- ✅ .vscode/mcp.json (if applicable)
+
+### MCP Status
+| Server | Status | Benefit |
+|--------|--------|---------|
+| Astro Docs | ✅/⏭️ | Real-time documentation |
+| astro-mcp | ✅/⏭️ | Project awareness |
 
 ---
 
@@ -311,9 +485,10 @@ Run `/fix-next` to start fixing them!
 
 **Or jump right in:**
 ```bash
-/fix-next    # Fix highest priority issue
-/seo-wins    # Find ranking opportunities
-/audit       # Run full audit
+/fix-next       # Fix highest priority issue
+/seo-wins       # Find ranking opportunities
+/audit          # Run full audit
+/astro-check    # See project info via MCP
 ```
 
 ---
@@ -327,9 +502,19 @@ Run `/fix-next` to start fixing them!
 | SEO analysis | `/seo-wins` |
 | Content review | `/content-roi` |
 | Build feature | `/feature "desc"` |
+| Check Astro | `/astro-check` |
 | Save progress | `/pause` |
 | Continue | `/resume` |
 | All commands | `/help` |
+
+---
+
+### 💡 Tips for Best Results
+
+1. **Keep dev server running** for full astro-mcp features
+2. **MCP servers** give Claude current Astro knowledge
+3. **Run `/start`** at the beginning of each session
+4. **Use `/pause`** to save context between sessions
 
 ---
 
@@ -369,29 +554,22 @@ This plugin is specifically designed for Astro.js projects.
 1. **Continue anyway** - Some features may not work correctly
 2. **Cancel** - Exit setup
 
-The following commands may still work:
-- `/feature` - Generic feature development
-- `/pause` / `/resume` - Session management
-- `/status` - Project status
-
-SEO-specific commands require Astro project structure.
+Note: Astro MCP features will not work with non-Astro projects.
 ```
 
-### If credentials fail validation:
+### If MCP setup fails:
 
 ```markdown
-## ⚠️ Credential Validation Failed
+## ⚠️ MCP Setup Issue
 
-**Google Analytics:**
-❌ Could not connect with Property ID: [id]
+**Problem:** [description]
 
-Possible issues:
-- Property ID is incorrect
-- GA4 API not enabled
-- Insufficient permissions
+**Don't worry!** The plugin works without MCP, just with reduced features:
+- ❌ Real-time Astro docs access
+- ❌ Project route awareness
+- ✅ All other commands work normally
 
-**Options:**
-1. **"retry"** - Enter a different Property ID
-2. **"skip"** - Continue without GA (can configure later)
-3. **"help"** - Show detailed setup instructions
+You can configure MCP later by running `/setup` again or following the guide in `prompts/astro-mcp-integration.md`.
+
+Continue without MCP? (yes/retry)
 ```

@@ -1,6 +1,6 @@
 # Brownfield Analysis
 
-This prompt analyzes an existing Astro project and integrates the SEO Agency workflow.
+This prompt analyzes an existing Astro project and integrates the SEO Agency workflow with full Astro MCP support.
 
 ---
 
@@ -15,6 +15,13 @@ find . -type f -name "*.astro" -o -name "*.ts" -o -name "*.js" -o -name "*.md" |
 cat package.json
 ```
 
+### Check for astro-mcp
+
+```bash
+# Check if astro-mcp is installed
+grep -q "astro-mcp" package.json && echo "✅ astro-mcp installed" || echo "❌ astro-mcp not installed"
+```
+
 ### Identify Key Elements
 ```markdown
 ## Project Analysis: [Project Name]
@@ -24,7 +31,9 @@ cat package.json
 |------|-------|
 | Astro Version | [from package.json] |
 | Tailwind Version | [from package.json] |
-| Other Frameworks | [list] |
+| TypeScript | [yes/no] |
+| astro-mcp | [installed/not installed] |
+| Other Integrations | [list] |
 
 ### Directory Structure
 ```
@@ -34,6 +43,7 @@ cat package.json
 ### Key Files Found
 - [ ] astro.config.mjs
 - [ ] tailwind.config.js
+- [ ] src/content/config.ts (content collections)
 - [ ] src/data/*.js (data files)
 - [ ] src/content/ (content collections)
 - [ ] src/components/ (components)
@@ -43,43 +53,112 @@ cat package.json
 
 ---
 
-## Step 2: Architecture Analysis
+## Step 2: Query Project via astro-mcp (if available)
+
+### If astro-mcp is installed and dev server running:
+
+```markdown
+### 🔌 Live Project Analysis (via astro-mcp)
+
+#### Configuration (get-astro-config)
+| Setting | Value |
+|---------|-------|
+| Output Mode | [static/server/hybrid] |
+| Site URL | [url or not set] |
+| Build Format | [file/directory] |
+| Image Service | [sharp/squoosh] |
+| TypeScript | [strict/relaxed] |
+
+#### All Routes (list-astro-routes)
+| Type | Count | Examples |
+|------|-------|----------|
+| Static Pages | X | /, /about, /contact |
+| Dynamic Routes | X | /blog/[slug], /products/[id] |
+| API Endpoints | X | /api/contact |
+| **Total** | **X** | |
+
+#### Integrations Detected
+| Integration | Purpose |
+|-------------|---------|
+| [name] | [purpose] |
+| [name] | [purpose] |
+```
+
+### If astro-mcp not available:
+
+```markdown
+### ℹ️ Manual Project Analysis
+
+astro-mcp not detected. Analyzing from file system...
+
+[Fallback to file-based analysis]
+
+**Recommendation:** Install astro-mcp for better project awareness:
+```bash
+npx astro add astro-mcp
+```
+```
+
+---
+
+## Step 3: Architecture Analysis
 
 ### Data Layer Discovery
+
 ```markdown
 ### Data Files Found
 
 | File | Type | Items | Schema |
 |------|------|-------|--------|
-| products.js | Array | X | {name, slug, ...} |
-| services.js | Array | X | {title, ...} |
-| locations.js | Array | X | {city, ...} |
+| src/data/products.js | Array | X | {name, slug, ...} |
+| src/data/services.js | Array | X | {title, ...} |
+| src/data/locations.js | Array | X | {city, ...} |
+```
+
+### Content Collections (if using)
+
+```markdown
+### Content Collections
+
+[If src/content/config.ts exists:]
+
+| Collection | Location | Items | Schema Status |
+|------------|----------|-------|---------------|
+| blog | src/content/blog/ | X | ✅ Defined |
+| docs | src/content/docs/ | X | ✅ Defined |
+
+[Query Astro docs for content collection best practices]
+**Current Astro Recommendation:** [from docs search]
 ```
 
 ### Component Inventory
 ```markdown
 ### Components Found
 
-| Component | Props | Used In |
-|-----------|-------|---------|
-| ProductCard.astro | {product} | products/[slug] |
-| ServiceCard.astro | {service} | services/[slug] |
+| Component | Props | Used In | Hydration |
+|-----------|-------|---------|-----------|
+| ProductCard.astro | {product} | products/[slug] | Server |
+| ServiceCard.astro | {service} | services/[slug] | Server |
+| ContactForm.tsx | {onSubmit} | contact | client:load |
 ```
 
 ### Page Routes
+
 ```markdown
 ### Routes Discovered
 
-| Route | Type | Data Source |
-|-------|------|-------------|
-| / | Static | - |
-| /products/[slug] | Dynamic | products.js |
-| /blog/[slug] | Dynamic | content/blog |
+[From astro-mcp if available, otherwise from file scan]
+
+| Route | Type | Source | Data Source |
+|-------|------|--------|-------------|
+| / | Static | src/pages/index.astro | - |
+| /blog/[slug] | Dynamic | src/pages/blog/[slug].astro | content/blog |
+| /products/[id] | Dynamic | src/pages/products/[id].astro | data/products.js |
 ```
 
 ---
 
-## Step 3: Existing Documentation Check
+## Step 4: Existing Documentation Check
 
 ### Check for AI-INFO.md
 ```markdown
@@ -102,6 +181,7 @@ cat package.json
 [If exists:]
 ✅ CLAUDE.md found
 - Content: [summary]
+- MCP configured: [yes/no]
 
 **Recommendation:** Merge with new template or replace.
 
@@ -127,11 +207,14 @@ cat package.json
 
 ---
 
-## Step 4: SEO Assessment
+## Step 5: SEO Assessment
 
 ### Meta Tags Audit
+
 ```markdown
 ### Meta Tag Analysis
+
+[Using route list from astro-mcp or file scan]
 
 Scanned [X] pages:
 
@@ -158,17 +241,60 @@ Scanned [X] pages:
 ```markdown
 ### Content Inventory
 
-| Type | Count | With Slug | With Meta |
-|------|-------|-----------|-----------|
-| Products | X | X | X |
-| Services | X | X | X |
-| Blog Posts | X | X | X |
-| Locations | X | X | X |
+[From astro-mcp route analysis + file scan]
+
+| Type | Count | Location | With Meta |
+|------|-------|----------|-----------|
+| Blog Posts | X | src/content/blog/ | X |
+| Products | X | src/data/products.js | X |
+| Services | X | src/data/services.js | X |
+| Static Pages | X | src/pages/ | X |
 ```
 
 ---
 
-## Step 5: Technical Assessment
+## Step 6: Astro Best Practices Check (NEW)
+
+### Query Astro Docs
+
+Search Astro docs for current best practices relevant to this project:
+
+```markdown
+### 🔍 Astro Best Practices Audit
+
+[Search Astro docs for relevant topics based on project analysis]
+
+#### Image Handling
+**Project uses:** [current pattern]
+**Astro docs recommend:** [from search]
+**Status:** ✅ Following / ⚠️ Could improve
+
+#### Content Collections
+**Project uses:** [current pattern]
+**Astro docs recommend:** [from search]
+**Status:** ✅ Following / ⚠️ Could improve
+
+#### Component Hydration
+**Project uses:** [detected directives]
+**Astro docs recommend:** [from search]
+**Status:** ✅ Following / ⚠️ Could improve
+
+#### Performance
+**Current setup:** [from config]
+**Astro docs recommend:** [from search]
+**Status:** ✅ Following / ⚠️ Could improve
+
+### Deprecated Patterns Found
+[Search docs for deprecations]
+
+| Pattern | Location | Current Recommendation |
+|---------|----------|------------------------|
+| [pattern] | [file] | [from docs] |
+```
+
+---
+
+## Step 7: Technical Assessment
 
 ### Build Health
 ```bash
@@ -182,6 +308,9 @@ npm run build
 - Warnings: [count]
 - Build time: [X]s
 - Output size: [X] MB
+- Pages generated: [X]
+
+[If failing, search Astro docs for error]
 ```
 
 ### TypeScript Status
@@ -197,26 +326,57 @@ npm run astro check
 
 ---
 
-## Step 6: Generate Integration Plan
+## Step 8: Generate Integration Plan
 
 ```markdown
 ## 🔧 Integration Plan
 
 Based on analysis, here's how to integrate the SEO Agency workflow:
 
-### Step 1: Create Configuration Files
+### Step 1: Install astro-mcp (Recommended)
+
+[If not installed:]
+```bash
+npx astro add astro-mcp
+```
+
+This enables:
+- Route awareness for all commands
+- Content location discovery
+- Configuration validation
+
+### Step 2: Configure Astro Docs MCP (Recommended)
+
+Add to your MCP configuration:
+```json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    }
+  }
+}
+```
+
+This enables:
+- Real-time documentation access
+- Current best practices
+- Error troubleshooting
+
+### Step 3: Create Configuration Files
 
 **Create CLAUDE.md:**
 - [ ] Generate from template
 - [ ] Add project-specific context
-- [ ] Configure MCP tools
+- [ ] Configure MCP references
 
 **Create/Update AI-INFO.md:**
 - [ ] Document data architecture
 - [ ] Document component patterns
-- [ ] Document styling conventions
+- [ ] Document content locations (from astro-mcp)
 
-### Step 2: Set Up Issue Tracking
+### Step 4: Set Up Issue Tracking
 
 **Option A: GitHub Issues**
 - [ ] Configure GitHub MCP
@@ -228,7 +388,7 @@ Based on analysis, here's how to integrate the SEO Agency workflow:
 - [ ] Import existing issues
 - [ ] Add SEO findings
 
-### Step 3: Configure Analytics
+### Step 5: Configure Analytics (Optional)
 
 **Google Analytics:**
 - [ ] Add GA_PROPERTY_ID to .env
@@ -239,32 +399,36 @@ Based on analysis, here's how to integrate the SEO Agency workflow:
 - [ ] Configure credentials
 - [ ] Verify connection
 
-### Step 4: Create Planning Directory
+### Step 6: Create Planning Directory
 
 ```bash
 mkdir -p .planning/archive
 ```
 
-### Step 5: Initial SEO Fixes
+### Step 7: Address Astro Best Practices
 
-Based on the SEO assessment, prioritize:
-1. [Critical issue 1]
-2. [Critical issue 2]
-3. [High priority 1]
+Based on the audit:
+1. [Critical: pattern to update]
+2. [High: pattern to update]
+3. [Medium: pattern to update]
 
 ---
 
 ## 📋 Checklist
 
 ### Configuration
+- [ ] astro-mcp installed
+- [ ] Astro Docs MCP configured
 - [ ] CLAUDE.md created
 - [ ] AI-INFO.md created/updated
 - [ ] .planning/ directory created
 - [ ] .env configured
 
 ### MCP Servers
-- [ ] Google Analytics connected
-- [ ] Google Search Console connected
+- [ ] Astro Docs MCP connected
+- [ ] astro-mcp running (dev server)
+- [ ] Google Analytics connected (optional)
+- [ ] Google Search Console connected (optional)
 - [ ] GitHub connected (optional)
 
 ### Issue Tracking
@@ -272,30 +436,38 @@ Based on the SEO assessment, prioritize:
 - [ ] Initial issues added
 - [ ] Priorities assigned
 
+### Astro Best Practices
+- [ ] Deprecated patterns identified
+- [ ] Improvement plan created
+- [ ] Added to issue tracker
+
 ### Verification
 - [ ] `/start` command works
-- [ ] Analytics data accessible
+- [ ] `/astro-check` shows project info
 - [ ] Build passes
 
 ---
 
 Would you like me to:
 1. **"Generate all"** - Create all configuration files
-2. **"Fix SEO issues"** - Start fixing critical SEO issues
-3. **"Show detail"** - Deep dive into specific area
+2. **"Install astro-mcp"** - Add MCP integration to project
+3. **"Fix Astro issues"** - Address deprecated patterns
+4. **"Fix SEO issues"** - Start fixing critical SEO issues
+5. **"Show detail"** - Deep dive into specific area
 ```
 
 ---
 
-## Step 7: Execute Integration
+## Step 9: Execute Integration
 
 On confirmation, create:
 
-1. **CLAUDE.md** - Populated from template with discovered values
-2. **AI-INFO.md** - If not exists, generate comprehensive version
+1. **CLAUDE.md** - Populated from template with discovered values + MCP config
+2. **AI-INFO.md** - If not exists, generate comprehensive version with route info
 3. **.planning/** directory
-4. **AUDIT_TRACKER.md** - If using markdown tracking
+4. **AUDIT_TRACKER.md** - If using markdown tracking, include Astro issues
 5. **.env.example** - With required variables
+6. **.vscode/mcp.json** - If using VS Code
 
 ---
 
@@ -311,23 +483,61 @@ On confirmation, create:
 | AI-INFO.md | ✅ Created/Updated |
 | .planning/ | ✅ Created |
 | AUDIT_TRACKER.md | ✅ Created |
+| .vscode/mcp.json | ✅ Created |
+
+### MCP Status
+| Server | Status |
+|--------|--------|
+| Astro Docs MCP | ✅ Configured |
+| astro-mcp | ✅ Installed / ⏭️ Skipped |
+
+### Project Insights Captured
+- Routes: [X] total
+- Content Collections: [X]
+- Data Files: [X]
+- Integrations: [X]
 
 ### Next Steps
-1. Add credentials to `.env`:
+1. Start dev server for full astro-mcp features:
+   ```bash
+   npm run dev
+   ```
+
+2. Add credentials to `.env`:
    ```
    GA_PROPERTY_ID=your-id
    GSC_SITE_URL=https://your-site.com/
    ```
 
-2. Test the setup:
-   ```
-   /start
+3. Test the setup:
+   ```bash
+   /astro-check    # Verify MCP working
+   /start          # Begin session
    ```
 
-3. Begin work:
-   ```
-   /fix-next
+4. Begin work:
+   ```bash
+   /fix-next       # Fix highest priority
    ```
 
 Welcome to the Astro SEO Agency workflow! 🚀
+
+### MCP-Enhanced Features Now Available
+- `/start` shows project health via astro-mcp
+- `/fix-next` consults Astro docs automatically
+- `/content-roi` knows where your content lives
+- `/seo-wins` maps queries to source files
+- `/audit astro` checks against current best practices
 ```
+
+---
+
+## MCP Usage in Brownfield Analysis
+
+| Step | Astro Docs MCP | astro-mcp |
+|------|----------------|-----------|
+| Discovery | - | Routes, config, integrations |
+| Architecture | Content collection patterns | Route-to-file mapping |
+| Best Practices | Current recommendations | Current project state |
+| SEO Audit | - | All routes for coverage |
+| Integration | Setup guidance | Verify installation |

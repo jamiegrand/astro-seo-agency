@@ -4,43 +4,121 @@ description: Analyze content performance and ROI
 
 # Content ROI Analysis
 
-## Step 1: Inventory Content
+## Step 1: Discover Content Structure (via astro-mcp)
 
-Scan the project for content:
+**First, query the project to understand where content lives:**
 
-### Blog Posts
-```
-Location: src/content/blog/ or src/pages/blog/
-```
+### Query Project Configuration
 
-### Product Pages
-```
-Location: src/data/products.js or src/content/products/
-```
+Use `get-astro-config` to find content setup:
 
-### Service Pages
-```
-Location: src/data/services.js or src/pages/services/
-```
+```markdown
+## 📁 Content Structure Discovery
 
-### Location Pages
-```
-Location: src/data/locations.js or src/pages/locations/
+### Project Configuration
+| Setting | Value |
+|---------|-------|
+| Content Directory | [src/content/ or custom] |
+| Pages Directory | [src/pages/] |
+| Public Directory | [public/] |
+| Collections Defined | [list from config] |
 ```
 
-For each piece of content, extract:
-- URL/slug
-- Title
-- Publish date (if available)
-- Word count
-- Last modified date
+### Query All Routes
+
+Use `list-astro-routes` to find all content pages:
+
+```markdown
+### Content Routes Found
+
+| Route Pattern | Type | Source | Count |
+|---------------|------|--------|-------|
+| /blog/[slug] | Content Collection | src/content/blog/ | X posts |
+| /products/[id] | Data-driven | src/data/products.js | X items |
+| /services/[slug] | Static pages | src/pages/services/ | X pages |
+| /locations/[city] | Data-driven | src/data/locations.js | X pages |
+| /[...slug] | Catch-all | src/pages/ | X pages |
+```
+
+### Search Astro Docs for Content Patterns
+
+Use `search_astro_docs` for "content collections":
+
+```markdown
+### Astro Content Best Practices
+- Collections location: src/content/[collection]/
+- Schema definition: src/content/config.ts
+- Querying: getCollection() and getEntry()
+- Images: Can be colocated or in src/assets/
+```
 
 ---
 
-## Step 2: Query Performance Data
+## Step 2: Inventory All Content
+
+Based on discovered structure, scan for content:
+
+### Content Collections (if using)
+
+```markdown
+### 📚 Content Collections
+
+| Collection | Location | Items | Schema |
+|------------|----------|-------|--------|
+| blog | src/content/blog/ | X | ✅ Defined |
+| docs | src/content/docs/ | X | ✅ Defined |
+| [other] | src/content/[name]/ | X | ✅/❌ |
+
+#### Blog Posts
+| Slug | Title | Published | Words | Images |
+|------|-------|-----------|-------|--------|
+| [slug] | [title] | [date] | X | X |
+
+#### Collection Health
+| Metric | Value | Status |
+|--------|-------|--------|
+| Total items | X | - |
+| With images | X (Y%) | ✅/⚠️ |
+| With description | X (Y%) | ✅/⚠️ |
+| Draft status | X drafts | - |
+```
+
+### Data-Driven Pages
+
+```markdown
+### 📊 Data-Driven Content
+
+| Data File | Location | Items | Generates |
+|-----------|----------|-------|-----------|
+| products.js | src/data/ | X | /products/[slug] |
+| services.js | src/data/ | X | /services/[slug] |
+| locations.js | src/data/ | X | /locations/[city] |
+
+#### Products
+| Slug | Name | Has Image | Has Description |
+|------|------|-----------|-----------------|
+| [slug] | [name] | ✅/❌ | ✅/❌ |
+```
+
+### Static Pages
+
+```markdown
+### 📄 Static Pages
+
+| Route | File | Last Modified |
+|-------|------|---------------|
+| / | src/pages/index.astro | [date] |
+| /about | src/pages/about.astro | [date] |
+| /contact | src/pages/contact.astro | [date] |
+```
+
+---
+
+## Step 3: Query Performance Data
 
 ### Google Analytics (90 Days)
-For each content URL:
+
+For each content URL discovered:
 - Sessions
 - Users
 - Bounce rate
@@ -49,6 +127,7 @@ For each content URL:
 - Exit rate
 
 ### Google Search Console (90 Days)
+
 For each content URL:
 - Impressions
 - Clicks
@@ -58,7 +137,7 @@ For each content URL:
 
 ---
 
-## Step 3: Calculate Performance Scores
+## Step 4: Calculate Performance Scores
 
 ### Scoring Formula
 
@@ -78,7 +157,7 @@ Overall Score = (Traffic × 0.4) + (Engagement × 0.3) + (SEO × 0.3)
 
 ---
 
-## Step 4: Categorize Content
+## Step 5: Categorize Content
 
 ### ⭐ Top Performers
 **Criteria:**
@@ -122,18 +201,57 @@ Overall Score = (Traffic × 0.4) + (Engagement × 0.3) + (SEO × 0.3)
 
 ---
 
-## Step 5: Identify Patterns
+## Step 6: Analyze Content Patterns
 
-Analyze top performers to find:
-- Common topics/themes
-- Optimal content length
-- Formats that work (lists, guides, comparisons)
-- Publishing patterns
-- Internal linking patterns
+### By Content Type (from astro-mcp discovery)
+
+```markdown
+### Performance by Content Type
+
+| Type | Source | Avg Score | Best Performer |
+|------|--------|-----------|----------------|
+| Blog Posts | src/content/blog/ | X | [title] |
+| Products | src/data/products.js | X | [name] |
+| Services | src/data/services.js | X | [name] |
+| Locations | src/data/locations.js | X | [city] |
+| Static Pages | src/pages/ | X | [page] |
+```
+
+### By Route Pattern
+
+```markdown
+### Performance by Route Pattern
+
+| Pattern | Pages | Total Sessions | Avg Score |
+|---------|-------|----------------|-----------|
+| /blog/* | X | X | X |
+| /products/* | X | X | X |
+| /services/* | X | X | X |
+| /[static] | X | X | X |
+```
+
+### Content Location Insights
+
+```markdown
+### 💡 Content Organization Insights
+
+**What's Working:**
+- Blog posts in src/content/blog/ average X sessions
+- Products with images perform Y% better
+
+**Potential Issues:**
+- [X] items in [location] have no traffic
+- Content in [location] missing from routes
+
+**Astro-Specific Recommendations:**
+[Search Astro docs for content optimization]
+- Consider using Content Collections for [type]
+- Image optimization available via astro:assets
+```
 
 ---
 
-## Step 6: Generate Report
+## Step 7: Generate Report
 
 ```markdown
 ## 📊 Content ROI Report
@@ -141,6 +259,17 @@ Analyze top performers to find:
 **Generated:** [Date]
 **Analysis Period:** 90 days
 **Content Analyzed:** [X] pieces
+
+---
+
+### Content Discovery Summary (via astro-mcp)
+
+| Source | Location | Items | In Analytics |
+|--------|----------|-------|--------------|
+| Content Collections | src/content/ | X | X |
+| Data Files | src/data/ | X | X |
+| Static Pages | src/pages/ | X | X |
+| **Total** | - | **X** | **X** |
 
 ---
 
@@ -169,17 +298,17 @@ Analyze top performers to find:
 
 These are your best content pieces. Replicate what works.
 
-| Content | Sessions | Bounce | Duration | Position | Score |
-|---------|----------|--------|----------|----------|-------|
-| [Title](/url/) | X | X% | X:XX | X.X | X |
-| [Title](/url/) | X | X% | X:XX | X.X | X |
-| [Title](/url/) | X | X% | X:XX | X.X | X |
+| Content | Location | Sessions | Bounce | Duration | Score |
+|---------|----------|----------|--------|----------|-------|
+| [Title](/url/) | src/content/blog/ | X | X% | X:XX | X |
+| [Title](/url/) | src/data/products.js | X | X% | X:XX | X |
 
 **Common Patterns:**
 - Average length: X words
 - Common topics: [topics]
 - Format: [format type]
 - Avg internal links: X
+- Content source: [most common location]
 
 **Recommendation:** Create more content like these. Link new content TO these pages.
 
@@ -189,50 +318,26 @@ These are your best content pieces. Replicate what works.
 
 These have potential but need work.
 
-| Content | Issue | Current | Potential | Effort |
-|---------|-------|---------|-----------|--------|
-| [Title](/url/) | Low CTR | X clicks | +X clicks | 30m |
-| [Title](/url/) | Outdated | X sessions | +X sessions | 2h |
-| [Title](/url/) | Thin | X sessions | +X sessions | 1h |
+| Content | Location | Issue | Potential | Effort |
+|---------|----------|-------|-----------|--------|
+| [Title](/url/) | src/content/blog/ | Low CTR | +X clicks | 30m |
+| [Title](/url/) | src/data/products.js | Outdated | +X sessions | 2h |
 
 #### 1. [Title] - Low CTR Despite Impressions
+
+**Location:** `src/content/blog/[slug].md`
 
 **Current Performance:**
 - Impressions: X
 - Clicks: X
 - CTR: X% (should be ~3-5%)
-- Position: X.X
-
-**Problem:** Good rankings but users don't click.
 
 **Fix:**
 - Current title: "[title]"
 - Suggested title: "[new title]"
-- Current meta: "[meta]"
-- Suggested meta: "[new meta]"
+- File to edit: `src/content/blog/[slug].md`
 
 **Estimated Impact:** +X clicks/month
-**Effort:** 15 minutes
-
----
-
-#### 2. [Title] - Needs Content Refresh
-
-**Current Performance:**
-- Published: [date]
-- Last updated: [date]
-- Sessions: X (down X% YoY)
-
-**Problem:** Content is stale, competitors have newer info.
-
-**Fix:**
-- Update statistics and data
-- Add section about [new topic]
-- Refresh examples
-- Update publish date
-
-**Estimated Impact:** +X sessions/month
-**Effort:** 2 hours
 
 ---
 
@@ -240,25 +345,22 @@ These have potential but need work.
 
 These need significant work or removal.
 
-| Content | Sessions | Issue | Recommendation |
-|---------|----------|-------|----------------|
-| [Title](/url/) | X | No traffic | Merge with [other] |
-| [Title](/url/) | X | High bounce | Rewrite intro |
-| [Title](/url/) | X | Off-topic | Redirect |
+| Content | Location | Sessions | Issue | Recommendation |
+|---------|----------|----------|-------|----------------|
+| [Title](/url/) | src/content/blog/ | X | No traffic | Merge with [other] |
+| [Title](/url/) | src/pages/ | X | High bounce | Rewrite intro |
 
 #### Merge Candidates
-These thin/similar pieces should be combined:
 
-| Merge These | Into | Combined Potential |
-|-------------|------|-------------------|
-| [Post A] + [Post B] | [New comprehensive post] | X sessions |
+| Merge These | Location | Into | Combined Potential |
+|-------------|----------|------|-------------------|
+| [Post A] + [Post B] | src/content/blog/ | [New post] | X sessions |
 
 #### Redirect Candidates
-These should 301 redirect to better content:
 
-| Remove | Redirect To | Reason |
-|--------|-------------|--------|
-| /[old-url]/ | /[better-url]/ | [reason] |
+| Remove | Location | Redirect To | Reason |
+|--------|----------|-------------|--------|
+| /[old-url]/ | src/pages/old.astro | /[better-url]/ | [reason] |
 
 ---
 
@@ -268,77 +370,124 @@ Based on GSC data, you're getting impressions for topics without dedicated conte
 
 | Query | Impressions | Current Page | Recommendation |
 |-------|-------------|--------------|----------------|
-| [query] | X | /[wrong-page]/ | Create dedicated page |
-| [query] | X | None | Create new content |
+| [query] | X | /[wrong-page]/ | Create in src/content/blog/ |
+| [query] | X | None | Create new data item |
 
 #### Suggested New Content
 
 1. **"[Topic]"**
    - Search volume indicator: X impressions
-   - Competition: [Low/Medium/High]
-   - Suggested URL: /[slug]/
+   - Suggested location: `src/content/blog/[slug].md`
+   - Template: Use existing blog post structure
    - Estimated effort: X hours
-   - Potential: +X sessions/month
+
+---
+
+### 🏗️ Content Structure Recommendations
+
+Based on Astro best practices (from docs):
+
+| Current | Recommendation | Benefit |
+|---------|----------------|---------|
+| [pattern] | [better pattern] | [benefit] |
+
+**Astro-Specific Suggestions:**
+1. [Suggestion based on docs search]
+2. [Suggestion based on project analysis]
 
 ---
 
 ### 📈 Content Strategy Recommendations
 
 #### This Month
-1. **Update [Post]** - Est: 2h - Impact: +X sessions
+1. **Update [Post]** - Edit: `src/content/blog/[slug].md` - Impact: +X sessions
 2. **Optimize titles for [Posts]** - Est: 1h - Impact: +X clicks
 3. **Merge [Posts]** - Est: 1h - Impact: Cleanup + X sessions
 
 #### Next Month
-4. **Create [New Topic]** - Est: 4h - Impact: +X sessions
+4. **Create [New Topic]** - Add to: `src/content/blog/` - Impact: +X sessions
 5. **Expand [Post]** - Est: 2h - Impact: +X sessions
-
-#### Ongoing
-- Update top performers quarterly
-- Publish X new posts per month on [successful topics]
-- Internal link from every new post to top performers
-
----
-
-### 🎯 30-Day Goals
-
-| Goal | Target | Current | Action |
-|------|--------|---------|--------|
-| Blog traffic | +20% | X sessions | Update top 3 posts |
-| Avg. bounce rate | <60% | X% | Improve intros |
-| New content | 2 posts | 0 | [Topics] |
-| Content refreshes | 5 posts | 0 | [Posts] |
 
 ---
 
 ### 📋 Add to Tracker?
 
 Create issues for:
-- [ ] Content updates (X items)
-- [ ] New content to create (X items)
+- [ ] Content updates (X items) - with file locations
+- [ ] New content to create (X items) - with suggested locations
 - [ ] Redirects to set up (X items)
 - [ ] Merges to perform (X items)
 
 **Options:**
-- **"Add all"** - Create all issues
+- **"Add all"** - Create all issues with file paths
 - **"Add updates only"** - Just update tasks
 - **"No"** - Keep report only
 ```
 
 ---
 
-## Step 7: Implementation Support
+## Step 8: Implementation Support
 
 If user wants to act immediately:
 
 ```markdown
 ## Quick Actions Available
 
-1. **"Update [title]"** - Start content refresh
-2. **"Optimize titles"** - Batch update meta tags
-3. **"Create [topic]"** - Start new content
-4. **"Set up redirects"** - Configure 301s
-5. **"Add to tracker"** - Create issues
+### Content Updates
+1. **"Update [title]"** - Opens file at [location]
+2. **"Optimize titles"** - Batch update frontmatter
+
+### New Content
+3. **"Create [topic]"** - Scaffolds new content file
+   - For blog: Creates `src/content/blog/[slug].md`
+   - For product: Adds to `src/data/products.js`
+
+### Structure Changes
+4. **"Set up redirects"** - Configures in Astro config
+5. **"Merge [posts]"** - Combines content files
 
 What would you like to do?
 ```
+
+### Create New Content Helper
+
+```markdown
+## Creating: [Topic]
+
+**Based on project structure (via astro-mcp):**
+
+Best location: `src/content/blog/`
+
+**Template (matching existing posts):**
+```markdown
+---
+title: "[Topic]"
+description: "[Description targeting query]"
+pubDate: [today's date]
+---
+
+# [Topic]
+
+[Content here]
+```
+
+**File created:** `src/content/blog/[slug].md`
+
+**Next steps:**
+1. Edit the content
+2. Add images to `src/assets/blog/`
+3. Run `npm run dev` to preview
+4. Verify route exists via `/astro-check routes blog`
+```
+
+---
+
+## MCP Usage Summary
+
+| Step | Astro Docs MCP | astro-mcp |
+|------|----------------|-----------|
+| Discovery | Content collection patterns | Project config, all routes |
+| Inventory | - | File locations |
+| Analysis | - | Route-to-file mapping |
+| Recommendations | Content best practices | Where to create/edit |
+| Implementation | - | Verify new routes |

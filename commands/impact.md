@@ -13,31 +13,48 @@ Read issue #$1 from tracker
 Extract:
 - Completion date
 - Affected pages
-- Type of change (SEO, bug, feature, etc.)
+- Affected files (source locations)
+- Type of change (SEO, bug, feature, Astro, etc.)
 ```
 
 ### If Page Path Provided
 ```
 Find recent changes to $1
-Check git log for the page
+Use astro-mcp to map URL to source file
+Check git log for the source file
 Determine change date
 ```
 
-### If Neither
+### Map URL to Source File (via astro-mcp)
+
+```markdown
+### 🗺️ URL to Source Mapping
+
+| URL | Source File | Type |
+|-----|-------------|------|
+| $1 | [file path] | [collection/data/page] |
+
+**Git History for Source:**
+```
+[git log for source file]
+```
+```
+
+### If Neither Provided
 ```markdown
 ## What Would You Like to Measure?
 
 **Recent Completed Issues:**
-| # | Title | Completed | Days Ago |
-|---|-------|-----------|----------|
-| X | [Title] | [Date] | X |
-| X | [Title] | [Date] | X |
-| X | [Title] | [Date] | X |
+| # | Title | Completed | Days Ago | Files Changed |
+|---|-------|-----------|----------|---------------|
+| X | [Title] | [Date] | X | [files] |
+| X | [Title] | [Date] | X | [files] |
 
-**Recently Modified Pages:**
-| Page | Last Modified | Changes |
-|------|---------------|---------|
-| /path/ | [Date] | [Description] |
+**Recently Modified Content (via astro-mcp + git):**
+| Page | Source File | Last Modified | Changes |
+|------|-------------|---------------|---------|
+| /path/ | src/content/... | [Date] | [Description] |
+| /path/ | src/data/... | [Date] | [Description] |
 
 Select an issue number or page path to measure.
 ```
@@ -80,7 +97,34 @@ What would you like to do?
 
 ---
 
-## Step 3: Query Analytics Data
+## Step 3: Gather Change Context (via astro-mcp)
+
+```markdown
+### 📝 Change Details
+
+**Issue/Change:** $1
+**Completion Date:** [date]
+**Type:** [SEO/Content/Astro/Bug/Feature]
+
+#### Files Changed
+| File | Change Type | Description |
+|------|-------------|-------------|
+| [src/content/...] | Modified | Updated title/meta |
+| [src/data/...] | Modified | Added description |
+| [src/pages/...] | Created | New page |
+
+#### Routes Affected
+| Route | Type | Sessions/Month |
+|-------|------|----------------|
+| /[path]/ | [static/dynamic] | X |
+
+#### Change Summary
+[What was changed and why]
+```
+
+---
+
+## Step 4: Query Analytics Data
 
 ### Google Analytics
 
@@ -116,7 +160,7 @@ Same metrics for comparison
 
 ---
 
-## Step 4: Calculate Changes
+## Step 5: Calculate Changes
 
 ```python
 def calculate_change(before, after):
@@ -128,7 +172,7 @@ def calculate_change(before, after):
 
 ---
 
-## Step 5: Assess Statistical Significance
+## Step 6: Assess Statistical Significance
 
 ```markdown
 ### Statistical Context
@@ -148,7 +192,7 @@ def calculate_change(before, after):
 
 ---
 
-## Step 6: Generate Impact Report
+## Step 7: Generate Impact Report
 
 ```markdown
 ## 📊 Impact Report
@@ -158,10 +202,15 @@ def calculate_change(before, after):
 | Field | Value |
 |-------|-------|
 | Issue/Change | #$1 - [Title] |
-| Type | [SEO/Bug/Feature/Performance] |
+| Type | [SEO/Bug/Feature/Astro] |
 | Implemented | [Date] |
 | Days Measured | [X] |
 | Pages Affected | [X] |
+
+#### Source Files Changed
+| File | Change |
+|------|--------|
+| `[path]` | [description] |
 
 ---
 
@@ -205,7 +254,6 @@ Bounce:    Before [████████░░] X%
 |-------|------------|-----------|--------|
 | [query] | X.X | X.X | ↑ X |
 | [query] | X.X | X.X | ↑ X |
-| [query] | X.X | X.X | ↓ X |
 
 ---
 
@@ -257,10 +305,9 @@ Bounce:    Before [████████░░] X%
 
 ---
 
-### 📝 Update Tracker
+### 📝 Update Records
 
-Add this measurement to the issue record:
-
+**Add to Issue Tracker:**
 ```markdown
 **Impact Measured** ([Date], [X]-day comparison)
 - Sessions: [Before] → [After] (+X%)
@@ -271,6 +318,11 @@ Add this measurement to the issue record:
 - Confidence: [High/Medium/Low]
 ```
 
+**Files Reference:**
+| File | Impact |
+|------|--------|
+| `[path]` | [measured impact] |
+
 ---
 
 ### 🔄 Next Steps
@@ -279,7 +331,9 @@ Add this measurement to the issue record:
 
 [If positive:]
 1. ✅ Document this as a successful pattern
-2. 🔄 Apply similar changes to related pages
+2. 🔄 Apply similar changes to related content:
+   - `[similar file 1]`
+   - `[similar file 2]`
 3. 📅 Re-measure in 30 more days for long-term trend
 
 [If neutral:]
@@ -295,7 +349,7 @@ Add this measurement to the issue record:
 
 ---
 
-## Step 7: Handle Negative Results
+## Step 8: Handle Negative Results
 
 ```markdown
 ## ⚠️ Negative Impact Detected
@@ -304,24 +358,32 @@ The change appears to have had a negative effect on [metrics].
 
 ### Investigation
 
+**File Changed:** `[path from astro-mcp]`
+
 **Potential Causes:**
 1. [Hypothesis 1]
 2. [Hypothesis 2]
 3. [External factor]
 
+### Astro-Specific Check
+[If Astro-related change, search docs for issues]
+
+**Astro Docs says:**
+[Relevant guidance if applicable]
+
 ### Recommended Actions
 
 | Option | Description | Risk |
 |--------|-------------|------|
-| **Rollback** | Revert the change | Low - returns to known state |
-| **Iterate** | Modify the implementation | Medium - may improve or worsen |
-| **Wait** | Collect more data | Low - may recover naturally |
+| **Rollback** | Revert the change | Low |
+| **Iterate** | Modify the implementation | Medium |
+| **Wait** | Collect more data | Low |
 
 ### Rollback Instructions
 
 ```bash
-# Find the commit
-git log --oneline | grep "[issue reference]"
+# Find the commit that changed [file]
+git log --oneline [file path]
 
 # Revert it
 git revert [commit-hash]
@@ -338,33 +400,37 @@ What would you like to do?
 
 ---
 
-## Step 8: Aggregate View (Optional)
+## Step 9: Find Similar Content to Optimize
+
+If impact was positive, suggest applying same changes elsewhere:
 
 ```markdown
-## 📈 Cumulative Impact (All Measured Changes)
+## 🎯 Apply Winning Pattern
 
-### Last 30 Days
+This change worked! Here are similar files that could benefit:
 
-| Category | Changes | Avg Impact | Total Sessions |
-|----------|---------|------------|----------------|
-| SEO | X | +X% | +X sessions |
-| Bug Fixes | X | +X% | +X sessions |
-| Features | X | +X% | +X sessions |
-| Performance | X | +X% | +X sessions |
+### Similar Content (via astro-mcp)
 
-**Total Estimated Monthly Impact:** +[X] sessions
+| File | Current State | Potential |
+|------|---------------|-----------|
+| `src/content/blog/[similar1].md` | Missing meta | +X clicks |
+| `src/content/blog/[similar2].md` | Weak title | +X clicks |
+| `src/data/products.js` → [item] | No description | +X clicks |
 
-### Top Performing Changes
-
-| Change | Impact | ROI |
-|--------|--------|-----|
-| [Change 1] | +X% | High |
-| [Change 2] | +X% | High |
-| [Change 3] | +X% | Medium |
-
-### Lessons Learned
-
-- [Pattern that works]
-- [Pattern that doesn't work]
-- [Recommendation for future]
+**Apply pattern to these?**
+- "Apply all" - Update all similar files
+- "Apply [file]" - Update specific file
+- "Show details" - See current vs suggested for each
 ```
+
+---
+
+## MCP Usage Summary
+
+| Step | Astro Docs MCP | astro-mcp |
+|------|----------------|-----------|
+| Identify | - | Map URL to source file |
+| Context | - | List affected routes/files |
+| Analysis | - | - |
+| Negative results | Check for issues | - |
+| Apply pattern | - | Find similar content |
