@@ -24,6 +24,8 @@
 - **Structured Features** - GSD-style development with fresh context per task
 - **Impact Measurement** - Measure before/after effect of changes
 - **SEO Automation** - Find quick wins, audit content, optimize rankings
+- **MCP Integration** - Query Astro docs and project state via MCP tools
+- **Batch Fixing** - Fix multiple issues in sequence without interruption
 - **Smart Merge** - Preserves your existing CLAUDE.md project context on install
 
 ---
@@ -194,6 +196,7 @@ GITHUB_REPO=username/repo-name
 | Command | Description |
 |---------|-------------|
 | `/fix-next` | Auto-select and fix highest priority issue |
+| `/fix-batch [n]` | Fix multiple issues in sequence (default: 5) |
 | `/audit [type]` | Run audit (seo / a11y / perf / full) |
 
 ### 📈 SEO & Analytics
@@ -210,6 +213,13 @@ GITHUB_REPO=username/repo-name
 |---------|-------------|
 | `/feature "desc"` | Plan and build new feature |
 | `/deploy-check` | Pre-deployment verification |
+
+### 🔌 MCP Integration
+
+| Command | Description |
+|---------|-------------|
+| `/astro-check` | Query project info via MCP (routes, config) |
+| `/astro-check docs "query"` | Search Astro documentation |
 
 ### ❓ Help
 
@@ -260,6 +270,14 @@ Higher score = fix first.
 /fix-next       # Work on highest impact issue
 /fix-next       # Continue with next priority
 /pause          # Save progress when done
+```
+
+### Batch Processing
+
+```bash
+/fix-batch      # Fix 5 issues in sequence
+/fix-batch 10   # Fix 10 issues
+/fix-batch all  # Clear all simple issues
 ```
 
 ### Weekly SEO Review
@@ -377,6 +395,48 @@ rm -rf .planning/SESSION.md
 
 ---
 
+## MCP Setup (Optional)
+
+The plugin integrates with MCP servers for enhanced functionality. Both are optional but recommended.
+
+### Astro Docs MCP
+
+Search official Astro documentation directly from Claude Code.
+
+Add to your MCP config (`~/.config/claude/mcp.json` or VS Code settings):
+
+```json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    }
+  }
+}
+```
+
+### astro-mcp (Project Integration)
+
+Query your project's routes, config, and integrations when the dev server is running.
+
+```bash
+npx astro add astro-mcp
+```
+
+Then start your dev server - MCP endpoint available at `http://localhost:4321/__mcp/sse`.
+
+### Usage
+
+```bash
+/astro-check              # Full project report
+/astro-check routes       # List all routes
+/astro-check config       # Show configuration
+/astro-check docs "image" # Search Astro docs for "image"
+```
+
+---
+
 ## Requirements
 
 - **Astro** 4.0+ (optimized for Astro 5)
@@ -388,6 +448,8 @@ rm -rf .planning/SESSION.md
 - Google Analytics 4 property
 - Google Search Console access
 - GitHub repository (for issue tracking)
+- Astro Docs MCP (for documentation search)
+- astro-mcp integration (for project state queries)
 
 ---
 

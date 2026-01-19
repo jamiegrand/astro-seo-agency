@@ -15,7 +15,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Version
-VERSION="2.1.1"
+VERSION="2.2.0"
 
 # Print banner
 echo ""
@@ -123,6 +123,7 @@ install_commands() {
         "resume"
         "status"
         "audit"
+        "astro-check"
         "deploy-check"
         "help"
     )
@@ -636,10 +637,11 @@ print_completion() {
     echo ""
     echo -e "  ${GREEN}/start${NC}        Begin session with priorities"
     echo -e "  ${GREEN}/fix-next${NC}     Fix highest-impact issue"
+    echo -e "  ${GREEN}/fix-batch${NC}    Fix multiple issues in sequence"
     echo -e "  ${GREEN}/seo-wins${NC}     Find ranking opportunities"
+    echo -e "  ${GREEN}/astro-check${NC}  Query project via MCP"
     echo -e "  ${GREEN}/feature${NC}      Build new features"
     echo -e "  ${GREEN}/pause${NC}        Save your progress"
-    echo -e "  ${GREEN}/resume${NC}       Continue later"
     echo -e "  ${GREEN}/help${NC}         Show all commands"
     echo ""
 }
