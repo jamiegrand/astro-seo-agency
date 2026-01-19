@@ -114,6 +114,7 @@ install_commands() {
     local commands=(
         "start"
         "fix-next"
+        "fix-batch"
         "seo-wins"
         "content-roi"
         "impact"
