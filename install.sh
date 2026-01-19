@@ -166,6 +166,61 @@ install_prompts() {
     echo -e "\n  Prompts installed: ${prompts_installed}/${#prompts[@]}"
 }
 
+# Install MCP configuration for Astro Docs server
+install_mcp_config() {
+    echo -e "\n${BOLD}Configuring MCP servers...${NC}"
+
+    local mcp_config='{
+  "mcpServers": {
+    "astro-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    }
+  }
+}'
+
+    if [ -f ".mcp.json" ]; then
+        # Check if astro-docs is already configured
+        if grep -q "astro-docs" .mcp.json 2>/dev/null; then
+            echo -e "  ${GREEN}✓${NC} Astro Docs MCP already configured"
+        else
+            # Backup existing and merge
+            echo -e "  ${YELLOW}⚠${NC} Existing .mcp.json found"
+            echo -e "    Adding astro-docs server to existing config..."
+
+            # Create backup
+            cp .mcp.json .mcp.json.backup
+
+            # Use node to merge JSON if available, otherwise inform user
+            if command -v node &> /dev/null; then
+                node -e "
+                    const fs = require('fs');
+                    const existing = JSON.parse(fs.readFileSync('.mcp.json', 'utf8'));
+                    existing.mcpServers = existing.mcpServers || {};
+                    existing.mcpServers['astro-docs'] = {
+                        command: 'npx',
+                        args: ['-y', 'mcp-remote', 'https://mcp.docs.astro.build/mcp']
+                    };
+                    fs.writeFileSync('.mcp.json', JSON.stringify(existing, null, 2) + '\n');
+                " 2>/dev/null && echo -e "  ${GREEN}✓${NC} Merged astro-docs into .mcp.json" || {
+                    echo -e "  ${YELLOW}⚠${NC} Could not auto-merge. Please add manually:"
+                    echo -e "    ${CYAN}astro-docs: npx -y mcp-remote https://mcp.docs.astro.build/mcp${NC}"
+                }
+            else
+                echo -e "  ${YELLOW}⚠${NC} Please add astro-docs to your .mcp.json manually:"
+                echo -e "    ${CYAN}\"astro-docs\": { \"command\": \"npx\", \"args\": [\"-y\", \"mcp-remote\", \"https://mcp.docs.astro.build/mcp\"] }${NC}"
+            fi
+        fi
+    else
+        # Create new .mcp.json
+        echo "$mcp_config" > .mcp.json
+        echo -e "  ${GREEN}✓${NC} Created .mcp.json with Astro Docs MCP"
+    fi
+
+    echo -e "\n  ${CYAN}ℹ${NC}  Astro Docs MCP provides real-time documentation access"
+    echo -e "  ${CYAN}ℹ${NC}  Restart Claude Code after installation to activate"
+}
+
 # Create .env.example
 create_env_example() {
     echo -e "\n${BOLD}Creating configuration files...${NC}"
@@ -678,6 +733,7 @@ main() {
     create_directories
     install_commands
     install_prompts
+    install_mcp_config
     create_env_example
     create_claude_md
     update_gitignore
