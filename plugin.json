@@ -42,6 +42,11 @@
       "description": "Analyze and integrate with existing Astro project",
       "file": "prompts/brownfield.md",
       "triggers": ["/brownfield", "analyze project", "existing project"]
+    },
+    "verify": {
+      "description": "Verify plugin installation is complete and working",
+      "file": "prompts/verify.md",
+      "triggers": ["/verify", "check installation", "verify setup"]
     }
   },
 

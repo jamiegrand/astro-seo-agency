@@ -150,6 +150,7 @@ install_prompts() {
     local prompts=(
         "setup"
         "brownfield"
+        "verify"
     )
 
     local prompts_installed=0

@@ -65,6 +65,7 @@ description: Show all available commands and usage
 |---------|-------------|-------------|
 | `/setup` | Interactive setup wizard | First time configuring the plugin |
 | `/brownfield` | Analyze existing project | Adding plugin to established codebase |
+| `/verify` | Verify installation is working | After install, troubleshooting |
 
 ### Help
 
