@@ -1,3 +1,7 @@
+---
+description: Interactive setup wizard for new or existing Astro projects
+---
+
 # Project Setup Wizard
 
 Interactive setup for the Astro SEO Agency plugin with Astro MCP integration.

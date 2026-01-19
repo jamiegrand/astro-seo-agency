@@ -1,3 +1,7 @@
+---
+description: Analyze and integrate with an existing Astro project
+---
+
 # Brownfield Analysis
 
 This prompt analyzes an existing Astro project and integrates the SEO Agency workflow with full Astro MCP support.

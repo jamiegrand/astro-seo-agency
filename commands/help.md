@@ -59,6 +59,13 @@ description: Show all available commands and usage
 | `/feature "desc"` | Plan and build new feature | Adding new functionality |
 | `/deploy-check` | Pre-deployment verification | Before every deploy |
 
+### Setup & Configuration
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `/setup` | Interactive setup wizard | First time configuring the plugin |
+| `/brownfield` | Analyze existing project | Adding plugin to established codebase |
+
 ### Help
 
 | Command | Description |

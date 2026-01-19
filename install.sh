@@ -110,7 +110,7 @@ install_file() {
 # Install command files
 install_commands() {
     echo -e "\n${BOLD}Installing commands...${NC}"
-    
+
     local commands=(
         "start"
         "fix-next"
@@ -127,7 +127,7 @@ install_commands() {
         "deploy-check"
         "help"
     )
-    
+
     for cmd in "${commands[@]}"; do
         if install_file "commands/${cmd}.md" ".claude/commands/${cmd}.md" "/${cmd}"; then
             ((COMMANDS_INSTALLED++))
@@ -135,12 +135,34 @@ install_commands() {
             ((INSTALL_ERRORS++))
         fi
     done
-    
+
     echo -e "\n  Commands installed: ${COMMANDS_INSTALLED}/${#commands[@]}"
-    
+
     if [ $INSTALL_ERRORS -gt 0 ]; then
         echo -e "  ${YELLOW}⚠${NC} Some commands failed to install"
     fi
+}
+
+# Install prompt files (interactive wizards)
+install_prompts() {
+    echo -e "\n${BOLD}Installing prompts...${NC}"
+
+    local prompts=(
+        "setup"
+        "brownfield"
+    )
+
+    local prompts_installed=0
+
+    for prompt in "${prompts[@]}"; do
+        if install_file "prompts/${prompt}.md" ".claude/commands/${prompt}.md" "/${prompt}"; then
+            ((prompts_installed++))
+        else
+            ((INSTALL_ERRORS++))
+        fi
+    done
+
+    echo -e "\n  Prompts installed: ${prompts_installed}/${#prompts[@]}"
 }
 
 # Create .env.example
@@ -654,6 +676,7 @@ main() {
     
     create_directories
     install_commands
+    install_prompts
     create_env_example
     create_claude_md
     update_gitignore
