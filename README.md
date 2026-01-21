@@ -1,5 +1,11 @@
 # Astro SEO Agency Plugin
 
+[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/jamiegrand/astro-seo-agency/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Astro](https://img.shields.io/badge/Astro-4.0%2B-ff5d01.svg?logo=astro)](https://astro.build)
+[![Node](https://img.shields.io/badge/Node.js-18%2B-339933.svg?logo=node.js)](https://nodejs.org)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-6B4FBB.svg)](https://claude.ai/claude-code)
+
 > Complete Astro.js project management with SEO workflows, analytics integration, and structured development for Claude Code.
 
 ```
@@ -95,6 +101,7 @@ Choose option (1/2/3) [1]:
 **Recommended: Choose MERGE (option 1)**
 
 This will:
+
 - ✅ Keep your project name, site URL, and configuration
 - ✅ Preserve your project-specific notes
 - ✅ Preserve any custom sections you've added
@@ -141,11 +148,13 @@ GITHUB_REPO=username/repo-name
 <summary>📖 How to get these credentials</summary>
 
 ### Google Analytics Property ID
+
 1. Go to [Google Analytics](https://analytics.google.com)
 2. Admin → Property Settings
 3. Copy the Property ID (numbers only)
 
 ### Google Search Console Setup
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Create a new project or select existing
 3. Enable the Search Console API
@@ -154,6 +163,7 @@ GITHUB_REPO=username/repo-name
 6. Add the service account email to your GSC property
 
 ### GitHub Token
+
 1. Go to GitHub → Settings → Developer settings → Personal access tokens
 2. Generate new token with `repo` scope
 3. Copy the token
@@ -184,47 +194,60 @@ GITHUB_REPO=username/repo-name
 
 ### 📋 Session Management
 
-| Command | Description |
-|---------|-------------|
-| `/start` | Initialize session with data-driven priorities |
-| `/status` | Show current project and session status |
-| `/pause` | Save session state for later |
-| `/resume` | Continue from saved session |
+| Command   | Description                                    |
+| --------- | ---------------------------------------------- |
+| `/start`  | Initialize session with data-driven priorities |
+| `/status` | Show current project and session status        |
+| `/pause`  | Save session state for later                   |
+| `/resume` | Continue from saved session                    |
 
 ### 🔧 Issue Resolution
 
-| Command | Description |
-|---------|-------------|
-| `/fix-next` | Auto-select and fix highest priority issue |
+| Command          | Description                                  |
+| ---------------- | -------------------------------------------- |
+| `/fix-next`      | Auto-select and fix highest priority issue   |
 | `/fix-batch [n]` | Fix multiple issues in sequence (default: 5) |
-| `/audit [type]` | Run audit (seo / a11y / perf / full) |
+| `/audit [type]`  | Run audit (seo / a11y / perf / astro / full) |
+
+<details>
+<summary>Audit types explained</summary>
+
+| Type    | Focus                                                                       |
+| ------- | --------------------------------------------------------------------------- |
+| `seo`   | Schema markup, meta tags, content quality, internal linking                 |
+| `a11y`  | WCAG 2.1 AA compliance, semantic HTML, image alt text                       |
+| `perf`  | Core Web Vitals, image optimization, JavaScript analysis                    |
+| `astro` | Astro config validation, deprecated patterns, hydration audit, route health |
+| `full`  | All of the above (default)                                                  |
+
+</details>
 
 ### 📈 SEO & Analytics
 
-| Command | Description |
-|---------|-------------|
-| `/seo-wins` | Find GSC quick wins (position 4-15) |
-| `/content-roi` | Analyze content performance |
-| `/impact [#]` | Measure before/after effect of changes |
+| Command        | Description                            |
+| -------------- | -------------------------------------- |
+| `/seo-wins`    | Find GSC quick wins (position 4-15)    |
+| `/content-roi` | Analyze content performance            |
+| `/impact [#]`  | Measure before/after effect of changes |
 
 ### 🚀 Feature Development
 
-| Command | Description |
-|---------|-------------|
-| `/feature "desc"` | Plan and build new feature |
-| `/deploy-check` | Pre-deployment verification |
+| Command           | Description                 |
+| ----------------- | --------------------------- |
+| `/feature "desc"` | Plan and build new feature  |
+| `/deploy-check`   | Pre-deployment verification |
 
 ### 🔌 MCP Integration
 
-| Command | Description |
-|---------|-------------|
-| `/astro-check` | Query project info via MCP (routes, config) |
-| `/astro-check docs "query"` | Search Astro documentation |
+| Command                     | Description                                 |
+| --------------------------- | ------------------------------------------- |
+| `/astro-check`              | Query project info via MCP (routes, config) |
+| `/astro-check docs "query"` | Search Astro documentation                  |
 
 ### ❓ Help
 
-| Command | Description |
-|---------|-------------|
+| Command | Description                 |
+| ------- | --------------------------- |
 | `/help` | Show all commands and usage |
 
 ---
@@ -329,14 +352,14 @@ your-project/
 
 The plugin works great even without Google Analytics or Search Console configured:
 
-| Feature | With Analytics | Without Analytics |
-|---------|----------------|-------------------|
-| `/start` | Shows traffic data + priorities | Shows issue priorities |
-| `/fix-next` | Ranks by traffic impact | Ranks by severity |
-| `/seo-wins` | Full GSC analysis | Content-based SEO audit |
-| `/audit` | ✅ Full functionality | ✅ Full functionality |
-| `/feature` | ✅ Full functionality | ✅ Full functionality |
-| `/pause`/`/resume` | ✅ Full functionality | ✅ Full functionality |
+| Feature            | With Analytics                  | Without Analytics       |
+| ------------------ | ------------------------------- | ----------------------- |
+| `/start`           | Shows traffic data + priorities | Shows issue priorities  |
+| `/fix-next`        | Ranks by traffic impact         | Ranks by severity       |
+| `/seo-wins`        | Full GSC analysis               | Content-based SEO audit |
+| `/audit`           | ✅ Full functionality           | ✅ Full functionality   |
+| `/feature`         | ✅ Full functionality           | ✅ Full functionality   |
+| `/pause`/`/resume` | ✅ Full functionality           | ✅ Full functionality   |
 
 ---
 
@@ -368,6 +391,7 @@ bash ../astro-seo-agency/install.sh
 ### "GSC not configured" message
 
 This is normal if you haven't set up Search Console. The plugin will:
+
 - Skip GSC-specific features
 - Use code-based SEO analysis instead
 - Still provide full functionality for other features
@@ -403,8 +427,32 @@ The plugin integrates with MCP servers for enhanced functionality. Both are opti
 
 Search official Astro documentation directly from Claude Code.
 
-Add to your MCP config (`~/.config/claude/mcp.json` or VS Code settings):
+**Auto-configured on install:** The installer creates `.mcp.json` in your project root with Astro Docs MCP pre-configured. No manual setup needed.
 
+<details>
+<summary>Manual configuration (if needed)</summary>
+
+MCP servers can be configured in multiple locations:
+
+| Location | Scope | File |
+|----------|-------|------|
+| **Project** (recommended) | This project only | `.mcp.json` in project root |
+| **User (CLI)** | All projects (CLI) | `~/.claude/mcp.json` |
+| **User (VS Code)** | All projects (VS Code) | VS Code Settings → Claude Code → MCP Servers |
+
+**Project-level config** (`.mcp.json`):
+```json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "url",
+      "url": "https://mcp.docs.astro.build/mcp"
+    }
+  }
+}
+```
+
+**User-level config** (`~/.claude/mcp.json`):
 ```json
 {
   "mcpServers": {
@@ -415,6 +463,8 @@ Add to your MCP config (`~/.config/claude/mcp.json` or VS Code settings):
   }
 }
 ```
+
+</details>
 
 ### astro-mcp (Project Integration)
 
