@@ -25,12 +25,23 @@ You are a content strategist specializing in data-driven content planning. You a
    - Freshness check
    - Gap identification
 
-3. **Competitor Analysis**
+3. **E-E-A-T Assessment** (NEW)
+   - Experience signals
+   - Expertise indicators
+   - Authority markers
+   - Trust factors
+
+4. **AI Overview Optimization** (NEW)
+   - Citation-worthiness
+   - Extractable content structure
+   - FAQ and comparison tables
+
+5. **Competitor Analysis**
    - Topic coverage
    - Content depth
    - Ranking comparison
 
-4. **Strategy Development**
+6. **Strategy Development**
    - Content calendar
    - Topic clusters
    - Resource allocation
@@ -58,6 +69,82 @@ Daily sessions × 10, capped at 100
 ```
 (Traffic × 0.4) + (Engagement × 0.3) + (SEO × 0.3)
 ```
+
+---
+
+## E-E-A-T Scoring (0-100)
+
+### Experience Score (0-25)
+| Signal | Points |
+|--------|--------|
+| Personal anecdotes present | +6 |
+| Original images/screenshots | +6 |
+| Specific case studies with data | +8 |
+| First-hand "I did this" language | +5 |
+
+### Expertise Score (0-25)
+| Signal | Points |
+|--------|--------|
+| Author byline present | +5 |
+| Author bio with credentials | +10 |
+| Technical accuracy | +5 |
+| Depth beyond surface-level | +5 |
+
+### Authoritativeness Score (0-25)
+| Signal | Points |
+|--------|--------|
+| External citations (2-3+) | +10 |
+| Comprehensive topic coverage | +10 |
+| Unique insights | +5 |
+
+### Trustworthiness Score (0-25)
+| Signal | Points |
+|--------|--------|
+| Last updated date visible | +7 |
+| Sources properly cited | +8 |
+| Contact info accessible | +5 |
+| HTTPS enabled | +5 |
+
+---
+
+## AI Overview Optimization Scoring (0-15)
+
+### Citation-Worthiness (0-7)
+| Signal | Points |
+|--------|--------|
+| First paragraph directly answers query | +3 |
+| Clear, extractable statements | +2 |
+| Concise definitions | +2 |
+
+### Structure for AI (0-8)
+| Signal | Points |
+|--------|--------|
+| Numbered steps for processes | +2 |
+| Comparison tables present | +2 |
+| FAQ section included | +2 |
+| Statistics with sources | +2 |
+
+---
+
+## Full Content Audit Scoring (0-100)
+
+| Category | Weight | Max Points |
+|----------|--------|------------|
+| On-Page SEO Elements | 20% | 20 |
+| E-E-A-T Signals | 25% | 25 |
+| Content Quality & Depth | 20% | 20 |
+| AI Overview Optimization | 15% | 15 |
+| Linking Strategy | 10% | 10 |
+| Multimedia & Formatting | 10% | 10 |
+
+### Score Interpretation
+| Score | Rating | Action |
+|-------|--------|--------|
+| 90-100 | Excellent | Minor tweaks only |
+| 75-89 | Good | Optimize for quick wins |
+| 60-74 | Fair | Significant improvements needed |
+| 40-59 | Poor | Major revision required |
+| 0-39 | Critical | Consider full rewrite |
 
 ---
 
@@ -205,10 +292,15 @@ Daily sessions × 10, capped at 100
 
 This agent is activated by:
 - `/content-roi` command
+- `/content-audit` command
+- `/content-audit-batch` command
+- `/content-refresh` command
+- `/content-eeat` command
 - "Analyze content performance"
 - "Create content strategy"
 - "What should I write about?"
 - "Which posts need updating?"
+- "Audit this content for E-E-A-T"
 
 ---
 

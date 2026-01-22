@@ -1,6 +1,6 @@
 {
   "name": "astro-seo-agency",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Complete Astro.js project management with SEO workflows, analytics integration, and structured development for Claude Code",
   "author": "Jamie Grand",
   "license": "MIT",
@@ -64,7 +64,7 @@
     "content-strategist": {
       "description": "Content planning based on performance data",
       "file": "agents/content-strategist.md",
-      "capabilities": ["content-audit", "gap-analysis", "calendar-planning"]
+      "capabilities": ["content-audit", "gap-analysis", "calendar-planning", "eeat-assessment", "ai-overview-optimization"]
     }
   },
 
@@ -128,6 +128,13 @@
       "requires": ["ga", "gsc"]
     },
     {
+      "name": "content-gap",
+      "description": "Find content opportunities from GSC data and generate briefs",
+      "file": "commands/content-gap.md",
+      "category": "seo",
+      "requires": ["gsc"]
+    },
+    {
       "name": "impact",
       "description": "Measure before/after effect of changes",
       "file": "commands/impact.md",
@@ -157,10 +164,69 @@
       "requires": []
     },
     {
+      "name": "generate-commands",
+      "description": "Generate custom commands based on your site's content structure",
+      "file": "commands/generate-commands.md",
+      "category": "development",
+      "requires": []
+    },
+    {
       "name": "help",
       "description": "Show all available commands and usage",
       "file": "commands/help.md",
       "category": "help"
+    },
+    {
+      "name": "content-audit",
+      "description": "Full SEO content audit with E-E-A-T and AI Overview scoring (0-100)",
+      "file": "commands/content-audit.md",
+      "arguments": "[page-path] [keyword]",
+      "category": "seo",
+      "requires": ["gsc"]
+    },
+    {
+      "name": "content-audit-quick",
+      "description": "10-point rapid content check with score/10",
+      "file": "commands/content-audit-quick.md",
+      "arguments": "[page-path] [keyword]",
+      "category": "seo"
+    },
+    {
+      "name": "content-audit-batch",
+      "description": "Batch audit multiple pages with priority ranking",
+      "file": "commands/content-audit-batch.md",
+      "arguments": "[collection|pages] [--limit N]",
+      "category": "seo",
+      "requires": ["gsc"]
+    },
+    {
+      "name": "content-refresh",
+      "description": "Find declining pages that need content refresh via GSC data",
+      "file": "commands/content-refresh.md",
+      "arguments": "[--days N] [--threshold N]",
+      "category": "seo",
+      "requires": ["gsc"]
+    },
+    {
+      "name": "content-eeat",
+      "description": "Deep dive E-E-A-T audit (Experience, Expertise, Authority, Trust)",
+      "file": "commands/content-eeat.md",
+      "arguments": "[page-path]",
+      "category": "seo"
+    },
+    {
+      "name": "content-history",
+      "description": "View audit score history and trends for a page",
+      "file": "commands/content-history.md",
+      "arguments": "[page-path]",
+      "category": "seo"
+    },
+    {
+      "name": "keyword-cache",
+      "description": "View and manage cached keyword research data",
+      "file": "commands/keyword-cache.md",
+      "arguments": "[list|search|refresh|clear] [keyword]",
+      "category": "seo"
     }
   ],
 
@@ -219,6 +285,21 @@
         "name": "BRAVE_API_KEY",
         "description": "Brave Search API key for competitor research",
         "example": "BSA_xxxxxxxxxxxx"
+      },
+      {
+        "name": "SCRAPERAPI_KEY",
+        "description": "ScraperAPI key for competitor content scraping",
+        "example": "your_scraperapi_key"
+      },
+      {
+        "name": "DATAFORSEO_USERNAME",
+        "description": "DataForSEO API username",
+        "example": "your_username"
+      },
+      {
+        "name": "DATAFORSEO_PASSWORD",
+        "description": "DataForSEO API password",
+        "example": "your_password"
       }
     ],
     "defaults": {
@@ -269,7 +350,23 @@
         "description": "Google Search Console API access",
         "package": "mcp-server-gsc",
         "optional": true,
-        "requiredFor": ["seo-wins", "impact", "content-roi"]
+        "requiredFor": ["seo-wins", "impact", "content-roi", "content-audit", "content-refresh", "content-audit-batch"]
+      },
+      "scraperapi": {
+        "description": "Web scraping for competitor content analysis",
+        "command": "npx",
+        "args": ["@scraperapi/mcp"],
+        "env": ["SCRAPERAPI_KEY"],
+        "optional": true,
+        "requiredFor": ["content-audit competitor analysis"]
+      },
+      "dataforseo": {
+        "description": "Keyword research, search volume, and SERP data",
+        "command": "npx",
+        "args": ["-y", "dataforseo-mcp-server"],
+        "env": ["DATAFORSEO_USERNAME", "DATAFORSEO_PASSWORD"],
+        "optional": true,
+        "requiredFor": ["content-audit keyword optimization"]
       },
       "github": {
         "description": "GitHub API for issue management",
@@ -289,6 +386,7 @@
     "created": [
       ".claude/commands/*.md",
       ".planning/",
+      ".planning/seo-audit.db",
       "CLAUDE.md",
       ".env.example"
     ],

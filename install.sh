@@ -15,7 +15,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Version
-VERSION="2.2.0"
+VERSION="2.3.0"
 
 # Print banner
 echo ""
@@ -116,6 +116,7 @@ install_commands() {
         "fix-next"
         "fix-batch"
         "seo-wins"
+        "content-gap"
         "content-roi"
         "impact"
         "feature"
@@ -125,7 +126,15 @@ install_commands() {
         "audit"
         "astro-check"
         "deploy-check"
+        "generate-commands"
         "help"
+        "content-audit"
+        "content-audit-quick"
+        "content-audit-batch"
+        "content-refresh"
+        "content-eeat"
+        "content-history"
+        "keyword-cache"
     )
 
     for cmd in "${commands[@]}"; do
@@ -260,6 +269,21 @@ GITHUB_REPO=
 # ============================================
 # For competitor research features
 BRAVE_API_KEY=
+
+# ============================================
+# ScraperAPI (Optional)
+# ============================================
+# For competitor content analysis in content audits
+# Get key at: https://www.scraperapi.com/
+SCRAPERAPI_KEY=
+
+# ============================================
+# DataForSEO (Optional)
+# ============================================
+# For keyword research data (volume, difficulty, PAA)
+# Get credentials at: https://dataforseo.com/
+DATAFORSEO_USERNAME=
+DATAFORSEO_PASSWORD=
 ENVEOF
         echo -e "  ${GREEN}✓${NC} .env.example"
     else
@@ -603,6 +627,35 @@ DEFAULTNOTES
 FOOTEREOF
 }
 
+# Initialize SQLite database for content audits
+init_database() {
+    echo -e "\n${BOLD}Initializing audit database...${NC}"
+
+    # Check if sqlite3 is available
+    if ! command -v sqlite3 &> /dev/null; then
+        echo -e "  ${YELLOW}⚠${NC} sqlite3 not found - database will be created on first use"
+        echo -e "    Install sqlite3 for better performance (brew install sqlite3)"
+        return
+    fi
+
+    # Create database if init-db.sql exists
+    if [ "$SOURCE" = "local" ] && [ -f "$SCRIPT_DIR/scripts/init-db.sql" ]; then
+        sqlite3 .planning/seo-audit.db < "$SCRIPT_DIR/scripts/init-db.sql" 2>/dev/null
+        echo -e "  ${GREEN}✓${NC} SQLite database initialized at .planning/seo-audit.db"
+    elif [ "$SOURCE" = "remote" ]; then
+        # Download and run init script
+        if curl -fsSL "$REPO_URL/scripts/init-db.sql" -o "/tmp/init-db.sql" 2>/dev/null; then
+            sqlite3 .planning/seo-audit.db < /tmp/init-db.sql 2>/dev/null
+            rm -f /tmp/init-db.sql
+            echo -e "  ${GREEN}✓${NC} SQLite database initialized at .planning/seo-audit.db"
+        else
+            echo -e "  ${YELLOW}⚠${NC} Could not download database schema - will create on first use"
+        fi
+    else
+        echo -e "  ${YELLOW}⚠${NC} Database schema not found - will create on first use"
+    fi
+}
+
 # Update .gitignore
 update_gitignore() {
     echo -e "\n${BOLD}Updating .gitignore...${NC}"
@@ -623,6 +676,7 @@ credentials/
 .env.local
 .planning/HANDOFF.md
 .planning/SESSION.md
+.planning/seo-audit.db
 *.pre-merge
 GITIGNOREEOF
     
@@ -713,14 +767,13 @@ print_completion() {
     echo ""
     echo -e "${BOLD}Quick command reference:${NC}"
     echo ""
-    echo -e "  ${GREEN}/start${NC}        Begin session with priorities"
-    echo -e "  ${GREEN}/fix-next${NC}     Fix highest-impact issue"
-    echo -e "  ${GREEN}/fix-batch${NC}    Fix multiple issues in sequence"
-    echo -e "  ${GREEN}/seo-wins${NC}     Find ranking opportunities"
-    echo -e "  ${GREEN}/astro-check${NC}  Query project via MCP"
-    echo -e "  ${GREEN}/feature${NC}      Build new features"
-    echo -e "  ${GREEN}/pause${NC}        Save your progress"
-    echo -e "  ${GREEN}/help${NC}         Show all commands"
+    echo -e "  ${GREEN}/start${NC}            Begin session with priorities"
+    echo -e "  ${GREEN}/fix-next${NC}         Fix highest-impact issue"
+    echo -e "  ${GREEN}/seo-wins${NC}         Find ranking opportunities"
+    echo -e "  ${GREEN}/content-audit${NC}    Full SEO content audit (0-100)"
+    echo -e "  ${GREEN}/content-refresh${NC}  Find declining pages via GSC"
+    echo -e "  ${GREEN}/feature${NC}          Build new features"
+    echo -e "  ${GREEN}/help${NC}             Show all commands"
     echo ""
 }
 
@@ -734,6 +787,7 @@ main() {
     install_commands
     install_prompts
     install_mcp_config
+    init_database
     create_env_example
     create_claude_md
     update_gitignore

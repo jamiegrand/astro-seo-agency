@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [2.3.0] - 2026-01-22
+
+### Added
+- **Content Audit Suite** - 7 new commands for comprehensive SEO content analysis:
+  - `/content-audit [page] [keyword]` - Full 6-category SEO audit with 0-100 scoring
+  - `/content-audit-quick [page] [keyword]` - 10-point rapid check with 0-10 score
+  - `/content-audit-batch [collection]` - Audit multiple pages with priority ranking
+  - `/content-refresh` - Find declining pages via GSC data (clicks dropped, low CTR, striking distance)
+  - `/content-eeat [page]` - E-E-A-T deep dive (Experience, Expertise, Authority, Trust)
+  - `/content-history [page]` - View audit score trends over time
+  - `/keyword-cache [action]` - Manage cached keyword research data
+- **SQLite Database** - Persistent storage for audit data at `.planning/seo-audit.db`
+  - Track audit scores over time
+  - Cache keyword research data (reduces API calls)
+  - Store GSC performance snapshots
+  - Competitor analysis history
+- **New MCP Integrations**:
+  - ScraperAPI - For competitor content analysis
+  - DataForSEO - For keyword volume, difficulty, and People Also Ask questions
+- `/content-gap` command - Find content opportunities from GSC data and generate content briefs
+  - Analyzes GSC for high-impression queries without dedicated content
+  - Generates detailed content briefs with keyword targeting
+  - Includes competitor analysis and internal linking strategy
+  - Supports content creation directly from briefs
+- `/generate-commands` command - Create custom commands based on your site's content structure
+  - Scans content collections, data files, and page structure
+  - Detects content types (blog, products, services, FAQs, etc.)
+  - Generates tailored commands: `/new-[type]`, `/optimize-[type]`, `/[type]-gaps`, `/[type]-audit`
+  - Installs custom commands to `.claude/commands/`
+
+### Changed
+- Install script now installs 26 total files (23 commands + 3 prompts)
+- Updated `content-strategist` agent with E-E-A-T and AI Overview scoring sections
+- Updated `help.md` with new Content Audit section
+- Added `SCRAPERAPI_KEY`, `DATAFORSEO_USERNAME`, `DATAFORSEO_PASSWORD` to `.env.example`
+
 ## [2.2.0] - 2026-01-21
 
 ### Added
@@ -14,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - YAML frontmatter to all prompts for slash command compatibility
 - Badges to README (version, license, Astro, Node.js, Claude Code)
 - Documentation for `/audit astro` option
+- Clarified MCP config locations in README (project vs user-level)
 
 ### Changed
 - Install script now installs 17 total files (14 commands + 3 prompts)
@@ -60,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Google Analytics and Search Console integration
 - GitHub issue tracking integration
 
+[2.3.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v1.0.0...v2.0.0

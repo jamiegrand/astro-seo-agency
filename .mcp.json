@@ -3,6 +3,21 @@
     "astro-docs": {
       "command": "npx",
       "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    },
+    "scraperapi": {
+      "command": "npx",
+      "args": ["@scraperapi/mcp"],
+      "env": {
+        "SCRAPERAPI_KEY": "${SCRAPERAPI_KEY}"
+      }
+    },
+    "dataforseo": {
+      "command": "npx",
+      "args": ["-y", "dataforseo-mcp-server"],
+      "env": {
+        "DATAFORSEO_USERNAME": "${DATAFORSEO_USERNAME}",
+        "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+      }
     }
   }
 }

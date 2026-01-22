@@ -40,8 +40,21 @@ description: Show all available commands and usage
 | Command | Description | When to Use |
 |---------|-------------|-------------|
 | `/seo-wins` | Find GSC quick wins (position 4-15) | Weekly SEO review |
+| `/content-gap` | Find content opportunities, generate briefs | Content planning |
 | `/content-roi` | Analyze content performance | Monthly content review |
 | `/impact [#]` | Measure before/after effect | 14+ days after changes |
+
+### Content Audit (NEW)
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `/content-audit [page] [kw]` | Full 6-category SEO audit (0-100 score) | Deep optimization of single page |
+| `/content-audit-quick [page] [kw]` | 10-point rapid check (0-10 score) | Quick assessment, pre-publish |
+| `/content-audit-batch [collection]` | Audit multiple pages, rank by priority | Quarterly content review |
+| `/content-refresh` | Find declining pages via GSC data | Monthly maintenance |
+| `/content-eeat [page]` | E-E-A-T deep dive (Experience/Expertise/Authority/Trust) | Trust/authority issues |
+| `/content-history [page]` | View audit score trends over time | Track improvement progress |
+| `/keyword-cache [action]` | Manage cached keyword research data | View/refresh keyword data |
 
 ### Astro Tools (NEW)
 
@@ -58,6 +71,7 @@ description: Show all available commands and usage
 |---------|-------------|-------------|
 | `/feature "desc"` | Plan and build new feature | Adding new functionality |
 | `/deploy-check` | Pre-deployment verification | Before every deploy |
+| `/generate-commands` | Create custom commands for your content types | After setup, when content changes |
 
 ### Setup & Configuration
 
@@ -255,7 +269,15 @@ Evening:  /pause           → Save progress
 ```
 /audit astro               → Check Astro best practices
 /seo-wins                  → Find ranking opportunities
+/content-gap               → Find content opportunities
 /content-roi               → Review performance
+```
+
+### Monthly Content Maintenance
+```
+/content-refresh           → Find declining pages
+/content-audit-batch blog  → Audit all blog posts
+/content-history [page]    → Check improvement trends
 ```
 
 ---
@@ -268,8 +290,10 @@ Evening:  /pause           → Save progress
 |--------|---------|----------|
 | Astro Docs MCP | Documentation access | Recommended |
 | astro-mcp | Project runtime info | Recommended |
+| Google Search Console | Rankings, CTR, performance | Recommended |
 | Google Analytics | Traffic data | Optional |
-| Search Console | Rankings, CTR | Optional |
+| DataForSEO | Keyword research, PAA questions | Optional |
+| ScraperAPI | Competitor content analysis | Optional |
 | GitHub | Issue management | Optional |
 
 ### Environment Variables
@@ -279,6 +303,11 @@ Evening:  /pause           → Save progress
 GA_PROPERTY_ID=your-property-id
 GSC_SITE_URL=https://your-site.com/
 GITHUB_TOKEN=your-token
+
+# Content Audit (optional)
+SCRAPERAPI_KEY=your-key
+DATAFORSEO_USERNAME=your-username
+DATAFORSEO_PASSWORD=your-password
 ```
 
 ---
@@ -316,4 +345,4 @@ npm run build        # See full error
 
 ---
 
-*Astro SEO Agency Plugin v2.2.0*
+*Astro SEO Agency Plugin v2.3.0*

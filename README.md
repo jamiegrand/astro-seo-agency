@@ -1,6 +1,6 @@
 # Astro SEO Agency Plugin
 
-[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/jamiegrand/astro-seo-agency/releases)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/jamiegrand/astro-seo-agency/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Astro](https://img.shields.io/badge/Astro-4.0%2B-ff5d01.svg?logo=astro)](https://astro.build)
 [![Node](https://img.shields.io/badge/Node.js-18%2B-339933.svg?logo=node.js)](https://nodejs.org)
@@ -142,6 +142,13 @@ GOOGLE_APPLICATION_CREDENTIALS=./credentials/gsc-service-account.json
 # GitHub - for issue management (optional)
 GITHUB_TOKEN=ghp_xxxxxxxxxxxx
 GITHUB_REPO=username/repo-name
+
+# DataForSEO - for keyword research (optional)
+DATAFORSEO_USERNAME=your_username
+DATAFORSEO_PASSWORD=your_password
+
+# ScraperAPI - for competitor analysis (optional)
+SCRAPERAPI_KEY=your_api_key
 ```
 
 <details>
@@ -209,6 +216,18 @@ GITHUB_REPO=username/repo-name
 | `/fix-batch [n]` | Fix multiple issues in sequence (default: 5) |
 | `/audit [type]`  | Run audit (seo / a11y / perf / astro / full) |
 
+### 📝 Content Audit (NEW in 2.3.0)
+
+| Command                      | Description                                      |
+| ---------------------------- | ------------------------------------------------ |
+| `/content-audit [page] [kw]` | Full 6-category SEO audit (0-100 score)          |
+| `/content-audit-quick`       | 10-point rapid check (0-10 score)                |
+| `/content-audit-batch`       | Audit multiple pages, rank by priority           |
+| `/content-refresh`           | Find declining pages via GSC data                |
+| `/content-eeat [page]`       | E-E-A-T deep dive (Experience/Expertise/Authority/Trust) |
+| `/content-history [page]`    | View audit score trends over time                |
+| `/keyword-cache [action]`    | Manage cached keyword research data              |
+
 <details>
 <summary>Audit types explained</summary>
 
@@ -224,18 +243,38 @@ GITHUB_REPO=username/repo-name
 
 ### 📈 SEO & Analytics
 
-| Command        | Description                            |
-| -------------- | -------------------------------------- |
-| `/seo-wins`    | Find GSC quick wins (position 4-15)    |
-| `/content-roi` | Analyze content performance            |
-| `/impact [#]`  | Measure before/after effect of changes |
+| Command        | Description                                        |
+| -------------- | -------------------------------------------------- |
+| `/seo-wins`    | Find GSC quick wins (position 4-15)                |
+| `/content-gap` | Find content opportunities and generate briefs     |
+| `/content-roi` | Analyze content performance                        |
+| `/impact [#]`  | Measure before/after effect of changes             |
+
+<details>
+<summary>Content audit scoring explained</summary>
+
+The full content audit uses a 6-category scoring system (0-100 total):
+
+| Category | Weight | Focus |
+| -------- | ------ | ----- |
+| On-Page SEO | 20% | Title, meta, URL, headings, keyword placement |
+| E-E-A-T Signals | 25% | Experience, Expertise, Authority, Trust |
+| Content Quality | 20% | Readability, length, comprehensiveness |
+| AI Overview | 15% | Citation-worthiness, extractable answers |
+| Linking | 10% | Internal/external link strategy |
+| Multimedia | 10% | Images, alt text, formatting |
+
+**Score interpretation:** 90-100 Excellent, 75-89 Good, 60-74 Fair, 40-59 Poor, 0-39 Critical
+
+</details>
 
 ### 🚀 Feature Development
 
-| Command           | Description                 |
-| ----------------- | --------------------------- |
-| `/feature "desc"` | Plan and build new feature  |
-| `/deploy-check`   | Pre-deployment verification |
+| Command              | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `/feature "desc"`    | Plan and build new feature                       |
+| `/deploy-check`      | Pre-deployment verification                      |
+| `/generate-commands` | Create custom commands for your content types    |
 
 ### 🔌 MCP Integration
 
@@ -310,6 +349,14 @@ Higher score = fix first.
 /content-roi    # Review content performance
 ```
 
+### Monthly Content Maintenance
+
+```bash
+/content-refresh           # Find declining pages
+/content-audit-batch blog  # Audit all blog posts
+/content-history /blog/top-post  # Check improvement trends
+```
+
 ### Building Features
 
 ```bash
@@ -345,6 +392,28 @@ your-project/
 ├── .env                   # Your credentials (gitignored)
 └── .env.example           # Credential template
 ```
+
+---
+
+## Data Persistence
+
+Content audit data is stored in a local SQLite database for tracking improvements over time:
+
+```
+.planning/seo-audit.db
+```
+
+**What's stored:**
+- Audit scores and history for each page
+- Keyword research data (cached from DataForSEO)
+- GSC performance snapshots
+- Competitor analysis results
+
+This enables:
+- Track score trends with `/content-history`
+- Avoid repeated API calls with keyword caching
+- Compare before/after performance changes
+- Measure impact of optimizations
 
 ---
 
@@ -476,6 +545,27 @@ npx astro add astro-mcp
 
 Then start your dev server - MCP endpoint available at `http://localhost:4321/__mcp/sse`.
 
+### DataForSEO MCP (Keyword Research)
+
+Get keyword volume, difficulty, and "People Also Ask" questions for content audits.
+
+1. Sign up at [DataForSEO](https://dataforseo.com/)
+2. Add credentials to `.env`:
+   ```
+   DATAFORSEO_USERNAME=your_username
+   DATAFORSEO_PASSWORD=your_password
+   ```
+
+### ScraperAPI MCP (Competitor Analysis)
+
+Analyze competitor content structure, word counts, and topic coverage.
+
+1. Sign up at [ScraperAPI](https://www.scraperapi.com/)
+2. Add API key to `.env`:
+   ```
+   SCRAPERAPI_KEY=your_api_key
+   ```
+
 ### Usage
 
 ```bash
@@ -500,6 +590,8 @@ Then start your dev server - MCP endpoint available at `http://localhost:4321/__
 - GitHub repository (for issue tracking)
 - Astro Docs MCP (for documentation search)
 - astro-mcp integration (for project state queries)
+- DataForSEO (for keyword research data)
+- ScraperAPI (for competitor content analysis)
 
 ---
 
