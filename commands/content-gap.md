@@ -14,12 +14,76 @@ Analyzes Google Search Console data to identify high-impression queries without 
 
 ---
 
+## Configuration
+
+### Language/Region Selection
+
+**Default:** Analyze all languages combined
+
+**To focus on a specific language/region, specify:**
+- `/content-gap en` - English (US)
+- `/content-gap de` - German
+- `/content-gap fr` - French
+- `/content-gap es` - Spanish
+- `/content-gap` - All languages (default)
+
+**Multi-region sites:** Always specify a language to avoid mixing content gaps across languages. Each language should have its own content strategy.
+
+| Parameter | GSC Filter | Use When |
+|-----------|------------|----------|
+| `en` | country = USA, GBR, AUS, CAN | English content |
+| `de` | country = DEU, AUT, CHE | German content |
+| `fr` | country = FRA, BEL, CHE, CAN | French content |
+| `es` | country = ESP, MEX, ARG | Spanish content |
+| `[country code]` | Specific country | Single market focus |
+
+---
+
+## Large Site Safeguards
+
+**Site Size Thresholds:**
+| Size | Content Items | Strategy |
+|------|---------------|----------|
+| Small | < 100 | Full inventory listing |
+| Medium | 100-500 | Summarize + top 20 per collection |
+| Large | 500-2000 | Counts only + sample 10 per collection |
+| Very Large | > 2000 | Counts only + focus on specific collection |
+
+**For large sites, ask the user:**
+> "Your site has X content items. Would you like to:
+> 1. Focus on a specific collection (e.g., blog, products)
+> 2. Analyze only recent content (last 6 months)
+> 3. Proceed with sampling (may miss some gaps)"
+
+---
+
 ## Step 1: Analyze Current Content Structure
 
-**Query astro-mcp for existing content:**
+**First, count total content items to determine strategy:**
+
+```markdown
+### 📊 Site Size Assessment
+
+| Collection | Count |
+|------------|-------|
+| blog | X |
+| products | X |
+| pages | X |
+| **Total** | **X** |
+```
+
+**Apply size-appropriate strategy:**
+
+- **< 100 items:** Show full inventory below
+- **100-500 items:** Show counts + 20 most recent per collection
+- **> 500 items:** Show counts only, ask user which collection to focus on
+
+**Query astro-mcp for existing content (with limits):**
 
 ```markdown
 ### 📁 Current Content Inventory
+
+**Analysis scope:** [All content / Blog collection only / etc.]
 
 #### Content Collections
 | Collection | Location | Count | Schema Fields |
@@ -27,7 +91,7 @@ Analyzes Google Search Console data to identify high-impression queries without 
 | blog | src/content/blog/ | X | title, description, pubDate, ... |
 | products | src/content/products/ | X | name, price, ... |
 
-#### Static Pages
+#### Static Pages (max 50 shown)
 | Path | Source File | Purpose |
 |------|-------------|---------|
 | / | src/pages/index.astro | Homepage |
@@ -40,6 +104,7 @@ Analyzes Google Search Console data to identify high-impression queries without 
 | /products/[id] | src/pages/products/[id].astro | Product pages |
 
 **Total Indexable URLs:** X
+**Showing:** X of X items (limited for performance)
 ```
 
 ---
@@ -50,10 +115,49 @@ Analyzes Google Search Console data to identify high-impression queries without 
 ```
 Dimensions: query
 Metrics: clicks, impressions, ctr, position
-Filter: impressions > 100
 Sort: impressions DESC
-Rows: 500
 Period: Last 90 days
+
+# Limits (DO NOT EXCEED)
+Rows: 500 (max)
+
+# Impression threshold (adjust for site size)
+Small sites (<1000 monthly clicks): impressions > 50
+Medium sites: impressions > 100
+Large sites (>10000 monthly clicks): impressions > 500
+
+# Language/Region filter (if specified)
+Filter dimension: country
+Filter operator: equals
+Filter expression: [COUNTRY_CODE from configuration]
+```
+
+### Language-Specific Query
+
+**If language parameter provided:**
+```
+Use get_advanced_search_analytics with:
+- filter_dimension: "country"
+- filter_operator: "equals"
+- filter_expression: "[country code]"
+
+For multi-country languages (e.g., English):
+Run separate queries for each country, then combine results
+```
+
+**If no language specified on multi-language site:**
+```markdown
+⚠️ **Multi-Language Site Detected**
+
+Your site appears to serve multiple languages/regions.
+Analyzing all languages together may mix content gaps.
+
+**Detected languages:** [from URL patterns or GSC data]
+
+Please specify a language to focus on:
+- `/content-gap en` for English
+- `/content-gap de` for German
+- Or continue with all languages combined (not recommended)
 ```
 
 ### If GSC Not Configured
@@ -135,6 +239,7 @@ For each P1 and P2 opportunity:
 | Attribute | Value |
 |-----------|-------|
 | Primary Keyword | [query] |
+| Target Language/Region | [Language code or "All"] |
 | Monthly Impressions | X |
 | Current Position | X.X (with /wrong-page/) |
 | Search Intent | Informational / Commercial / Transactional |
@@ -276,6 +381,8 @@ tags: ["[tag1]", "[tag2]"]
 
 **Generated:** [Date]
 **Data Period:** Last 90 days
+**Language/Region:** [Selected language or "All"]
+**Content Scope:** [All collections / Blog only / etc.]
 **Gaps Identified:** X
 **Total Opportunity:** +X impressions/month → ~X clicks/month
 
@@ -361,6 +468,8 @@ These are short-form content pieces that address specific queries:
 3. **"Create [number]"** - I'll write the content for opportunity #X
 4. **"Calendar"** - Export content calendar
 5. **"Add to tracker"** - Create issues for each opportunity
+6. **"Language [code]"** - Re-run analysis for different language (e.g., "Language de")
+7. **"Collection [name]"** - Focus on specific content collection
 
 What would you like to do?
 ```
