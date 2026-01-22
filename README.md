@@ -488,28 +488,32 @@ rm -rf .planning/SESSION.md
 
 ---
 
-## MCP Setup (Optional)
+## MCP Setup
 
-The plugin integrates with MCP servers for enhanced functionality. Both are optional but recommended.
+The plugin integrates with MCP servers for enhanced functionality. All are optional but recommended for full features.
 
-### Astro Docs MCP
+### MCP Server Overview
+
+| Server | Purpose | Required For | Setup Difficulty |
+|--------|---------|--------------|------------------|
+| **Astro Docs MCP** | Search Astro documentation | `/astro-check docs`, best practices | Easy (remote) |
+| **Google Search Console** | Rankings, CTR, impressions | `/seo-wins`, `/content-refresh` | Medium |
+| **astro-mcp** | Project routes & config | `/astro-check routes`, route conflicts | Easy |
+| **DataForSEO** | Keyword research, PAA questions | `/content-audit` keyword data | Medium |
+| **ScraperAPI** | Competitor content analysis | `/content-audit` competitor comparison | Easy |
+
+---
+
+### 1. Astro Docs MCP (Recommended)
 
 Search official Astro documentation directly from Claude Code.
 
-**Auto-configured on install:** The installer creates `.mcp.json` in your project root with Astro Docs MCP pre-configured. No manual setup needed.
+**Auto-configured on install:** The installer creates `.mcp.json` with Astro Docs MCP pre-configured.
 
 <details>
-<summary>Manual configuration (if needed)</summary>
+<summary>Manual setup (if needed)</summary>
 
-MCP servers can be configured in multiple locations:
-
-| Location | Scope | File |
-|----------|-------|------|
-| **Project** (recommended) | This project only | `.mcp.json` in project root |
-| **User (CLI)** | All projects (CLI) | `~/.claude/mcp.json` |
-| **User (VS Code)** | All projects (VS Code) | VS Code Settings → Claude Code → MCP Servers |
-
-**Project-level config** (`.mcp.json`):
+**Option A: Project-level config** (`.mcp.json` in project root):
 ```json
 {
   "mcpServers": {
@@ -521,7 +525,7 @@ MCP servers can be configured in multiple locations:
 }
 ```
 
-**User-level config** (`~/.claude/mcp.json`):
+**Option B: User-level config for CLI** (`~/.claude/mcp.json`):
 ```json
 {
   "mcpServers": {
@@ -533,38 +537,251 @@ MCP servers can be configured in multiple locations:
 }
 ```
 
+**Option C: VS Code** - Settings → Claude Code → MCP Servers → Add server with URL `https://mcp.docs.astro.build/mcp`
+
+After configuring, **restart Claude Code** to activate.
+
 </details>
 
-### astro-mcp (Project Integration)
+---
 
-Query your project's routes, config, and integrations when the dev server is running.
+### 2. Google Search Console MCP (Recommended)
+
+Get real ranking data, CTR, impressions, and identify quick wins.
+
+**Step 1: Create a Google Cloud Service Account**
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Navigate to **APIs & Services → Library**
+4. Search for and enable **Search Console API**
+5. Go to **APIs & Services → Credentials**
+6. Click **Create Credentials → Service Account**
+7. Name it (e.g., `gsc-claude-code`)
+8. Click **Done** (no need to grant additional roles)
+
+**Step 2: Generate JSON Key**
+
+1. Click on your new service account
+2. Go to **Keys** tab
+3. Click **Add Key → Create new key**
+4. Select **JSON** format
+5. Save the downloaded file to `./credentials/gsc-service-account.json`
+
+**Step 3: Add Service Account to Search Console**
+
+1. Go to [Google Search Console](https://search.google.com/search-console)
+2. Select your property
+3. Go to **Settings → Users and permissions**
+4. Click **Add user**
+5. Enter the service account email (from the JSON file, looks like `name@project.iam.gserviceaccount.com`)
+6. Set permission to **Full** or **Restricted**
+
+**Step 4: Configure Environment**
+
+Add to your `.env` file:
+```bash
+GSC_SITE_URL=https://your-site.com/
+GOOGLE_APPLICATION_CREDENTIALS=./credentials/gsc-service-account.json
+```
+
+**Step 5: Add MCP Server Config**
+
+Add to `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "gsc": {
+      "command": "npx",
+      "args": ["-y", "gsc-mcp-server"],
+      "env": {
+        "GSC_SITE_URL": "${GSC_SITE_URL}",
+        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
+      }
+    }
+  }
+}
+```
+
+**Restart Claude Code** to activate.
+
+---
+
+### 3. astro-mcp (Project Integration)
+
+Query your project's routes, config, and integrations at runtime.
+
+**Step 1: Install the Integration**
 
 ```bash
 npx astro add astro-mcp
 ```
 
-Then start your dev server - MCP endpoint available at `http://localhost:4321/__mcp/sse`.
+This adds `astro-mcp` to your `astro.config.mjs`.
 
-### DataForSEO MCP (Keyword Research)
+**Step 2: Start Dev Server**
 
-Get keyword volume, difficulty, and "People Also Ask" questions for content audits.
+```bash
+npm run dev
+```
+
+The MCP endpoint is available at `http://localhost:4321/__mcp/sse`.
+
+**Step 3: Add MCP Server Config**
+
+Add to `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "astro-project": {
+      "type": "sse",
+      "url": "http://localhost:4321/__mcp/sse"
+    }
+  }
+}
+```
+
+**Note:** The dev server must be running for this MCP to work.
+
+---
+
+### 4. DataForSEO MCP (For Content Audits)
+
+Get keyword volume, difficulty, SERP features, and "People Also Ask" questions.
+
+**Step 1: Get API Credentials**
 
 1. Sign up at [DataForSEO](https://dataforseo.com/)
-2. Add credentials to `.env`:
-   ```
-   DATAFORSEO_USERNAME=your_username
-   DATAFORSEO_PASSWORD=your_password
-   ```
+2. Go to your dashboard → API Access
+3. Copy your username and password
 
-### ScraperAPI MCP (Competitor Analysis)
+**Step 2: Configure Environment**
+
+Add to your `.env` file:
+```bash
+DATAFORSEO_USERNAME=your_username
+DATAFORSEO_PASSWORD=your_password
+```
+
+**Step 3: Add MCP Server Config**
+
+Add to `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "dataforseo": {
+      "command": "npx",
+      "args": ["-y", "dataforseo-mcp-server"],
+      "env": {
+        "DATAFORSEO_USERNAME": "${DATAFORSEO_USERNAME}",
+        "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+      }
+    }
+  }
+}
+```
+
+**Restart Claude Code** to activate.
+
+**Pricing note:** DataForSEO charges per API call. The plugin caches keyword data in SQLite to minimize costs.
+
+---
+
+### 5. ScraperAPI MCP (For Competitor Analysis)
 
 Analyze competitor content structure, word counts, and topic coverage.
 
+**Step 1: Get API Key**
+
 1. Sign up at [ScraperAPI](https://www.scraperapi.com/)
-2. Add API key to `.env`:
-   ```
-   SCRAPERAPI_KEY=your_api_key
-   ```
+2. Go to Dashboard → API Key
+3. Copy your API key
+
+**Step 2: Configure Environment**
+
+Add to your `.env` file:
+```bash
+SCRAPERAPI_KEY=your_api_key
+```
+
+**Step 3: Add MCP Server Config**
+
+Add to `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "scraperapi": {
+      "command": "npx",
+      "args": ["@scraperapi/mcp"],
+      "env": {
+        "SCRAPERAPI_KEY": "${SCRAPERAPI_KEY}"
+      }
+    }
+  }
+}
+```
+
+**Restart Claude Code** to activate.
+
+**Free tier:** ScraperAPI offers 1,000 free API calls per month.
+
+---
+
+### Complete .mcp.json Example
+
+Here's a complete `.mcp.json` with all servers configured:
+
+```json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "url",
+      "url": "https://mcp.docs.astro.build/mcp"
+    },
+    "gsc": {
+      "command": "npx",
+      "args": ["-y", "gsc-mcp-server"],
+      "env": {
+        "GSC_SITE_URL": "${GSC_SITE_URL}",
+        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
+      }
+    },
+    "astro-project": {
+      "type": "sse",
+      "url": "http://localhost:4321/__mcp/sse"
+    },
+    "dataforseo": {
+      "command": "npx",
+      "args": ["-y", "dataforseo-mcp-server"],
+      "env": {
+        "DATAFORSEO_USERNAME": "${DATAFORSEO_USERNAME}",
+        "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+      }
+    },
+    "scraperapi": {
+      "command": "npx",
+      "args": ["@scraperapi/mcp"],
+      "env": {
+        "SCRAPERAPI_KEY": "${SCRAPERAPI_KEY}"
+      }
+    }
+  }
+}
+```
+
+---
+
+### Verify MCP Setup
+
+After configuring, run:
+
+```bash
+/astro-check mcp
+```
+
+This shows the status of all configured MCP servers and which features are available.
+
+---
 
 ### Usage
 
