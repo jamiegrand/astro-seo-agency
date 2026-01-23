@@ -1,5 +1,5 @@
 ---
-description: Show all available commands and usage
+description: Show all available commands
 ---
 
 # Astro SEO Agency - Command Reference
@@ -7,89 +7,85 @@ description: Show all available commands and usage
 ## Quick Start
 
 ```bash
-/start              # Begin your day - see priorities
-/fix-next           # Work on highest-impact issue
-/fix-batch          # Fix multiple issues fast
-/pause              # Save progress and exit
-/resume             # Continue tomorrow
+/start              # Begin session with priorities
+/fix                # Fix highest-impact issue
+/pause              # Save progress
+/resume             # Continue later
 ```
 
 ---
 
-## 📋 All Commands
+## Commands
 
-### Session Management
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/start` | Initialize session with data-driven priorities | Beginning of work session |
-| `/status` | Show project and session status | Check current state |
-| `/pause` | Save session state, create handoff | Stopping work |
-| `/resume` | Restore session from handoff | Continuing work |
-
-### Issue Resolution
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/fix-next` | Auto-select and fix highest priority issue | Complex issues, careful review |
-| `/fix-batch [n]` | Fix multiple issues in sequence (default: 5) | Clearing many similar issues fast |
-| `/audit [type]` | Run comprehensive audit (seo/a11y/perf/astro/full) | Finding issues |
-
-### SEO & Analytics
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/seo-wins` | Find GSC quick wins (position 4-15) | Weekly SEO review |
-| `/content-gap` | Find content opportunities, generate briefs | Content planning |
-| `/content-roi` | Analyze content performance | Monthly content review |
-| `/impact [#]` | Measure before/after effect | 14+ days after changes |
-
-### Content Audit (NEW)
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/content-audit [page] [kw]` | Full 6-category SEO audit (0-100 score) | Deep optimization of single page |
-| `/content-audit-quick [page] [kw]` | 10-point rapid check (0-10 score) | Quick assessment, pre-publish |
-| `/content-audit-batch [collection]` | Audit multiple pages, rank by priority | Quarterly content review |
-| `/content-refresh` | Find declining pages via GSC data | Monthly maintenance |
-| `/content-eeat [page]` | E-E-A-T deep dive (Experience/Expertise/Authority/Trust) | Trust/authority issues |
-| `/content-history [page]` | View audit score trends over time | Track improvement progress |
-| `/keyword-cache [action]` | Manage cached keyword research data | View/refresh keyword data |
-
-### Astro Tools (NEW)
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/astro-check` | Full project report (config, routes, health) | Understanding project state |
-| `/astro-check mcp` | MCP server status and diagnostics | Troubleshooting MCP issues |
-| `/astro-check routes` | List all routes | Before adding new pages |
-| `/astro-check docs "query"` | Search Astro documentation | Finding best practices |
-
-### Feature Development
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/feature "desc"` | Plan and build new feature | Adding new functionality |
-| `/deploy-check` | Pre-deployment verification | Before every deploy |
-| `/generate-commands` | Create custom commands for your content types | After setup, when content changes |
-
-### Setup & Configuration
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/setup` | Interactive setup wizard | First time configuring the plugin |
-| `/brownfield` | Analyze existing project | Adding plugin to established codebase |
-| `/verify` | Verify installation is working | After install, troubleshooting |
-
-### Help
-
+### Session
 | Command | Description |
 |---------|-------------|
+| `/start` | Begin session with data-driven priorities |
+| `/status` | Show current project and session status |
+| `/pause` | Save session state for later |
+| `/resume` | Continue from saved session |
+
+### Issues
+| Command | Description |
+|---------|-------------|
+| `/fix` | Fix single issue (or `/fix 5` for batch, `/fix #42` for specific) |
+
+### SEO & Analytics
+| Command | Description |
+|---------|-------------|
+| `/seo` | Show all SEO subcommands |
+| `/seo wins` | Find GSC quick wins (position 4-15) |
+| `/seo gaps` | Find content opportunities |
+| `/seo roi` | Analyze content performance |
+| `/seo refresh` | Find declining pages |
+| `/seo history [page]` | View audit score trends |
+| `/seo impact [#]` | Measure before/after effect |
+| `/seo keywords` | Manage keyword cache |
+
+### Auditing
+| Command | Description |
+|---------|-------------|
+| `/audit` | Full site audit (SEO + a11y + performance) |
+| `/audit seo` | SEO-only site audit |
+| `/audit content [page] [kw]` | Deep content audit (0-100) |
+| `/audit quick [page] [kw]` | Rapid 10-point check |
+| `/audit batch [collection]` | Audit multiple pages |
+| `/audit eeat [page]` | E-E-A-T deep dive |
+
+### Astro Tools
+| Command | Description |
+|---------|-------------|
+| `/astro-check` | Full project report |
+| `/astro-check routes` | List all routes |
+| `/astro-check docs "query"` | Search Astro docs |
+
+### Development
+| Command | Description |
+|---------|-------------|
+| `/feature "desc"` | Plan and build a feature |
+| `/feature deploy` | Pre-deployment checks |
+
+### Setup & Help
+| Command | Description |
+|---------|-------------|
+| `/setup` | Interactive setup wizard |
+| `/setup existing` | Analyze existing project |
+| `/setup verify` | Verify installation |
+| `/setup commands` | Generate custom commands |
+| `/setup index` | Manage project indexing |
 | `/help` | Show this reference |
 
 ---
 
-## 🔌 Astro MCP Integration (NEW)
+## Tips
+
+- Run any router command without arguments to see its subcommands
+- Direct commands still work: `/seo-wins` = `/seo wins`
+- Use `/fix 5` to batch-fix multiple issues quickly
+
+---
+
+## MCP Integration
 
 This plugin uses two MCP servers for enhanced Astro development:
 
@@ -99,7 +95,7 @@ This plugin uses two MCP servers for enhanced Astro development:
 
 - Prevents outdated recommendations
 - Searches current best practices
-- Used automatically by `/fix-next`, `/feature`, `/audit`
+- Used automatically by `/fix`, `/feature`, `/audit`
 
 ### astro-mcp Integration
 **Purpose:** Runtime project information
@@ -108,7 +104,7 @@ This plugin uses two MCP servers for enhanced Astro development:
 - Gets project configuration
 - Lists all routes
 - Checks for conflicts
-- Used automatically by `/start`, `/feature`, `/deploy-check`
+- Used automatically by `/start`, `/feature`, `/feature deploy`
 
 ### Setup
 
@@ -131,158 +127,87 @@ npx astro add astro-mcp
 
 ---
 
-## 🔧 Command Details
+## Command Details
 
-### `/start`
+### `/fix`
 
-Initializes your work session by:
-1. Querying Astro project state (via astro-mcp)
-2. Checking for Astro deprecations (via Astro Docs MCP)
-3. Querying Google Analytics (7-day traffic)
-4. Querying Search Console (rankings, quick wins)
-5. Checking issue tracker
-6. Calculating priority scores
+The fix router handles issue resolution:
+- `/fix` - Fix highest-priority issue
+- `/fix 5` - Batch fix top 5 issues
+- `/fix #42` - Fix specific issue #42
 
-**Output:** Project health + prioritized task list with impact scores
+### `/seo`
 
----
+SEO & Analytics tools:
+- `wins` - Find GSC quick wins (position 4-15)
+- `gaps` - Find content opportunities
+- `roi` - Analyze content performance
+- `refresh` - Find declining pages
+- `history` - View audit score trends
+- `impact` - Measure before/after effect
+- `keywords` - Manage keyword cache
 
-### `/fix-next`
+### `/audit`
 
-Fixes ONE issue with full analysis:
-1. Calculates impact scores for all open issues
-2. Selects highest priority
-3. **Consults Astro Docs MCP for best practices** (NEW)
-4. **Queries astro-mcp for affected routes** (NEW)
-5. Plans implementation (with approval)
-6. Makes changes using current Astro patterns
-7. Verifies and commits
-8. Updates tracker
-
-**Best for:** Complex issues that need careful review
-
----
-
-### `/fix-batch [count]`
-
-Fixes MULTIPLE issues in sequence:
-1. Builds queue of top issues
-2. Shows queue for approval
-3. Fixes each without stopping
-4. Skips complex issues automatically
-5. Commits each atomically
-
-**Best for:** Clearing many similar/simple issues quickly
-
----
-
-### `/feature "description"`
-
-Structured feature development with Astro awareness:
-1. **Clarify** - Extract requirements
-2. **Consult Astro Docs** - Search for best practices (NEW)
-3. **Analyze Project** - Check routes for conflicts (NEW)
-4. **Plan** - Break into tasks
-5. **Execute** - Fresh context per task
-6. **Verify** - Including route verification (NEW)
-7. **Ship** - Atomic commits
-
----
-
-### `/audit [type]`
-
-Comprehensive site audit:
+Site audits (handled directly):
 - `seo` - Schema, meta tags, content, linking
 - `a11y` - WCAG 2.1 AA compliance
 - `perf` - Core Web Vitals, image optimization
-- `astro` - Astro best practices, deprecated patterns (NEW)
+- `astro` - Astro best practices, deprecated patterns
 - `full` - All of the above (default)
 
-**Astro audit includes:**
-- Configuration validation against docs
-- Route health analysis
-- Deprecated pattern detection
-- Integration audit
-- Component hydration review
+Content audits (routed):
+- `content` - Full SEO content audit (0-100)
+- `quick` - 10-point rapid check
+- `batch` - Audit multiple pages
+- `eeat` - E-E-A-T deep dive
+
+### `/setup`
+
+Configuration tools:
+- (no args) - Interactive setup wizard
+- `existing` - Analyze existing project
+- `verify` - Verify installation
+- `commands` - Generate custom commands
+- `index` - Manage project indexing
+
+### `/feature`
+
+Feature development:
+- `"description"` - Plan and build a feature
+- `deploy` - Pre-deployment verification
 
 ---
 
-### `/astro-check`
+## Daily Workflow
 
-Query Astro project information:
-- Project configuration
-- All routes (static, dynamic, API)
-- Installed integrations
-- MCP server status
-- Search documentation
-
-**Subcommands:**
-```bash
-/astro-check              # Full report
-/astro-check mcp          # MCP server diagnostics
-/astro-check config       # Configuration only
-/astro-check routes       # Routes only
-/astro-check routes blog  # Filter routes
-/astro-check docs "query" # Search docs
-/astro-check health       # Quick health check
-```
-
-**`/astro-check mcp` provides:**
-- Connection status for all MCP servers
-- Feature availability based on MCP status
-- Setup instructions for missing servers
-- Troubleshooting guidance
-
----
-
-### `/deploy-check`
-
-Pre-deployment verification:
-- Build verification
-- Critical pages check
-- SEO essentials
-- **Astro config validation** (NEW)
-- **Route verification** (NEW)
-- Asset verification
-- Link checking
-
----
-
-## 💡 Usage Tips
-
-### Daily Workflow
 ```
 Morning:  /start           → See priorities + project health
-Work:     /fix-batch       → Clear issues fast
-          /fix-next        → Handle complex ones
+Work:     /fix             → Fix issues (or /fix 5 for batch)
+          /seo wins        → Find ranking opportunities
 Evening:  /pause           → Save progress
 ```
 
-### Before Building Features
+## Weekly Review
+
 ```
-/astro-check routes        → Check for conflicts
-/astro-check docs "topic"  → Find best practices
-/feature "description"     → Build with guidance
+/audit                     → Full site audit
+/seo wins                  → Find ranking opportunities
+/seo gaps                  → Find content opportunities
+/seo roi                   → Review content performance
 ```
 
-### Weekly Review
-```
-/audit astro               → Check Astro best practices
-/seo-wins                  → Find ranking opportunities
-/content-gap               → Find content opportunities
-/content-roi               → Review performance
-```
+## Monthly Maintenance
 
-### Monthly Content Maintenance
 ```
-/content-refresh           → Find declining pages
-/content-audit-batch blog  → Audit all blog posts
-/content-history [page]    → Check improvement trends
+/seo refresh               → Find declining pages
+/audit batch blog          → Audit all blog posts
+/seo history [page]        → Check improvement trends
 ```
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### MCP Servers
 
@@ -312,7 +237,7 @@ DATAFORSEO_PASSWORD=your-password
 
 ---
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### "Astro Docs MCP not available"
 Check MCP configuration. The server is remote and should always be accessible.
@@ -332,15 +257,15 @@ npm run build        # See full error
 
 ---
 
-## 📚 How MCP Servers Are Used
+## How MCP Servers Are Used
 
 | Command | Astro Docs MCP | astro-mcp |
 |---------|----------------|-----------|
 | `/start` | Deprecation check | Project health |
-| `/fix-next` | Best practices | Affected routes |
+| `/fix` | Best practices | Affected routes |
 | `/feature` | Implementation patterns | Route conflicts |
 | `/audit` | Current recommendations | Route validation |
-| `/deploy-check` | Deploy best practices | Config validation |
+| `/feature deploy` | Deploy best practices | Config validation |
 | `/astro-check` | Doc search | Full report |
 
 ---

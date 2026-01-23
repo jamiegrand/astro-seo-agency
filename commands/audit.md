@@ -1,11 +1,58 @@
 ---
-argument-hint: "[seo|a11y|perf|astro|full]"
-description: Run comprehensive site audit
+description: Run audits - site-wide (seo/a11y/perf) or content-specific
+argument-hint: "[seo|a11y|perf|full|content|quick|batch|eeat] [page] [keyword]"
 ---
 
-# Site Audit: $1
+# /audit - Comprehensive Auditing
 
-Default: "full" (all categories including Astro-specific)
+Run `/audit <type>` for site audits or `/audit <content-type>` for content audits.
+
+## Site Audits (handled directly)
+
+| Command | Description |
+|---------|-------------|
+| `/audit` | Full site audit (SEO + a11y + performance + Astro) |
+| `/audit seo` | SEO-only site audit |
+| `/audit a11y` | Accessibility audit |
+| `/audit perf` | Performance audit |
+| `/audit astro` | Astro best practices audit |
+| `/audit full` | Alias for full audit |
+
+## Content Audits (routed to implementation files)
+
+| Subcommand | Direct Command | Description |
+|------------|----------------|-------------|
+| `content [page] [kw]` | `/audit-content` | Deep content audit (0-100 score) |
+| `quick [page] [kw]` | `/audit-quick` | Rapid 10-point check |
+| `batch [collection]` | `/audit-batch` | Audit multiple pages |
+| `eeat [page]` | `/audit-eeat` | E-E-A-T deep dive |
+
+## Routing
+
+**Site audits (seo/a11y/perf/astro/full or no args):** Handle directly using the Site Audit Implementation below.
+
+**Content audits:** Route to implementation file:
+- `content` → Read `commands/audit-content.md` and execute
+- `quick` → Read `commands/audit-quick.md` and execute
+- `batch` → Read `commands/audit-batch.md` and execute
+- `eeat` → Read `commands/audit-eeat.md` and execute
+
+## Examples
+
+```bash
+/audit                        # Full site audit (direct)
+/audit seo                    # SEO site audit (direct)
+/audit content /blog/post seo # Deep content audit (routed)
+/audit quick /blog/post       # Quick check (routed)
+/audit batch blog             # Batch audit collection (routed)
+/audit eeat /about            # E-E-A-T analysis (routed)
+```
+
+---
+
+# Site Audit Implementation
+
+**Default:** "full" (all categories including Astro-specific)
 
 ---
 

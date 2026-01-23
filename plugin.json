@@ -35,18 +35,18 @@
   "prompts": {
     "setup": {
       "description": "Interactive setup wizard for new or existing projects",
-      "file": "prompts/setup.md",
+      "file": "commands/setup.md",
       "triggers": ["/setup", "setup project", "configure plugin"]
     },
-    "brownfield": {
+    "setup-existing": {
       "description": "Analyze and integrate with existing Astro project",
-      "file": "prompts/brownfield.md",
-      "triggers": ["/brownfield", "analyze project", "existing project"]
+      "file": "commands/setup-existing.md",
+      "triggers": ["/setup existing", "/brownfield", "analyze project", "existing project"]
     },
-    "verify": {
+    "setup-verify": {
       "description": "Verify plugin installation is complete and working",
-      "file": "prompts/verify.md",
-      "triggers": ["/verify", "check installation", "verify setup"]
+      "file": "commands/setup-verify.md",
+      "triggers": ["/setup verify", "/verify", "check installation", "verify setup"]
     }
   },
 
@@ -70,8 +70,48 @@
 
   "commands": [
     {
+      "name": "seo",
+      "description": "SEO tools - wins, gaps, ROI, refresh, history, impact, keywords",
+      "file": "commands/seo.md",
+      "arguments": "[wins|gaps|roi|refresh|history|impact|keywords] [args]",
+      "category": "seo",
+      "type": "router"
+    },
+    {
+      "name": "audit",
+      "description": "Run audits - site-wide or content-specific",
+      "file": "commands/audit.md",
+      "arguments": "[seo|a11y|perf|content|quick|batch|eeat] [page] [keyword]",
+      "category": "quality",
+      "type": "router"
+    },
+    {
+      "name": "fix",
+      "description": "Fix issues - single, batch, or specific",
+      "file": "commands/fix.md",
+      "arguments": "[count|#issue]",
+      "category": "issues",
+      "type": "router"
+    },
+    {
+      "name": "setup",
+      "description": "Setup wizard and configuration tools",
+      "file": "commands/setup.md",
+      "arguments": "[existing|verify|commands|index|help]",
+      "category": "meta",
+      "type": "router"
+    },
+    {
+      "name": "feature",
+      "description": "Build features or run deploy checks",
+      "file": "commands/feature.md",
+      "arguments": "\"description\" | deploy",
+      "category": "development",
+      "type": "router"
+    },
+    {
       "name": "start",
-      "description": "Initialize work session with data-driven priorities",
+      "description": "Begin session with data-driven priorities",
       "file": "commands/start.md",
       "category": "session"
     },
@@ -94,146 +134,170 @@
       "category": "session"
     },
     {
-      "name": "index",
-      "description": "Manage project indexing for AI-INFO.md and database-backed commands",
-      "file": "commands/index.md",
-      "arguments": "[status|run|resume|reset|refresh]",
-      "category": "session"
-    },
-    {
-      "name": "fix-next",
-      "description": "Automatically fix the highest-priority issue",
-      "file": "commands/fix-next.md",
-      "category": "issues"
-    },
-    {
-      "name": "fix-batch",
-      "description": "Fix multiple issues in sequence without stopping",
-      "file": "commands/fix-batch.md",
-      "arguments": "[count]",
-      "category": "issues"
-    },
-    {
-      "name": "audit",
-      "description": "Run comprehensive site audit (seo/a11y/perf/full)",
-      "file": "commands/audit.md",
-      "arguments": "[type]",
-      "category": "issues"
-    },
-    {
-      "name": "seo-wins",
-      "description": "Find SEO quick wins from Search Console data",
-      "file": "commands/seo-wins.md",
-      "category": "seo",
-      "requires": ["gsc"]
-    },
-    {
-      "name": "content-roi",
-      "description": "Analyze content performance and ROI",
-      "file": "commands/content-roi.md",
-      "category": "seo",
-      "requires": ["ga", "gsc"]
-    },
-    {
-      "name": "content-gap",
-      "description": "Find content opportunities from GSC data and generate briefs",
-      "file": "commands/content-gap.md",
-      "category": "seo",
-      "requires": ["gsc"]
-    },
-    {
-      "name": "impact",
-      "description": "Measure before/after effect of changes",
-      "file": "commands/impact.md",
-      "arguments": "[issue-number or page-path]",
-      "category": "seo",
-      "requires": ["ga", "gsc"]
-    },
-    {
-      "name": "feature",
-      "description": "Plan and build a new feature (GSD-style workflow)",
-      "file": "commands/feature.md",
-      "arguments": "\"[description]\"",
-      "category": "development"
-    },
-    {
-      "name": "deploy-check",
-      "description": "Pre-deployment verification checklist",
-      "file": "commands/deploy-check.md",
-      "category": "development"
-    },
-    {
       "name": "astro-check",
-      "description": "Query Astro project info via MCP (routes, config, integrations, mcp status)",
+      "description": "Query Astro project info via MCP",
       "file": "commands/astro-check.md",
-      "arguments": "[mcp|config|routes|docs \"query\"|health]",
-      "category": "development",
-      "requires": []
-    },
-    {
-      "name": "generate-commands",
-      "description": "Generate custom commands based on your site's content structure",
-      "file": "commands/generate-commands.md",
-      "category": "development",
-      "requires": []
+      "arguments": "[mcp|config|routes|docs|health]",
+      "category": "development"
     },
     {
       "name": "help",
-      "description": "Show all available commands and usage",
+      "description": "Show all available commands",
       "file": "commands/help.md",
-      "category": "help"
+      "category": "meta"
     },
     {
-      "name": "content-audit",
-      "description": "Full SEO content audit with E-E-A-T and AI Overview scoring (0-100)",
-      "file": "commands/content-audit.md",
-      "arguments": "[page-path] [keyword]",
+      "name": "seo-wins",
+      "description": "Find SEO quick wins from Search Console",
+      "file": "commands/seo-wins.md",
       "category": "seo",
-      "requires": ["gsc"]
+      "type": "implementation",
+      "parent": "seo"
     },
     {
-      "name": "content-audit-quick",
-      "description": "10-point rapid content check with score/10",
-      "file": "commands/content-audit-quick.md",
-      "arguments": "[page-path] [keyword]",
-      "category": "seo"
-    },
-    {
-      "name": "content-audit-batch",
-      "description": "Batch audit multiple pages with priority ranking",
-      "file": "commands/content-audit-batch.md",
-      "arguments": "[collection|pages] [--limit N]",
+      "name": "seo-gaps",
+      "description": "Find content opportunities from GSC data",
+      "file": "commands/seo-gaps.md",
       "category": "seo",
-      "requires": ["gsc"]
+      "type": "implementation",
+      "parent": "seo"
     },
     {
-      "name": "content-refresh",
-      "description": "Find declining pages that need content refresh via GSC data",
-      "file": "commands/content-refresh.md",
-      "arguments": "[--days N] [--threshold N]",
+      "name": "seo-roi",
+      "description": "Analyze content performance and ROI",
+      "file": "commands/seo-roi.md",
       "category": "seo",
-      "requires": ["gsc"]
+      "type": "implementation",
+      "parent": "seo"
     },
     {
-      "name": "content-eeat",
-      "description": "Deep dive E-E-A-T audit (Experience, Expertise, Authority, Trust)",
-      "file": "commands/content-eeat.md",
+      "name": "seo-refresh",
+      "description": "Find declining pages needing refresh",
+      "file": "commands/seo-refresh.md",
+      "category": "seo",
+      "type": "implementation",
+      "parent": "seo"
+    },
+    {
+      "name": "seo-history",
+      "description": "View audit score history for a page",
+      "file": "commands/seo-history.md",
       "arguments": "[page-path]",
-      "category": "seo"
+      "category": "seo",
+      "type": "implementation",
+      "parent": "seo"
     },
     {
-      "name": "content-history",
-      "description": "View audit score history and trends for a page",
-      "file": "commands/content-history.md",
-      "arguments": "[page-path]",
-      "category": "seo"
+      "name": "seo-impact",
+      "description": "Measure before/after effect of changes",
+      "file": "commands/seo-impact.md",
+      "arguments": "[issue-number|page-path]",
+      "category": "seo",
+      "type": "implementation",
+      "parent": "seo"
     },
     {
-      "name": "keyword-cache",
-      "description": "View and manage cached keyword research data",
-      "file": "commands/keyword-cache.md",
+      "name": "seo-keywords",
+      "description": "Manage cached keyword research data",
+      "file": "commands/seo-keywords.md",
       "arguments": "[list|search|refresh|clear] [keyword]",
-      "category": "seo"
+      "category": "seo",
+      "type": "implementation",
+      "parent": "seo"
+    },
+    {
+      "name": "audit-content",
+      "description": "Full SEO content audit with scoring",
+      "file": "commands/audit-content.md",
+      "arguments": "[page-path] [keyword]",
+      "category": "quality",
+      "type": "implementation",
+      "parent": "audit"
+    },
+    {
+      "name": "audit-quick",
+      "description": "10-point rapid content check",
+      "file": "commands/audit-quick.md",
+      "arguments": "[page-path] [keyword]",
+      "category": "quality",
+      "type": "implementation",
+      "parent": "audit"
+    },
+    {
+      "name": "audit-batch",
+      "description": "Batch audit multiple pages",
+      "file": "commands/audit-batch.md",
+      "arguments": "[collection|pages] [--limit N]",
+      "category": "quality",
+      "type": "implementation",
+      "parent": "audit"
+    },
+    {
+      "name": "audit-eeat",
+      "description": "Deep E-E-A-T audit",
+      "file": "commands/audit-eeat.md",
+      "arguments": "[page-path]",
+      "category": "quality",
+      "type": "implementation",
+      "parent": "audit"
+    },
+    {
+      "name": "fix-next",
+      "description": "Fix highest-priority issue",
+      "file": "commands/fix-next.md",
+      "category": "issues",
+      "type": "implementation",
+      "parent": "fix"
+    },
+    {
+      "name": "fix-batch",
+      "description": "Fix multiple issues in sequence",
+      "file": "commands/fix-batch.md",
+      "arguments": "[count]",
+      "category": "issues",
+      "type": "implementation",
+      "parent": "fix"
+    },
+    {
+      "name": "setup-existing",
+      "description": "Analyze existing Astro project",
+      "file": "commands/setup-existing.md",
+      "category": "meta",
+      "type": "implementation",
+      "parent": "setup"
+    },
+    {
+      "name": "setup-verify",
+      "description": "Verify plugin installation",
+      "file": "commands/setup-verify.md",
+      "category": "meta",
+      "type": "implementation",
+      "parent": "setup"
+    },
+    {
+      "name": "setup-commands",
+      "description": "Generate custom commands",
+      "file": "commands/setup-commands.md",
+      "category": "meta",
+      "type": "implementation",
+      "parent": "setup"
+    },
+    {
+      "name": "setup-index",
+      "description": "Manage project indexing",
+      "file": "commands/setup-index.md",
+      "arguments": "[status|run|resume|reset|refresh]",
+      "category": "meta",
+      "type": "implementation",
+      "parent": "setup"
+    },
+    {
+      "name": "feature-deploy",
+      "description": "Pre-deployment verification",
+      "file": "commands/feature-deploy.md",
+      "category": "development",
+      "type": "implementation",
+      "parent": "feature"
     }
   ],
 
@@ -243,20 +307,24 @@
       "description": "Start, pause, and resume work sessions"
     },
     "issues": {
-      "name": "Issue Resolution", 
+      "name": "Issue Resolution",
       "description": "Find and fix issues"
     },
     "seo": {
       "name": "SEO & Analytics",
       "description": "SEO analysis and optimization"
     },
+    "quality": {
+      "name": "Quality & Auditing",
+      "description": "Site and content audits"
+    },
     "development": {
       "name": "Development",
       "description": "Build features and deploy"
     },
-    "help": {
-      "name": "Help",
-      "description": "Documentation and assistance"
+    "meta": {
+      "name": "Setup & Help",
+      "description": "Configuration and documentation"
     }
   },
 
@@ -347,7 +415,7 @@
         "type": "integration",
         "optional": true,
         "recommended": true,
-        "requiredFor": ["astro-check", "status", "deploy-check"],
+        "requiredFor": ["astro-check", "status", "feature-deploy"],
         "capabilities": ["get-astro-config", "list-astro-routes", "get-astro-server-address", "search-astro-docs", "get-integration-docs"],
         "install": {
           "astro": "npx astro add astro-mcp"
@@ -357,7 +425,7 @@
         "description": "Google Search Console API access",
         "package": "mcp-server-gsc",
         "optional": true,
-        "requiredFor": ["seo-wins", "impact", "content-roi", "content-audit", "content-refresh", "content-audit-batch"]
+        "requiredFor": ["seo-wins", "seo-impact", "seo-roi", "audit-content", "seo-refresh", "audit-batch"]
       },
       "scraperapi": {
         "description": "Web scraping for competitor content analysis",
@@ -365,7 +433,7 @@
         "args": ["@scraperapi/mcp"],
         "env": ["SCRAPERAPI_KEY"],
         "optional": true,
-        "requiredFor": ["content-audit competitor analysis"]
+        "requiredFor": ["audit-content competitor analysis"]
       },
       "dataforseo": {
         "description": "Keyword research, search volume, and SERP data",
@@ -373,7 +441,7 @@
         "args": ["-y", "dataforseo-mcp-server"],
         "env": ["DATAFORSEO_USERNAME", "DATAFORSEO_PASSWORD"],
         "optional": true,
-        "requiredFor": ["content-audit keyword optimization"]
+        "requiredFor": ["audit-content keyword optimization"]
       },
       "github": {
         "description": "GitHub API for issue management",

@@ -129,29 +129,65 @@ install_commands() {
     echo -e "\n${BOLD}Installing commands...${NC}"
 
     local commands=(
-        "start"
-        "fix-next"
-        "fix-batch"
-        "seo-wins"
-        "content-gap"
-        "content-roi"
-        "impact"
+        # Routers
+        "seo"
+        "audit"
+        "fix"
+        "setup"
         "feature"
+
+        # Standalone
+        "start"
+        "status"
         "pause"
         "resume"
-        "status"
-        "audit"
         "astro-check"
-        "deploy-check"
-        "generate-commands"
         "help"
+
+        # SEO implementations
+        "seo-wins"
+        "seo-gaps"
+        "seo-roi"
+        "seo-refresh"
+        "seo-history"
+        "seo-impact"
+        "seo-keywords"
+
+        # Audit implementations
+        "audit-content"
+        "audit-quick"
+        "audit-batch"
+        "audit-eeat"
+
+        # Fix implementations
+        "fix-next"
+        "fix-batch"
+
+        # Setup implementations
+        "setup-existing"
+        "setup-verify"
+        "setup-commands"
+        "setup-index"
+
+        # Feature implementations
+        "feature-deploy"
+
+        # Backwards-compatible aliases
+        "content-gap"
+        "content-roi"
+        "content-refresh"
+        "content-history"
+        "impact"
+        "keyword-cache"
         "content-audit"
         "content-audit-quick"
         "content-audit-batch"
-        "content-refresh"
         "content-eeat"
-        "content-history"
-        "keyword-cache"
+        "brownfield"
+        "verify"
+        "generate-commands"
+        "index"
+        "deploy-check"
     )
 
     for cmd in "${commands[@]}"; do
@@ -170,26 +206,15 @@ install_commands() {
 }
 
 # Install prompt files (interactive wizards)
+# NOTE: Prompts are now integrated into commands as routers
+# The setup wizard is now commands/setup.md
+# Brownfield is now commands/setup-existing.md
+# Verify is now commands/setup-verify.md
 install_prompts() {
-    echo -e "\n${BOLD}Installing prompts...${NC}"
-
-    local prompts=(
-        "setup"
-        "brownfield"
-        "verify"
-    )
-
-    local prompts_installed=0
-
-    for prompt in "${prompts[@]}"; do
-        if install_file "prompts/${prompt}.md" ".claude/commands/${prompt}.md" "/${prompt}"; then
-            ((prompts_installed++))
-        else
-            ((INSTALL_ERRORS++))
-        fi
-    done
-
-    echo -e "\n  Prompts installed: ${prompts_installed}/${#prompts[@]}"
+    echo -e "\n${BOLD}Prompts integrated into commands...${NC}"
+    echo -e "  ${GREEN}✓${NC} /setup (router with setup wizard)"
+    echo -e "  ${GREEN}✓${NC} /setup existing (was /brownfield)"
+    echo -e "  ${GREEN}✓${NC} /setup verify (was /verify)"
 }
 
 # Install MCP configuration for Astro Docs server
@@ -825,12 +850,18 @@ print_completion() {
     echo -e "${BOLD}Quick command reference:${NC}"
     echo ""
     echo -e "  ${GREEN}/start${NC}            Begin session with priorities"
-    echo -e "  ${GREEN}/fix-next${NC}         Fix highest-impact issue"
-    echo -e "  ${GREEN}/seo-wins${NC}         Find ranking opportunities"
-    echo -e "  ${GREEN}/content-audit${NC}    Full SEO content audit (0-100)"
-    echo -e "  ${GREEN}/content-refresh${NC}  Find declining pages via GSC"
-    echo -e "  ${GREEN}/feature${NC}          Build new features"
+    echo -e "  ${GREEN}/fix${NC}              Fix issues (or /fix 5 for batch)"
+    echo -e "  ${GREEN}/seo${NC}              SEO tools (wins, gaps, roi, refresh)"
+    echo -e "  ${GREEN}/audit${NC}            Site + content audits"
+    echo -e "  ${GREEN}/feature${NC}          Build features or deploy checks"
+    echo -e "  ${GREEN}/setup${NC}            Configuration tools"
     echo -e "  ${GREEN}/help${NC}             Show all commands"
+    echo ""
+    echo -e "${BOLD}Router commands show subcommands:${NC}"
+    echo ""
+    echo -e "  ${GREEN}/seo wins${NC}         Find ranking opportunities"
+    echo -e "  ${GREEN}/audit content${NC}    Full SEO content audit (0-100)"
+    echo -e "  ${GREEN}/setup verify${NC}     Check installation"
     echo ""
 }
 

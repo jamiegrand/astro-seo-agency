@@ -1,9 +1,36 @@
 ---
-argument-hint: "[feature description]"
-description: Plan and build a new feature using structured workflow
+description: Build features or run deploy checks
+argument-hint: "\"description\" | deploy"
 ---
 
-# Feature Development: $1
+# /feature - Feature Development
+
+Plan and build features, or run pre-deployment checks.
+
+## Usage
+
+| Command | Routes To | Description |
+|---------|-----------|-------------|
+| `/feature "Add dark mode"` | (direct) | Plan and build a feature |
+| `/feature deploy` | `feature-deploy.md` | Pre-deployment verification |
+
+## Routing
+
+**`deploy` subcommand:** Read `commands/feature-deploy.md` and execute
+
+**Any other argument (quoted string):** Execute feature planning directly (below)
+
+## Examples
+
+```bash
+/feature "Add newsletter signup"   # Build feature
+/feature "Improve mobile nav"      # Build feature
+/feature deploy                    # Pre-deploy checks
+```
+
+---
+
+# Feature Planning Implementation
 
 ## Philosophy
 
