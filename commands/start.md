@@ -4,7 +4,186 @@ description: Initialize work session with data-driven priorities
 
 # Session Start
 
-## Step 0: Check Project Index
+## Step 0: MCP Health Check
+
+Before starting, verify which MCP servers are available. Check for these tool prefixes:
+
+| MCP Server | Tool Prefix | Required For |
+|------------|-------------|--------------|
+| **Astro Docs** | `mcp__astro-docs__*` | `/astro-check docs`, best practices alerts |
+| **Google Search Console** | `mcp__gsc__*` | `/seo-wins`, `/seo refresh`, ranking data |
+| **astro-mcp** | `mcp__astro-project__*` | `/astro-check routes`, real-time project state |
+| **DataForSEO** | `mcp__dataforseo__*` | `/audit content` keyword data, SERP features |
+| **ScraperAPI** | `mcp__scraperapi__*` | Competitor content analysis |
+
+### Display MCP Status
+
+```markdown
+### 🔌 MCP Server Status
+
+| Server | Status | Features Affected |
+|--------|--------|-------------------|
+| Astro Docs | ✅ Connected / ❌ Not loaded | Docs search, best practices |
+| Google Search Console | ✅ Connected / ❌ Not loaded | SEO wins, rankings, CTR data |
+| astro-mcp | ✅ Connected / ❌ Not loaded | Route analysis, config queries |
+| DataForSEO | ✅ Connected / ❌ Not loaded | Keyword research, PAA questions |
+| ScraperAPI | ✅ Connected / ❌ Not loaded | Competitor analysis |
+
+**[X/5] MCP servers active**
+```
+
+### If any MCP servers missing:
+
+```markdown
+⚠️ **Some MCP servers not detected**
+
+Missing servers will limit certain features but won't block your workflow.
+
+**Options:**
+1. **Continue anyway** - Proceed with available features
+2. **Show setup help** - Display setup instructions for missing MCPs
+3. **Run `/astro-check mcp`** - Detailed MCP diagnostics and setup guide
+
+What would you like to do? (1/2/3) [1]:
+```
+
+### If user selects "Show setup help" (option 2):
+
+For each missing MCP, display the relevant setup from README:
+
+**Astro Docs (if missing):**
+```markdown
+### Astro Docs MCP Setup
+
+Add to `.mcp.json`:
+\`\`\`json
+{
+  "mcpServers": {
+    "astro-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+    }
+  }
+}
+\`\`\`
+Then restart Claude Code.
+```
+
+**Google Search Console (if missing):**
+```markdown
+### Google Search Console MCP Setup
+
+1. Create a Google Cloud Service Account with Search Console API enabled
+2. Download JSON key to `./credentials/gsc-service-account.json`
+3. Add service account email to your GSC property
+4. Add to `.env`:
+   \`\`\`
+   GSC_SITE_URL=https://your-site.com/
+   GOOGLE_APPLICATION_CREDENTIALS=./credentials/gsc-service-account.json
+   \`\`\`
+5. Add to `.mcp.json`:
+   \`\`\`json
+   {
+     "mcpServers": {
+       "gsc": {
+         "command": "npx",
+         "args": ["-y", "gsc-mcp-server"],
+         "env": {
+           "GSC_SITE_URL": "${GSC_SITE_URL}",
+           "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
+         }
+       }
+     }
+   }
+   \`\`\`
+6. Restart Claude Code.
+```
+
+**astro-mcp (if missing):**
+```markdown
+### astro-mcp Setup
+
+1. Install: `npx astro add astro-mcp`
+2. Start dev server: `npm run dev`
+3. Add to `.mcp.json`:
+   \`\`\`json
+   {
+     "mcpServers": {
+       "astro-project": {
+         "type": "sse",
+         "url": "http://localhost:4321/__mcp/sse"
+       }
+     }
+   }
+   \`\`\`
+**Note:** Dev server must be running for this MCP to work.
+```
+
+**DataForSEO (if missing):**
+```markdown
+### DataForSEO MCP Setup
+
+1. Sign up at https://dataforseo.com/
+2. Add to `.env`:
+   \`\`\`
+   DATAFORSEO_USERNAME=your_username
+   DATAFORSEO_PASSWORD=your_password
+   \`\`\`
+3. Add to `.mcp.json`:
+   \`\`\`json
+   {
+     "mcpServers": {
+       "dataforseo": {
+         "command": "npx",
+         "args": ["-y", "dataforseo-mcp-server"],
+         "env": {
+           "DATAFORSEO_USERNAME": "${DATAFORSEO_USERNAME}",
+           "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+         }
+       }
+     }
+   }
+   \`\`\`
+4. Restart Claude Code.
+```
+
+**ScraperAPI (if missing):**
+```markdown
+### ScraperAPI MCP Setup
+
+1. Sign up at https://www.scraperapi.com/ (1,000 free calls/month)
+2. Add to `.env`:
+   \`\`\`
+   SCRAPERAPI_KEY=your_api_key
+   \`\`\`
+3. Add to `.mcp.json`:
+   \`\`\`json
+   {
+     "mcpServers": {
+       "scraperapi": {
+         "command": "npx",
+         "args": ["@scraperapi/mcp"],
+         "env": {
+           "SCRAPERAPI_KEY": "${SCRAPERAPI_KEY}"
+         }
+       }
+     }
+   }
+   \`\`\`
+4. Restart Claude Code.
+```
+
+### If all MCP servers connected:
+
+```markdown
+✅ **All MCP servers connected**
+
+Full feature set available. Proceeding with session start...
+```
+
+---
+
+## Step 1: Check Project Index
 
 First, verify the project index database status:
 
@@ -50,7 +229,7 @@ Consider running `/index run` to refresh project data.
 
 ---
 
-## Step 1: Load Project Context
+## Step 2: Load Project Context
 
 Read these files in order:
 1. `CLAUDE.md` - Project configuration
@@ -67,7 +246,7 @@ Resume where you left off? (yes/no)
 
 ---
 
-## Step 2: Query Project State (Database First, MCP Fallback)
+## Step 3: Query Project State (Database First, MCP Fallback)
 
 ### Priority 1: Query Database
 
@@ -162,7 +341,7 @@ Search Astro docs for any deprecation warnings based on detected patterns:
 
 ---
 
-## Step 3: Query Analytics (If Configured)
+## Step 4: Query Analytics (If Configured)
 
 ### Google Analytics (Last 7 Days)
 ```
@@ -185,7 +364,7 @@ Metrics needed:
 
 ---
 
-## Step 4: Check Issue Tracker
+## Step 5: Check Issue Tracker
 
 ### If GitHub Issues configured:
 ```
@@ -206,7 +385,7 @@ List next 5 issues in current phase
 
 ---
 
-## Step 5: Calculate Priority Scores
+## Step 6: Calculate Priority Scores
 
 For each open issue:
 ```
@@ -225,7 +404,7 @@ If Astro-specific (detected via astro-mcp):
 
 ---
 
-## Step 6: Detect Quick Wins
+## Step 7: Detect Quick Wins
 
 Find issues that are:
 - High impact (score > 50)
@@ -239,7 +418,7 @@ Find issues that are:
 
 ---
 
-## Step 7: Generate Session Report
+## Step 8: Generate Session Report
 
 ```markdown
 ## 🚀 Session Start: [DATE]
@@ -318,7 +497,7 @@ Ready to work? Commands:
 
 ---
 
-## Step 8: Set Session State
+## Step 9: Set Session State
 
 Create/update `.planning/SESSION.md`:
 ```markdown

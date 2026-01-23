@@ -35,23 +35,28 @@ Attempt to use the `get-astro-config` tool:
 ```markdown
 ## 🔌 MCP Server Status
 
-| Server | Status | Purpose | Action Needed |
-|--------|--------|---------|---------------|
-| Astro Docs MCP | ✅ Available | Real-time documentation | None |
-| Astro Docs MCP | ❌ Unavailable | Real-time documentation | See setup below |
-| astro-mcp | ✅ Available | Project routes & config | None |
-| astro-mcp | ⚠️ Not running | Project routes & config | Run `npm run dev` |
-| astro-mcp | ❌ Not installed | Project routes & config | Run `npx astro add astro-mcp` |
+| Server | Status | Purpose |
+|--------|--------|---------|
+| Astro Docs | ✅/❌ | Documentation search, best practices |
+| Google Search Console | ✅/❌ | Rankings, CTR, impressions |
+| astro-mcp | ✅/❌ | Project routes & config |
+| DataForSEO | ✅/❌ | Keyword research, SERP features |
+| ScraperAPI | ✅/❌ | Competitor content analysis |
 
-### Feature Availability
+**[X/5] MCP servers active**
 
-| Feature | Astro Docs | astro-mcp | Status |
-|---------|------------|-----------|--------|
-| Documentation search | Required | - | ✅/❌ |
-| Route listing | - | Required | ✅/❌ |
-| Config inspection | - | Required | ✅/❌ |
-| Best practice checks | Required | Optional | ✅/❌ |
-| Full project report | Optional | Required | ✅/❌ |
+### Feature Availability by MCP
+
+| Feature | Required MCPs | Status |
+|---------|---------------|--------|
+| Documentation search | Astro Docs | ✅/❌ |
+| Route listing | astro-mcp | ✅/❌ |
+| Config inspection | astro-mcp | ✅/❌ |
+| SEO quick wins | GSC | ✅/❌ |
+| Ranking data | GSC | ✅/❌ |
+| Keyword research | DataForSEO | ✅/❌ |
+| Competitor analysis | ScraperAPI | ✅/❌ |
+| Best practice checks | Astro Docs | ✅/❌ |
 ```
 
 ---
@@ -168,56 +173,145 @@ Use `search_astro_docs` tool:
 
 ## `/astro-check mcp` - MCP Diagnostics
 
-Run this subcommand to get detailed MCP status:
+Run this subcommand to get detailed MCP status for all 5 servers.
+
+### How to Detect MCP Availability
+
+Check for these tool prefixes in available tools:
+
+| MCP Server | Tool Prefix to Look For |
+|------------|-------------------------|
+| Astro Docs | `mcp__astro-docs__*` |
+| Google Search Console | `mcp__gsc__*` |
+| astro-mcp | `mcp__astro-project__*` |
+| DataForSEO | `mcp__dataforseo__*` |
+| ScraperAPI | `mcp__scraperapi__*` |
+
+### Output Format
 
 ```markdown
 ## 🔌 MCP Diagnostics Report
 
 ### Server Status
 
-| Server | Status | Test Result |
-|--------|--------|-------------|
-| Astro Docs MCP | [status] | [test query result] |
-| astro-mcp | [status] | [config query result] |
+| Server | Status | Purpose | Test Result |
+|--------|--------|---------|-------------|
+| Astro Docs | ✅/❌ | Documentation search | [test query result] |
+| Google Search Console | ✅/❌ | Rankings, CTR, impressions | [list_properties result] |
+| astro-mcp | ✅/❌ | Project routes & config | [config query result] |
+| DataForSEO | ✅/❌ | Keyword research | [tool availability] |
+| ScraperAPI | ✅/❌ | Competitor analysis | [tool availability] |
+
+**[X/5] MCP servers active**
+
+---
 
 ### Astro Docs MCP
-- **URL:** https://mcp.docs.astro.build/mcp
-- **Status:** ✅ Connected / ❌ Not configured / ⚠️ Error
-- **Test:** Searched "astro basics" → [result count] results
-- **Last verified:** [timestamp]
+- **Purpose:** Search official Astro documentation
+- **Status:** ✅ Connected / ❌ Not configured
+- **Test:** Search "astro basics" → [result count] results
+- **Required for:** `/astro-check docs`, best practice alerts
+
+### Google Search Console MCP
+- **Purpose:** Real ranking data, CTR, impressions
+- **Status:** ✅ Connected / ❌ Not configured / ⚠️ Auth error
+- **Test:** list_properties → [success/failure]
+- **Required for:** `/seo-wins`, `/seo refresh`, `/seo impact`
 
 ### astro-mcp (Project Integration)
-- **URL:** http://localhost:4321/__mcp/sse
+- **Purpose:** Query project routes and config at runtime
 - **Status:** ✅ Connected / ❌ Not installed / ⚠️ Dev server not running
 - **Test:** get-astro-config → [success/failure]
-- **Astro Version:** [if available]
+- **Required for:** `/astro-check routes`, route conflict detection
+- **Note:** Requires `npm run dev` to be running
+
+### DataForSEO MCP
+- **Purpose:** Keyword volume, difficulty, SERP features, PAA questions
+- **Status:** ✅ Connected / ❌ Not configured / ⚠️ Auth error
+- **Test:** Tool availability check
+- **Required for:** `/audit content` keyword data, content gap analysis
+
+### ScraperAPI MCP
+- **Purpose:** Fetch and analyze competitor content
+- **Status:** ✅ Connected / ❌ Not configured
+- **Test:** Tool availability check
+- **Required for:** Competitor content analysis in audits
+
+---
 
 ### Plugin Commands Affected
 
-| Command | Astro Docs | astro-mcp | Current Status |
-|---------|------------|-----------|----------------|
-| `/start` | Used | Used | ✅ Full / ⚠️ Partial / ❌ Limited |
-| `/fix-next` | Required | Optional | ✅ Full / ⚠️ Partial / ❌ Limited |
-| `/audit` | Used | Used | ✅ Full / ⚠️ Partial / ❌ Limited |
-| `/feature` | Used | Used | ✅ Full / ⚠️ Partial / ❌ Limited |
-| `/seo-wins` | - | Optional | ✅ Full / ⚠️ Partial |
-| `/deploy-check` | Used | Used | ✅ Full / ⚠️ Partial / ❌ Limited |
+| Command | Astro Docs | GSC | astro-mcp | DataForSEO | ScraperAPI |
+|---------|------------|-----|-----------|------------|------------|
+| `/start` | Used | Used | Used | - | - |
+| `/fix-next` | Required | Optional | Optional | - | - |
+| `/audit content` | Used | Used | - | Required | Optional |
+| `/seo-wins` | - | **Required** | - | Optional | - |
+| `/seo refresh` | - | **Required** | - | - | - |
+| `/seo gaps` | - | Used | - | **Required** | Optional |
+| `/feature` | Used | - | Used | - | - |
+| `/astro-check` | Required | - | Required | - | - |
 
-### Recommendations
+**Legend:** Required = Feature won't work without it | Used = Enhanced when available | - = Not used
 
-[Based on status, provide specific recommendations]
+---
 
-**If Astro Docs MCP missing:**
-> Your commands will work but won't have access to current Astro documentation.
-> This may result in outdated patterns being used. See setup instructions above.
+### Quick Setup Commands
 
-**If astro-mcp missing:**
-> Project-specific features (route checking, config validation) unavailable.
-> Install with: `npx astro add astro-mcp`
+**Missing Astro Docs?**
+\`\`\`json
+// Add to .mcp.json
+"astro-docs": {
+  "command": "npx",
+  "args": ["-y", "mcp-remote", "https://mcp.docs.astro.build/mcp"]
+}
+\`\`\`
 
-**If astro-mcp not running:**
-> Start your dev server: `npm run dev`
-> Then run `/astro-check mcp` again to verify.
+**Missing GSC?**
+\`\`\`json
+// Add to .mcp.json (requires credentials setup first)
+"gsc": {
+  "command": "npx",
+  "args": ["-y", "gsc-mcp-server"],
+  "env": {
+    "GSC_SITE_URL": "${GSC_SITE_URL}",
+    "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_APPLICATION_CREDENTIALS}"
+  }
+}
+\`\`\`
+
+**Missing astro-mcp?**
+\`\`\`bash
+npx astro add astro-mcp
+npm run dev
+\`\`\`
+
+**Missing DataForSEO?**
+\`\`\`json
+// Add to .mcp.json (requires account at dataforseo.com)
+"dataforseo": {
+  "command": "npx",
+  "args": ["-y", "dataforseo-mcp-server"],
+  "env": {
+    "DATAFORSEO_USERNAME": "${DATAFORSEO_USERNAME}",
+    "DATAFORSEO_PASSWORD": "${DATAFORSEO_PASSWORD}"
+  }
+}
+\`\`\`
+
+**Missing ScraperAPI?**
+\`\`\`json
+// Add to .mcp.json (1,000 free calls/month at scraperapi.com)
+"scraperapi": {
+  "command": "npx",
+  "args": ["@scraperapi/mcp"],
+  "env": {
+    "SCRAPERAPI_KEY": "${SCRAPERAPI_KEY}"
+  }
+}
+\`\`\`
+
+After adding, restart Claude Code to activate.
 ```
 
 ---
@@ -294,10 +388,25 @@ When MCP servers are unavailable, the plugin continues to work with reduced func
 | `/audit` | Skips best practice checks |
 | `/feature` | No pattern validation |
 
+| Without GSC MCP | Effect |
+|-----------------|--------|
+| `/seo-wins` | Cannot find ranking opportunities |
+| `/seo refresh` | Cannot identify declining pages |
+| `/start` | No ranking data in priorities |
+
 | Without astro-mcp | Effect |
 |-------------------|--------|
 | `/astro-check` | Shows "unavailable" for project info |
 | `/start` | Skips route summary |
 | `/deploy-check` | Manual config verification needed |
 
-**Recommendation:** Configure at least Astro Docs MCP for best results.
+| Without DataForSEO MCP | Effect |
+|------------------------|--------|
+| `/audit content` | No keyword volume/difficulty data |
+| `/seo gaps` | Limited content gap analysis |
+
+| Without ScraperAPI MCP | Effect |
+|------------------------|--------|
+| `/audit content` | No competitor content comparison |
+
+**Recommendation:** Configure at least **Astro Docs** and **GSC** for best results. DataForSEO and ScraperAPI are optional but enhance content audits.
