@@ -4,31 +4,97 @@ description: Analyze content performance and ROI
 
 # Content ROI Analysis
 
-## Step 1: Discover Content Structure (via astro-mcp)
+## Step 0: Check Project Index
+
+**Query the project index for fast content inventory:**
+
+```sql
+-- Check index status
+SELECT * FROM index_status;
+
+-- Get content overview
+SELECT * FROM project_summary;
+```
+
+### Index Status Display
+
+```markdown
+### 📊 Project Index Status
+
+| Phase | Status | Items |
+|-------|--------|-------|
+| Collections | ✅/🔄/❌ | X items |
+| Routes | ✅/🔄/❌ | X routes |
+| Data Files | ✅/🔄/❌ | X files |
+
+**Data Source:** [Database / MCP / File scan]
+```
+
+**If index incomplete:**
+```markdown
+⚠️ **Content inventory incomplete**
+
+ROI analysis works best with complete content index.
+Run `/index run` for comprehensive analysis.
+
+Proceeding with available data...
+```
+
+---
+
+## Step 1: Discover Content Structure
 
 **First, query the project to understand where content lives:**
 
-### Query Project Configuration
+### Priority 1: Query Database (Fast)
 
-Use `get-astro-config` to find content setup:
+```sql
+-- Get project configuration
+SELECT key, value FROM project_config
+WHERE key IN ('name', 'astro_version', 'output_mode', 'site_url');
+
+-- Get all collections with item counts
+SELECT
+  name,
+  location,
+  item_count,
+  schema_fields,
+  last_indexed
+FROM collections
+ORDER BY item_count DESC;
+
+-- Get routes by type
+SELECT
+  route_pattern,
+  route_type,
+  source_file,
+  generates_count
+FROM routes
+ORDER BY route_type, route_pattern;
+
+-- Get data files
+SELECT
+  file_path,
+  export_name,
+  item_count
+FROM data_files;
+```
+
+**If database has data:**
 
 ```markdown
-## 📁 Content Structure Discovery
+## 📁 Content Structure Discovery (from index)
+
+**Data Source:** Project Index ✅
 
 ### Project Configuration
 | Setting | Value |
 |---------|-------|
-| Content Directory | [src/content/ or custom] |
-| Pages Directory | [src/pages/] |
-| Public Directory | [public/] |
-| Collections Defined | [list from config] |
-```
+| Content Directory | src/content/ |
+| Pages Directory | src/pages/ |
+| Collections | [count from DB] |
+| Data Files | [count from DB] |
 
-### Query All Routes
-
-Use `list-astro-routes` to find all content pages:
-
-```markdown
 ### Content Routes Found
 
 | Route Pattern | Type | Source | Count |
@@ -36,8 +102,18 @@ Use `list-astro-routes` to find all content pages:
 | /blog/[slug] | Content Collection | src/content/blog/ | X posts |
 | /products/[id] | Data-driven | src/data/products.js | X items |
 | /services/[slug] | Static pages | src/pages/services/ | X pages |
-| /locations/[city] | Data-driven | src/data/locations.js | X pages |
-| /[...slug] | Catch-all | src/pages/ | X pages |
+```
+
+### Priority 2: MCP Fallback
+
+If index incomplete, fall back to astro-mcp:
+
+```markdown
+## 📁 Content Structure Discovery (via astro-mcp)
+
+**Note:** Project not fully indexed. Run `/index run` for faster queries.
+
+[Query get-astro-config and list-astro-routes]
 ```
 
 ### Search Astro Docs for Content Patterns
@@ -56,12 +132,44 @@ Use `search_astro_docs` for "content collections":
 
 ## Step 2: Inventory All Content
 
-Based on discovered structure, scan for content:
+Based on discovered structure, query content from database:
 
-### Content Collections (if using)
+### Priority 1: Query Database
+
+```sql
+-- Get all collection entries with details
+SELECT
+  ce.slug,
+  ce.title,
+  ce.file_path,
+  ce.publish_date,
+  ce.word_count,
+  ce.draft,
+  c.name as collection_name,
+  c.location
+FROM collection_entries ce
+JOIN collections c ON ce.collection_id = c.id
+WHERE ce.draft = 0
+ORDER BY ce.publish_date DESC;
+
+-- Collection health metrics
+SELECT
+  c.name,
+  c.item_count as total,
+  SUM(CASE WHEN ce.word_count > 0 THEN 1 ELSE 0 END) as with_word_count,
+  SUM(CASE WHEN ce.description IS NOT NULL THEN 1 ELSE 0 END) as with_description,
+  SUM(CASE WHEN ce.draft = 1 THEN 1 ELSE 0 END) as drafts
+FROM collections c
+LEFT JOIN collection_entries ce ON c.id = ce.collection_id
+GROUP BY c.id;
+```
+
+### Content Collections (from database)
 
 ```markdown
 ### 📚 Content Collections
+
+**Data Source:** Project Index ✅
 
 | Collection | Location | Items | Schema |
 |------------|----------|-------|--------|
@@ -69,16 +177,16 @@ Based on discovered structure, scan for content:
 | docs | src/content/docs/ | X | ✅ Defined |
 | [other] | src/content/[name]/ | X | ✅/❌ |
 
-#### Blog Posts
-| Slug | Title | Published | Words | Images |
-|------|-------|-----------|-------|--------|
-| [slug] | [title] | [date] | X | X |
+#### Blog Posts (from collection_entries)
+| Slug | Title | Published | Words | File |
+|------|-------|-----------|-------|------|
+| [slug] | [title] | [date] | X | src/content/blog/[slug].md |
 
-#### Collection Health
+#### Collection Health (from database)
 | Metric | Value | Status |
 |--------|-------|--------|
 | Total items | X | - |
-| With images | X (Y%) | ✅/⚠️ |
+| With word count | X (Y%) | ✅/⚠️ |
 | With description | X (Y%) | ✅/⚠️ |
 | Draft status | X drafts | - |
 ```
@@ -482,12 +590,20 @@ pubDate: [today's date]
 
 ---
 
+## Data Source Priority
+
+| Step | Priority 1: Database | Priority 2: MCP | Priority 3: File Scan |
+|------|---------------------|-----------------|----------------------|
+| Discovery | `project_config`, `collections`, `routes` | astro-mcp | Parse config files |
+| Inventory | `collection_entries`, `data_files` | list-astro-routes | Glob patterns |
+| File Mapping | `routes.source_file`, `collection_entries.file_path` | get-astro-config | File structure |
+
 ## MCP Usage Summary
 
-| Step | Astro Docs MCP | astro-mcp |
-|------|----------------|-----------|
-| Discovery | Content collection patterns | Project config, all routes |
-| Inventory | - | File locations |
-| Analysis | - | Route-to-file mapping |
-| Recommendations | Content best practices | Where to create/edit |
-| Implementation | - | Verify new routes |
+| Step | Database | Astro Docs MCP | astro-mcp |
+|------|----------|----------------|-----------|
+| Discovery | ✅ Primary | Content collection patterns | Fallback |
+| Inventory | ✅ Primary | - | Fallback |
+| Analysis | - | - | Route-to-file mapping |
+| Recommendations | File paths | Content best practices | Where to create/edit |
+| Implementation | - | - | Verify new routes |

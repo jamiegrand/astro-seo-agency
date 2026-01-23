@@ -4,12 +4,58 @@ description: Initialize work session with data-driven priorities
 
 # Session Start
 
+## Step 0: Check Project Index
+
+First, verify the project index database status:
+
+```sql
+-- Check index status
+SELECT * FROM index_status;
+SELECT * FROM project_summary;
+```
+
+### Index Status Display
+
+```markdown
+### 📊 Index Status
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| Quick Scan | ✅/🔄/❌ | X% |
+| Collections | ✅/🔄/❌ | X% |
+| Routes | ✅/🔄/❌ | X% |
+| Data Files | ✅/🔄/❌ | X% |
+| Components | ✅/🔄/❌ | X% |
+```
+
+**If index incomplete:**
+```markdown
+⚠️ **Project index incomplete**
+
+Some project data may be missing. Background indexing will continue.
+
+[If quick_scan not complete:]
+**Recommendation:** Run `/index run` to index your project.
+
+[If only later phases incomplete:]
+Proceeding with available data. Full index recommended later.
+```
+
+**If index stale (>7 days old):**
+```markdown
+ℹ️ **Index may be stale** (last updated: [date])
+
+Consider running `/index run` to refresh project data.
+```
+
+---
+
 ## Step 1: Load Project Context
 
 Read these files in order:
 1. `CLAUDE.md` - Project configuration
 2. `.planning/HANDOFF.md` - If exists, offer to resume
-3. `AI-INFO.md` - Architecture reference (if exists)
+3. `AI-INFO.md` - Architecture reference (generated from index)
 
 If HANDOFF.md exists:
 ```
@@ -21,45 +67,86 @@ Resume where you left off? (yes/no)
 
 ---
 
-## Step 2: Query Astro Project State (via astro-mcp)
+## Step 2: Query Project State (Database First, MCP Fallback)
 
-If the dev server is running, query the astro-mcp integration:
+### Priority 1: Query Database
 
-### Get Project Configuration
-Use `get-astro-config` tool:
+```sql
+-- Get project summary from indexed data
+SELECT * FROM project_summary;
+
+-- Get content overview
+SELECT * FROM content_overview;
+
+-- Get recent routes
+SELECT route_pattern, route_type, source_file FROM routes LIMIT 20;
+```
+
+**If database has data:**
 
 ```markdown
-### ⚙️ Astro Project Status
+### ⚙️ Project Status (from index)
 
 | Setting | Value |
 |---------|-------|
-| Astro Version | [version] |
-| Output Mode | [static/server/hybrid] |
-| Site URL | [configured or not set] |
-| Integrations | [count] active |
+| Project Name | [from DB] |
+| Astro Version | [from DB] |
+| Output Mode | [from DB] |
+| Site URL | [from DB] |
+| Total Routes | [from DB] |
+| Collections | [from DB] |
+| Components | [from DB] |
 
-#### Active Integrations
-| Integration | Status |
-|-------------|--------|
-| [name] | ✅ Configured |
-| [name] | ✅ Configured |
-```
+#### Content Overview
+| Collection | Items | Published | Last Updated |
+|------------|-------|-----------|--------------|
+| [name] | X | Y | [date] |
 
-### Get Route Summary
-Use `list-astro-routes` tool:
-
-```markdown
-### 🗺️ Route Summary
-
+#### Route Summary
 | Type | Count |
 |------|-------|
-| Static Pages | X |
-| Dynamic Routes | X |
-| API Endpoints | X |
-| **Total** | **X** |
+| Static Pages | [from DB] |
+| Dynamic Routes | [from DB] |
+| API Endpoints | [from DB] |
+| **Total** | **[from DB]** |
+```
+
+### Priority 2: MCP Fallback (if DB empty or stale)
+
+If database is empty or index incomplete, fall back to astro-mcp:
+
+```markdown
+### ⚙️ Project Status (via astro-mcp)
+
+[Query get-astro-config and list-astro-routes]
+
+| Setting | Value |
+|---------|-------|
+| Astro Version | [from MCP] |
+| Output Mode | [from MCP] |
+...
+
+**Note:** Consider running `/index run` to cache project data.
+```
+
+### Priority 3: File Scan Fallback
+
+If both DB and MCP unavailable:
+
+```markdown
+### ⚙️ Project Status (from file scan)
+
+Scanning project structure...
+
+[Basic counts from file system]
+
+**Note:** For better data, either:
+- Run `/index run` to build project index
+- Run `npm run dev` for astro-mcp access
 ```
 
 ### Check for Astro Issues
+
 Search Astro docs for any deprecation warnings based on detected patterns:
 
 ```markdown
@@ -164,6 +251,8 @@ Find issues that are:
 | Output Mode | [static/server/hybrid] |
 | Integrations | [X] active |
 | Routes | [X] total |
+| Collections | [X] with [Y] items |
+| Project Index | ✅ Complete / 🔄 [X]% / ❌ Not indexed |
 | Dev Server | 🟢 Running / 🔴 Stopped |
 
 [If Astro issues detected:]
@@ -239,29 +328,55 @@ Focus: [Recommended focus from above]
 Completed: []
 Astro MCP: [Active/Inactive]
 Astro Version: [version]
+Project Index: [Complete/Partial/Not indexed]
+Data Source: [Database/MCP/File scan]
 ```
 
 ---
 
-## MCP Integration Notes
+## Data Source Priority
 
-### If astro-mcp is not available:
+### Priority Order
+1. **Database** (`.planning/seo-audit.db`) - Fastest, always available
+2. **astro-mcp** - Real-time but requires dev server
+3. **File scan** - Slowest, always available
+
+### If project index is complete:
 
 ```markdown
-### ℹ️ Astro MCP Not Active
+### ✅ Using Project Index
 
-The dev server isn't running, so I can't query project state directly.
+Project data loaded from database (indexed [date]).
+No MCP or file scanning needed.
 
-To enable:
-1. Run `npm run dev` in another terminal
-2. Run `/start` again
-
-Or continue without it - analytics and issue tracking still work.
+**To refresh index:** `/index run`
 ```
 
-### If Astro Docs MCP is available:
+### If project index incomplete but MCP available:
 
-Always search for any Astro-specific warnings or updates that might affect the project:
+```markdown
+### ℹ️ Using astro-mcp (Index Incomplete)
+
+Some data from database, supplemented by astro-mcp.
+
+**Recommendation:** Run `/index run` to complete indexing.
+```
+
+### If neither index nor MCP available:
+
+```markdown
+### ⚠️ Limited Project Data
+
+Using file scan fallback. Some features may be slower.
+
+**To improve:**
+1. Run `/index run` to build project index, OR
+2. Run `npm run dev` for astro-mcp access
+```
+
+### Astro Docs MCP
+
+If Astro Docs MCP is available, always search for warnings:
 
 ```
 Search: "breaking changes astro [detected version]"

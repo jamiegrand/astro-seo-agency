@@ -15,7 +15,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Version
-VERSION="2.3.0"
+VERSION="3.0.0"
 
 # Print banner
 echo ""
@@ -638,22 +638,62 @@ init_database() {
         return
     fi
 
-    # Create database if init-db.sql exists
-    if [ "$SOURCE" = "local" ] && [ -f "$SCRIPT_DIR/scripts/init-db.sql" ]; then
-        sqlite3 .planning/seo-audit.db < "$SCRIPT_DIR/scripts/init-db.sql" 2>/dev/null
-        echo -e "  ${GREEN}✓${NC} SQLite database initialized at .planning/seo-audit.db"
-    elif [ "$SOURCE" = "remote" ]; then
-        # Download and run init script
-        if curl -fsSL "$REPO_URL/scripts/init-db.sql" -o "/tmp/init-db.sql" 2>/dev/null; then
-            sqlite3 .planning/seo-audit.db < /tmp/init-db.sql 2>/dev/null
-            rm -f /tmp/init-db.sql
-            echo -e "  ${GREEN}✓${NC} SQLite database initialized at .planning/seo-audit.db"
+    local DB_PATH=".planning/seo-audit.db"
+    local NEEDS_INIT=true
+    local NEEDS_MIGRATE=false
+
+    # Check if database already exists
+    if [ -f "$DB_PATH" ]; then
+        NEEDS_INIT=false
+        # Check schema version
+        local CURRENT_VERSION=$(sqlite3 "$DB_PATH" "SELECT COALESCE(MAX(version), 0) FROM schema_version;" 2>/dev/null || echo "0")
+        if [ "$CURRENT_VERSION" -lt 3 ]; then
+            NEEDS_MIGRATE=true
+            echo -e "  ${CYAN}ℹ${NC}  Existing database found (schema v${CURRENT_VERSION})"
         else
-            echo -e "  ${YELLOW}⚠${NC} Could not download database schema - will create on first use"
+            echo -e "  ${GREEN}✓${NC} Database up to date (schema v${CURRENT_VERSION})"
+            return
         fi
-    else
-        echo -e "  ${YELLOW}⚠${NC} Database schema not found - will create on first use"
     fi
+
+    # Initialize or migrate database
+    if [ "$NEEDS_INIT" = true ]; then
+        # Fresh install - use init-db.sql
+        if [ "$SOURCE" = "local" ] && [ -f "$SCRIPT_DIR/scripts/init-db.sql" ]; then
+            sqlite3 "$DB_PATH" < "$SCRIPT_DIR/scripts/init-db.sql" 2>/dev/null
+            echo -e "  ${GREEN}✓${NC} Database initialized (schema v3)"
+        elif [ "$SOURCE" = "remote" ]; then
+            if curl -fsSL "$REPO_URL/scripts/init-db.sql" -o "/tmp/init-db.sql" 2>/dev/null; then
+                sqlite3 "$DB_PATH" < /tmp/init-db.sql 2>/dev/null
+                rm -f /tmp/init-db.sql
+                echo -e "  ${GREEN}✓${NC} Database initialized (schema v3)"
+            else
+                echo -e "  ${YELLOW}⚠${NC} Could not download database schema - will create on first use"
+            fi
+        else
+            echo -e "  ${YELLOW}⚠${NC} Database schema not found - will create on first use"
+        fi
+    elif [ "$NEEDS_MIGRATE" = true ]; then
+        # Existing install - run migration
+        echo -e "  ${BLUE}Migrating database to v3...${NC}"
+        if [ "$SOURCE" = "local" ] && [ -f "$SCRIPT_DIR/scripts/migrate-v3.sql" ]; then
+            sqlite3 "$DB_PATH" < "$SCRIPT_DIR/scripts/migrate-v3.sql" 2>/dev/null
+            echo -e "  ${GREEN}✓${NC} Database migrated to v3"
+        elif [ "$SOURCE" = "remote" ]; then
+            if curl -fsSL "$REPO_URL/scripts/migrate-v3.sql" -o "/tmp/migrate-v3.sql" 2>/dev/null; then
+                sqlite3 "$DB_PATH" < /tmp/migrate-v3.sql 2>/dev/null
+                rm -f /tmp/migrate-v3.sql
+                echo -e "  ${GREEN}✓${NC} Database migrated to v3"
+            else
+                echo -e "  ${YELLOW}⚠${NC} Could not download migration script"
+                echo -e "    Run '/index reset' after installation to create tables"
+            fi
+        fi
+    fi
+
+    # Verify tables exist
+    local TABLE_COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM sqlite_master WHERE type='table';" 2>/dev/null || echo "0")
+    echo -e "  ${CYAN}ℹ${NC}  Database contains ${TABLE_COUNT} tables"
 }
 
 # Update .gitignore

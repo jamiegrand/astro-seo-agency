@@ -9,8 +9,45 @@ Analyzes Google Search Console data to identify high-impression queries without 
 ## Prerequisites
 
 - Google Search Console MCP configured (recommended)
-- astro-mcp for project structure awareness
+- Project index for fast content lookup (run `/index` if not available)
 - Astro Docs MCP for content collection best practices
+
+---
+
+## Step 0: Check Project Index
+
+**Query the project index for fast content inventory:**
+
+```sql
+-- Check index status
+SELECT * FROM index_status WHERE phase IN ('collections', 'routes');
+
+-- Get content counts
+SELECT * FROM project_summary;
+```
+
+### Index Status Display
+
+```markdown
+### 📊 Project Index Status
+
+| Phase | Status | Items |
+|-------|--------|-------|
+| Collections | ✅/🔄/❌ | X items |
+| Routes | ✅/🔄/❌ | X routes |
+
+**Data Source:** [Database / MCP / File scan]
+```
+
+**If collections not indexed:**
+```markdown
+⚠️ **Content inventory not indexed**
+
+Content gap analysis works best with a complete index.
+Run `/index run collections routes` for comprehensive analysis.
+
+Proceeding with available data...
+```
 
 ---
 
@@ -59,17 +96,50 @@ Analyzes Google Search Console data to identify high-impression queries without 
 
 ## Step 1: Analyze Current Content Structure
 
-**First, count total content items to determine strategy:**
+### Priority 1: Query Database (Fast)
+
+```sql
+-- Get site size from project index
+SELECT
+  (SELECT COUNT(*) FROM collection_entries WHERE draft = 0) as total_content,
+  (SELECT COUNT(*) FROM routes) as total_routes,
+  (SELECT COUNT(*) FROM collections) as collection_count;
+
+-- Get collection summary
+SELECT
+  c.name,
+  c.location,
+  c.item_count,
+  c.schema_fields
+FROM collections c
+ORDER BY c.item_count DESC;
+
+-- Get route summary
+SELECT
+  route_type,
+  COUNT(*) as count
+FROM routes
+GROUP BY route_type;
+```
+
+**If database has data:**
 
 ```markdown
-### 📊 Site Size Assessment
+### 📊 Site Size Assessment (from index)
 
-| Collection | Count |
+**Data Source:** Project Index ✅
+
+| Collection | Count | Last Indexed |
+|------------|-------|--------------|
+| blog | X | [date] |
+| products | X | [date] |
+| **Total** | **X** | - |
+
+| Route Type | Count |
 |------------|-------|
-| blog | X |
-| products | X |
-| pages | X |
-| **Total** | **X** |
+| Static | X |
+| Dynamic | X |
+| API | X |
 ```
 
 **Apply size-appropriate strategy:**
@@ -78,30 +148,58 @@ Analyzes Google Search Console data to identify high-impression queries without 
 - **100-500 items:** Show counts + 20 most recent per collection
 - **> 500 items:** Show counts only, ask user which collection to focus on
 
-**Query astro-mcp for existing content (with limits):**
+### Priority 2: MCP Fallback (If DB Empty)
+
+If index incomplete, fall back to astro-mcp:
+
+```markdown
+### 📊 Site Size Assessment (via astro-mcp)
+
+**Note:** Project not fully indexed. Run `/index run` for faster queries.
+
+[Query astro-mcp for content structure]
+```
+
+### Content Inventory Display
 
 ```markdown
 ### 📁 Current Content Inventory
 
 **Analysis scope:** [All content / Blog collection only / etc.]
+**Data Source:** [Database / MCP / File scan]
 
-#### Content Collections
+#### Content Collections (from database)
+```sql
+SELECT
+  ce.slug,
+  ce.title,
+  ce.file_path,
+  ce.publish_date
+FROM collection_entries ce
+JOIN collections c ON ce.collection_id = c.id
+WHERE c.name = '[collection]'
+ORDER BY ce.publish_date DESC
+LIMIT 20;
+```
+
 | Collection | Location | Count | Schema Fields |
 |------------|----------|-------|---------------|
 | blog | src/content/blog/ | X | title, description, pubDate, ... |
 | products | src/content/products/ | X | name, price, ... |
 
-#### Static Pages (max 50 shown)
-| Path | Source File | Purpose |
-|------|-------------|---------|
-| / | src/pages/index.astro | Homepage |
-| /about | src/pages/about.astro | About page |
+#### Routes (from database)
+```sql
+SELECT route_pattern, route_type, source_file
+FROM routes
+WHERE route_type IN ('static', 'dynamic')
+ORDER BY route_type, route_pattern
+LIMIT 50;
+```
 
-#### Dynamic Routes
-| Pattern | Source | Generates |
-|---------|--------|-----------|
-| /blog/[slug] | src/pages/blog/[slug].astro | Blog posts |
-| /products/[id] | src/pages/products/[id].astro | Product pages |
+| Pattern | Type | Source |
+|---------|------|--------|
+| /blog/[slug] | dynamic | src/pages/blog/[slug].astro |
+| /products/[id] | dynamic | src/pages/products/[id].astro |
 
 **Total Indexable URLs:** X
 **Showing:** X of X items (limited for performance)
@@ -551,16 +649,24 @@ Add these links? (yes/no/select)
 
 ---
 
+## Data Source Priority
+
+| Step | Priority 1: Database | Priority 2: MCP | Priority 3: File Scan |
+|------|---------------------|-----------------|----------------------|
+| Inventory | `collections`, `collection_entries`, `routes` tables | astro-mcp | Glob patterns |
+| URL Mapping | `routes.route_pattern` → `routes.source_file` | list-astro-routes | File structure |
+| Schema | `collections.schema_fields` | get-astro-config | Parse config.ts |
+
 ## MCP Usage Summary
 
-| Step | GSC MCP | astro-mcp | Astro Docs |
-|------|---------|-----------|------------|
-| Inventory | - | Content structure | Collection patterns |
-| Gap Query | Search analytics | - | - |
-| Scoring | Impressions, position | Route mapping | - |
-| Brief | Query data | Schema fields | Frontmatter best practices |
-| Create | - | Collection schema | Content collection API |
-| Verify | - | Build status | - |
+| Step | Database | GSC MCP | astro-mcp | Astro Docs |
+|------|----------|---------|-----------|------------|
+| Inventory | ✅ Primary | - | Fallback | Collection patterns |
+| Gap Query | - | Search analytics | - | - |
+| Scoring | Route mapping | Impressions, position | Fallback | - |
+| Brief | Collection schema | Query data | Fallback | Frontmatter best practices |
+| Create | - | - | Collection schema | Content collection API |
+| Verify | - | - | Build status | - |
 
 ---
 

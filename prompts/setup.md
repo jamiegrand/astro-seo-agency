@@ -316,9 +316,135 @@ You can:
 
 ---
 
-## Step 5: Generate Configuration Files
+## Step 5: Project Indexing
 
-Based on your choices, generating:
+Index project structure for AI-INFO.md generation and database-backed commands.
+
+```markdown
+### 📊 Project Indexing
+
+Indexing your project enables:
+- AI-INFO.md auto-generation
+- Faster command execution (queries database instead of scanning files)
+- Content inventory tracking
+- Route-to-file mapping for SEO commands
+
+---
+
+### Phase 1: Quick Scan (Required)
+
+⏳ Scanning project structure...
+
+| Item | Count |
+|------|-------|
+| Content Collections | X |
+| Collection Items | X |
+| Pages | X |
+| Components | X |
+| Data Files | X |
+
+✅ Quick scan complete (X.Xs)
+```
+
+### If Project Has < 500 Items:
+
+```markdown
+### Indexing Project...
+
+Your project is small enough for immediate full indexing.
+
+Phase 2: Collections... ✅
+Phase 3: Routes... ✅
+Phase 4: Data Files... ✅
+Phase 5: Components... ✅
+
+✅ **Full index complete** (X.Xs)
+
+Generating AI-INFO.md from indexed data...
+✅ AI-INFO.md created
+```
+
+### If Project Has 500-2000 Items:
+
+```markdown
+### Background Indexing
+
+Your project has ~X content items.
+
+**Phase 1 (Quick Scan):** ✅ Complete
+**Phases 2-5:** Starting in background...
+
+You can continue with setup while indexing runs.
+Commands will work with partial data until indexing completes.
+
+**To check progress later:** `/index status`
+```
+
+### If Project Has > 2000 Items:
+
+```markdown
+### 📦 Large Project Detected
+
+Your project has approximately **X** content items.
+
+Full indexing may take several minutes.
+
+**Options:**
+
+1. **Priority collections only**
+   Index specific collections you use most
+
+2. **Recent content only**
+   Index content from the last 6 months
+
+3. **Full index (background)**
+   Index everything, continues in background
+
+4. **Quick scan only**
+   Skip detailed indexing, generate basic AI-INFO.md
+
+Which approach? (1/2/3/4)
+```
+
+### If User Selects Priority Collections:
+
+```markdown
+### Select Priority Collections
+
+Available collections:
+{{#each COLLECTIONS}}
+- **{{name}}** ({{item_count}} items)
+{{/each}}
+
+Enter collection names to index (comma-separated):
+> _____________
+
+Indexing selected collections in background...
+Other collections can be indexed later with `/index run collections`
+```
+
+### Index Progress Display:
+
+```markdown
+### Index Status
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| Quick Scan | ✅ Complete | 100% |
+| Collections | 🔄 Running | 45% |
+| Routes | ⏳ Queued | 0% |
+| Data Files | ⏳ Queued | 0% |
+| Components | ⏳ Queued | 0% |
+
+**Continuing to next setup step...**
+Background indexing will complete automatically.
+```
+
+---
+
+## Step 6: Generate Configuration Files
+
+Based on your choices and indexed data, generating:
 
 ```markdown
 ### 📝 Generating Files
@@ -349,7 +475,7 @@ Based on your choices, generating:
 
 ---
 
-## Step 6: Verify Astro MCP (NEW)
+## Step 7: Verify Astro MCP
 
 ```markdown
 ### 🔌 Verifying MCP Setup
@@ -383,7 +509,7 @@ Found [X] routes, [X] integrations
 
 ---
 
-## Step 7: Initial Audit (Optional)
+## Step 8: Initial Audit (Optional)
 
 ```markdown
 ### 🔍 Initial SEO Audit
@@ -447,7 +573,7 @@ Run `/fix-next` to start fixing them!
 
 ---
 
-## Step 8: Completion
+## Step 9: Completion
 
 ```markdown
 ## ✅ Setup Complete!
@@ -462,15 +588,26 @@ Run `/fix-next` to start fixing them!
 | astro-mcp | ✅ Installed / ⏭️ Skipped |
 | Analytics | ✅ Configured / ⏭️ Skipped |
 | Issue Tracker | GitHub / Markdown / None |
+| Project Index | ✅ Complete / 🔄 Running in background |
 | Initial Issues | [X] found |
 
 ### Files Created/Updated
 - ✅ CLAUDE.md
-- ✅ AI-INFO.md
+- ✅ AI-INFO.md (generated from index)
 - ✅ .env
 - ✅ .gitignore
 - ✅ .planning/
+- ✅ .planning/seo-audit.db (project index)
 - ✅ .vscode/mcp.json (if applicable)
+
+### Index Status
+| Phase | Status |
+|-------|--------|
+| Quick Scan | ✅ Complete |
+| Collections | ✅ / 🔄 [X]% |
+| Routes | ✅ / 🔄 / ⏳ |
+| Data Files | ✅ / 🔄 / ⏳ |
+| Components | ✅ / 🔄 / ⏳ |
 
 ### MCP Status
 | Server | Status | Benefit |

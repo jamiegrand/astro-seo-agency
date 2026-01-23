@@ -211,7 +211,114 @@ npx astro add astro-mcp
 
 ---
 
-## Step 5: SEO Assessment
+## Step 5: Project Index Check
+
+Check for existing project index database and determine freshness.
+
+### Check Database Existence
+
+```markdown
+### 📊 Project Index Status
+
+[If .planning/seo-audit.db exists:]
+
+✅ **Database found:** `.planning/seo-audit.db`
+
+Checking schema version and index status...
+
+#### Schema Version
+- Current: v[X]
+- Required: v3
+- Status: ✅ Up to date / ⚠️ Migration needed
+
+#### Index Status
+| Phase | Status | Items | Last Updated |
+|-------|--------|-------|--------------|
+| Quick Scan | ✅/❌ | - | [date] |
+| Collections | ✅/🔄/❌ | X/Y | [date] |
+| Routes | ✅/🔄/❌ | X/Y | [date] |
+| Data Files | ✅/🔄/❌ | X/Y | [date] |
+| Components | ✅/🔄/❌ | X/Y | [date] |
+
+[If not exists:]
+
+❌ **Database not found**
+
+The project index database is required for:
+- AI-INFO.md generation
+- Content commands (audit-batch, content-gap)
+- Route mapping for SEO commands
+
+**Will be created during integration.**
+```
+
+### Index Freshness Check
+
+```markdown
+### Index Freshness Analysis
+
+[Query last_indexed timestamps from database]
+
+| Collection | DB Count | Filesystem Count | Status |
+|------------|----------|------------------|--------|
+| blog | X | Y | ✅ Current / ⚠️ Stale |
+| products | X | Y | ✅ Current / ⚠️ Stale |
+
+**New files detected:** X
+**Modified files detected:** X
+**Deleted files detected:** X
+
+[If significant changes detected:]
+⚠️ **Index may be stale**
+
+Recommend running `/index run` to refresh.
+```
+
+### Index Migration (if needed)
+
+```markdown
+### ⚠️ Database Migration Needed
+
+Current schema: v[X]
+Required schema: v3
+
+**Migration will:**
+- Add project metadata tables
+- Add staged indexing support
+- Preserve existing audit data
+
+**Run migration?** (yes/no)
+
+[If yes:]
+Running migration...
+✅ Schema updated to v3
+✅ Index progress tables created
+
+**Next:** Run `/index run` to populate new tables
+```
+
+### Index Recommendations
+
+```markdown
+### 💡 Index Recommendations
+
+Based on analysis:
+
+| Recommendation | Priority |
+|----------------|----------|
+| Run `/index run` | High (no index data) |
+| Run `/index refresh blog` | Medium (stale) |
+| Schema migration needed | High |
+
+**Options:**
+1. **"Index now"** - Run full project indexing
+2. **"Index later"** - Skip, index manually with `/index run`
+3. **"Migrate only"** - Update schema without indexing
+```
+
+---
+
+## Step 6: SEO Assessment
 
 ### Meta Tags Audit
 
@@ -257,7 +364,7 @@ Scanned [X] pages:
 
 ---
 
-## Step 6: Astro Best Practices Check (NEW)
+## Step 7: Astro Best Practices Check
 
 ### Query Astro Docs
 
@@ -298,7 +405,7 @@ Search Astro docs for current best practices relevant to this project:
 
 ---
 
-## Step 7: Technical Assessment
+## Step 8: Technical Assessment
 
 ### Build Health
 ```bash
@@ -330,7 +437,7 @@ npm run astro check
 
 ---
 
-## Step 8: Generate Integration Plan
+## Step 9: Generate Integration Plan
 
 ```markdown
 ## 🔧 Integration Plan
@@ -462,7 +569,7 @@ Would you like me to:
 
 ---
 
-## Step 9: Execute Integration
+## Step 10: Execute Integration
 
 On confirmation, create:
 

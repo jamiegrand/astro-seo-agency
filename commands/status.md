@@ -43,6 +43,31 @@ description: Show current project and session status
 | .env | [✅ Exists / ❌ Missing] |
 | CLAUDE.md | [✅ Exists / ❌ Missing] |
 | credentials/ | [✅ Exists / ❌ Missing] |
+
+### 📊 Project Index
+
+Query the project index database:
+
+```sql
+SELECT * FROM index_status;
+SELECT * FROM project_summary;
+```
+
+| Phase | Status | Progress | Last Updated |
+|-------|--------|----------|--------------|
+| Quick Scan | ✅/🔄/❌ | X% | [date] |
+| Collections | ✅/🔄/❌ | X/Y (Z%) | [date] |
+| Routes | ✅/🔄/❌ | X/Y (Z%) | [date] |
+| Data Files | ✅/🔄/❌ | X/Y (Z%) | [date] |
+| Components | ✅/🔄/❌ | X/Y (Z%) | [date] |
+
+**Overall Index:** [Complete / X% indexed / Not started]
+
+[If incomplete:]
+⚠️ Run `/index run` to complete indexing
+
+[If stale (>7 days):]
+ℹ️ Index may be stale. Consider running `/index run`
 ```
 
 ---
@@ -350,12 +375,21 @@ If `.planning/FEATURE-PLAN.md` exists:
 | GitHub | ✅/⚠️/❌ | [gh auth status result] |
 | Brave Search | ✅/❌ | [present or "not set - optional"] |
 
+### 📊 Project Index
+| Phase | Status |
+|-------|--------|
+| Index Status | ✅ Complete / 🔄 X% / ❌ Not indexed |
+| Last Indexed | [date] |
+| Collections | X items indexed |
+| Routes | X routes indexed |
+
 ### Quick Stats
 | Metric | Value |
 |--------|-------|
 | Astro Version | [X.X.X] |
 | Output Mode | [static/server/hybrid] |
 | Total Routes | X |
+| Total Content | X items |
 | Open Issues | X |
 | Build Status | ✅ / ❌ |
 | Last Commit | [X hours ago] |

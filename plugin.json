@@ -1,7 +1,7 @@
 {
   "name": "astro-seo-agency",
-  "version": "2.3.0",
-  "description": "Complete Astro.js project management with SEO workflows, analytics integration, and structured development for Claude Code",
+  "version": "3.0.0",
+  "description": "Complete Astro.js project management with SEO workflows, analytics integration, project indexing, and structured development for Claude Code",
   "author": "Jamie Grand",
   "license": "MIT",
   "homepage": "https://github.com/jamiegrand/astro-seo-agency",
@@ -91,6 +91,13 @@
       "name": "resume",
       "description": "Continue from saved session",
       "file": "commands/resume.md",
+      "category": "session"
+    },
+    {
+      "name": "index",
+      "description": "Manage project indexing for AI-INFO.md and database-backed commands",
+      "file": "commands/index.md",
+      "arguments": "[status|run|resume|reset|refresh]",
       "category": "session"
     },
     {
@@ -390,8 +397,10 @@
       "CLAUDE.md",
       ".env.example"
     ],
+    "generated": [
+      "AI-INFO.md"
+    ],
     "optional": [
-      "AI-INFO.md",
       "AUDIT_TRACKER.md",
       ".env"
     ]

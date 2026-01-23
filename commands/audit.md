@@ -16,12 +16,50 @@ Default: "full" (all categories including Astro-specific)
 | `seo` | Schema, meta tags, content, internal linking |
 | `a11y` | WCAG 2.1 AA compliance |
 | `perf` | Core Web Vitals, image optimization |
-| `astro` | Astro best practices, deprecated patterns (NEW) |
+| `astro` | Astro best practices, deprecated patterns |
 | `full` | All of the above |
 
 ---
 
-## Astro Audit (NEW)
+## Step 0: Check Project Index
+
+**Query the project index for fast access to routes, components, and collections:**
+
+```sql
+-- Check index status
+SELECT * FROM index_status;
+
+-- Get project summary
+SELECT * FROM project_summary;
+```
+
+### Index Status Display
+
+```markdown
+### 📊 Project Index Status
+
+| Phase | Status | Items |
+|-------|--------|-------|
+| Routes | ✅/🔄/❌ | X routes |
+| Components | ✅/🔄/❌ | X components |
+| Collections | ✅/🔄/❌ | X items |
+
+**Data Source:** [Database / MCP / File scan]
+```
+
+**If index incomplete:**
+```markdown
+⚠️ **Project index incomplete**
+
+Some audit checks may be slower without complete index.
+Run `/index run` for comprehensive coverage.
+
+Proceeding with available data...
+```
+
+---
+
+## Astro Audit
 
 **Uses Astro Docs MCP and astro-mcp integration for comprehensive Astro-specific checks.**
 
@@ -54,10 +92,44 @@ Query `get-astro-config` and validate against Astro docs:
 
 ### 2. Route Audit
 
-Query `list-astro-routes` and analyze:
+**Priority 1: Query Database**
+
+```sql
+-- Get route summary from index
+SELECT
+  route_type,
+  COUNT(*) as count,
+  SUM(CASE WHEN has_prerender = 1 THEN 1 ELSE 0 END) as prerendered
+FROM routes
+GROUP BY route_type;
+
+-- Get all routes for analysis
+SELECT
+  route_pattern,
+  route_type,
+  source_file,
+  has_prerender,
+  generates_count
+FROM routes
+ORDER BY route_type, route_pattern;
+
+-- Find potential orphan pages (routes with no internal links)
+SELECT r.route_pattern, r.source_file
+FROM routes r
+WHERE r.route_type = 'static'
+  AND r.route_pattern NOT IN (
+    SELECT DISTINCT target_route FROM internal_links
+  );
+```
+
+**Priority 2: MCP Fallback**
+
+If routes not indexed, query `list-astro-routes`.
 
 ```markdown
 ### 🗺️ Route Audit
+
+**Data Source:** [Database / MCP]
 
 #### Route Health
 | Metric | Count | Status |
@@ -145,10 +217,47 @@ Based on project type and Astro docs:
 
 ### 5. Component Patterns Audit
 
-Analyze components against Astro best practices:
+**Priority 1: Query Database**
+
+```sql
+-- Get component summary from index
+SELECT
+  component_type,
+  COUNT(*) as count,
+  SUM(CASE WHEN uses_client_directive = 1 THEN 1 ELSE 0 END) as with_hydration
+FROM components
+GROUP BY component_type;
+
+-- Get components with client directives
+SELECT
+  file_path,
+  component_name,
+  component_type,
+  client_directive,
+  props
+FROM components
+WHERE uses_client_directive = 1
+ORDER BY client_directive, component_name;
+
+-- Get all components for analysis
+SELECT
+  file_path,
+  component_name,
+  component_type,
+  uses_client_directive,
+  client_directive
+FROM components
+ORDER BY component_type, component_name;
+```
+
+**Priority 2: File Scan Fallback**
+
+If components not indexed, scan src/components/ directory.
 
 ```markdown
 ### 🧩 Component Patterns Audit
+
+**Data Source:** [Database / File scan]
 
 #### Hydration Audit
 | Component | Directive | Recommendation |
@@ -157,7 +266,7 @@ Analyze components against Astro best practices:
 | [file] | client:only | Document SSR limitations |
 | [file] | (none) | ✅ Server-only optimal |
 
-**Hydration Summary:**
+**Hydration Summary (from components table):**
 - Server-only components: X (ideal)
 - client:load: X (review if needed)
 - client:visible: X (good for below-fold)
@@ -179,10 +288,51 @@ Analyze components against Astro best practices:
 
 ### 6. Content Collections Audit
 
-If using content collections:
+**Priority 1: Query Database**
+
+```sql
+-- Get collection summary from index
+SELECT
+  name,
+  location,
+  item_count,
+  schema_fields,
+  last_indexed
+FROM collections;
+
+-- Get content health metrics
+SELECT
+  c.name,
+  c.item_count,
+  SUM(CASE WHEN ce.description IS NOT NULL THEN 1 ELSE 0 END) as with_meta,
+  SUM(CASE WHEN ce.word_count > 0 THEN 1 ELSE 0 END) as with_content,
+  AVG(ce.word_count) as avg_word_count
+FROM collections c
+LEFT JOIN collection_entries ce ON c.id = ce.collection_id
+WHERE ce.draft = 0
+GROUP BY c.id;
+
+-- Find content issues
+SELECT
+  ce.file_path,
+  ce.title,
+  ce.word_count,
+  ce.description
+FROM collection_entries ce
+WHERE ce.draft = 0
+  AND (ce.description IS NULL OR ce.word_count < 300)
+ORDER BY ce.word_count ASC
+LIMIT 20;
+```
+
+**Priority 2: File Scan Fallback**
+
+If collections not indexed, scan src/content/ directory.
 
 ```markdown
 ### 📝 Content Collections Audit
+
+**Data Source:** [Database / File scan]
 
 #### Schema Validation
 | Collection | Schema | Issues |
@@ -190,11 +340,17 @@ If using content collections:
 | blog | ✅ Defined | None |
 | products | ⚠️ Missing fields | Add 'image' field |
 
-#### Content Health
-| Collection | Items | With Images | With Meta |
-|------------|-------|-------------|-----------|
-| blog | X | X (Y%) | X (Y%) |
-| products | X | X (Y%) | X (Y%) |
+#### Content Health (from collection_entries)
+| Collection | Items | With Description | Avg Words |
+|------------|-------|------------------|-----------|
+| blog | X | X (Y%) | X |
+| products | X | X (Y%) | X |
+
+#### Content Issues Found
+| File | Issue | Recommendation |
+|------|-------|----------------|
+| [file_path] | Missing description | Add meta description |
+| [file_path] | Thin content (<300 words) | Expand content |
 
 #### Recommended Schema Improvements
 Based on Astro docs best practices:
@@ -467,13 +623,23 @@ Should I add these issues to your tracker?
 
 ---
 
+## Data Source Priority
+
+| Check | Priority 1: Database | Priority 2: MCP | Priority 3: File Scan |
+|-------|---------------------|-----------------|----------------------|
+| Routes | `routes` table | astro-mcp | Glob src/pages |
+| Components | `components` table | - | Glob src/components |
+| Collections | `collections`, `collection_entries` | astro-mcp | Glob src/content |
+| Config | `project_config` table | get-astro-config | Read astro.config |
+
 ## MCP Usage in Audit
 
-| Check | Astro Docs MCP | astro-mcp |
-|-------|----------------|-----------|
-| Config validation | Best practice lookup | Get current config |
-| Route audit | - | Get all routes |
-| Deprecated patterns | Search deprecations | - |
-| Integration audit | Integration docs | Installed integrations |
-| Component patterns | Hydration best practices | - |
-| Image optimization | Image service docs | Image config |
+| Check | Database | Astro Docs MCP | astro-mcp |
+|-------|----------|----------------|-----------|
+| Config validation | ✅ Primary | Best practice lookup | Fallback |
+| Route audit | ✅ Primary | - | Fallback |
+| Deprecated patterns | - | Search deprecations | - |
+| Integration audit | `integrations` table | Integration docs | Fallback |
+| Component patterns | ✅ Primary | Hydration best practices | - |
+| Collections audit | ✅ Primary | Schema best practices | Fallback |
+| Image optimization | - | Image service docs | Image config |

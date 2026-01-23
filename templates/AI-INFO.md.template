@@ -1,0 +1,235 @@
+# AI-INFO.md - Project Intelligence Document
+
+> **Generated:** {{GENERATED_DATE}}
+> **Index Status:** {{INDEX_STATUS_SUMMARY}}
+> **Schema Version:** {{SCHEMA_VERSION}}
+
+This document is auto-generated from the project index database. Run `/index run` to refresh.
+
+---
+
+## Project Overview
+
+| Field | Value |
+|-------|-------|
+| **Project Name** | {{PROJECT_NAME}} |
+| **Framework** | Astro {{ASTRO_VERSION}} |
+| **Output Mode** | {{OUTPUT_MODE}} |
+| **Site URL** | {{SITE_URL}} |
+| **Total Routes** | {{TOTAL_ROUTES}} |
+| **Total Content Items** | {{TOTAL_COLLECTION_ITEMS}} |
+| **Total Components** | {{TOTAL_COMPONENTS}} |
+
+---
+
+## Content Structure
+
+### Collections ({{TOTAL_COLLECTIONS}})
+
+{{#each COLLECTIONS}}
+#### {{name}}
+| Attribute | Value |
+|-----------|-------|
+| Location | `{{location}}` |
+| Type | {{collection_type}} |
+| Items | {{item_count}} |
+| Published | {{published_count}} |
+| Drafts | {{draft_count}} |
+| Date Range | {{oldest_content}} → {{newest_content}} |
+
+{{#if SCHEMA_FIELDS}}
+**Schema Fields:** {{schema_fields}}
+{{/if}}
+
+{{/each}}
+
+{{#if NO_COLLECTIONS}}
+*No content collections found. Consider using Astro Content Collections for structured content.*
+{{/if}}
+
+---
+
+## Route Inventory
+
+### Summary
+| Type | Count |
+|------|-------|
+| Static Pages | {{STATIC_ROUTES}} |
+| Dynamic Routes | {{DYNAMIC_ROUTES}} |
+| API Endpoints | {{API_ROUTES}} |
+| **Total** | **{{TOTAL_ROUTES}}** |
+
+### Static Pages
+{{#each STATIC_ROUTES_LIST}}
+- `{{route_pattern}}` → `{{source_file}}`
+{{/each}}
+
+### Dynamic Routes
+{{#each DYNAMIC_ROUTES_LIST}}
+- `{{route_pattern}}` → `{{source_file}}` (generates {{generates_count}} pages)
+{{/each}}
+
+### API Endpoints
+{{#each API_ROUTES_LIST}}
+- `{{route_pattern}}` → `{{source_file}}`
+{{/each}}
+
+---
+
+## Component Inventory
+
+### By Type
+| Type | Count | Interactive |
+|------|-------|-------------|
+{{#each COMPONENT_SUMMARY}}
+| {{component_type}} | {{count}} | {{interactive_count}} |
+{{/each}}
+
+### Interactive Components (client directives)
+{{#each INTERACTIVE_COMPONENTS}}
+- `{{file_path}}` - `client:{{client_directive}}`
+{{/each}}
+
+{{#if NO_INTERACTIVE}}
+*No interactive components found (no client directives).*
+{{/if}}
+
+---
+
+## Data Files
+
+{{#each DATA_FILES}}
+### {{file_path}}
+| Attribute | Value |
+|-----------|-------|
+| Type | {{file_type}} |
+| Export | {{export_name}} ({{export_type}}) |
+| Items | {{item_count}} |
+{{#if generates_routes}}
+| Generates Routes | {{generates_routes}} |
+{{/if}}
+
+{{/each}}
+
+{{#if NO_DATA_FILES}}
+*No data files found in `src/data/`.*
+{{/if}}
+
+---
+
+## Integrations ({{TOTAL_INTEGRATIONS}})
+
+{{#each INTEGRATIONS}}
+- **{{name}}** {{version}}{{#if is_official}} (Official){{/if}}
+{{/each}}
+
+{{#if NO_INTEGRATIONS}}
+*No Astro integrations detected.*
+{{/if}}
+
+---
+
+## Architecture Patterns
+
+### Data Layer (Layer 1)
+Based on indexed content:
+
+```
+src/
+├── content/
+{{#each COLLECTIONS}}
+│   ├── {{name}}/          # {{item_count}} items
+{{/each}}
+└── data/
+{{#each DATA_FILES}}
+    ├── {{file_name}}      # {{item_count}} items
+{{/each}}
+```
+
+**Primary Data Sources:**
+{{#each PRIMARY_DATA_SOURCES}}
+- `{{path}}` - {{description}}
+{{/each}}
+
+### Component Layer (Layer 2)
+```
+src/
+├── components/           # {{TOTAL_COMPONENTS}} components
+│   ├── astro/           # {{ASTRO_COMPONENTS}} Astro components
+{{#if REACT_COMPONENTS}}
+│   ├── react/           # {{REACT_COMPONENTS}} React components
+{{/if}}
+{{#if VUE_COMPONENTS}}
+│   ├── vue/             # {{VUE_COMPONENTS}} Vue components
+{{/if}}
+└── layouts/             # {{TOTAL_LAYOUTS}} layouts
+```
+
+### Routing Layer (Layer 3)
+```
+src/pages/
+├── index.astro          # Homepage
+{{#each TOP_LEVEL_ROUTES}}
+├── {{path}}
+{{/each}}
+└── api/                 # {{API_ROUTES}} endpoints
+```
+
+---
+
+## Index Health
+
+### Index Status
+| Phase | Status | Freshness |
+|-------|--------|-----------|
+{{#each INDEX_STATUS}}
+| {{phase}} | {{status_icon}} {{status}} | {{freshness}} |
+{{/each}}
+
+### Recommendations
+{{#each INDEX_RECOMMENDATIONS}}
+- {{recommendation}}
+{{/each}}
+
+{{#if INDEX_COMPLETE}}
+✅ **Index is complete and up-to-date.**
+{{/if}}
+
+{{#if INDEX_STALE}}
+⚠️ **Index may be stale.** Run `/index run` to refresh.
+{{/if}}
+
+---
+
+## Quick Reference
+
+### Key Paths
+| Purpose | Path |
+|---------|------|
+| Blog posts | `src/content/blog/` |
+| Components | `src/components/` |
+| Layouts | `src/layouts/` |
+| Pages | `src/pages/` |
+| Data | `src/data/` |
+| Static assets | `public/` |
+
+### Content Operations
+| Task | Command |
+|------|---------|
+| Audit content | `/content-audit [url]` |
+| Find content gaps | `/content-gap` |
+| Batch audit | `/content-audit-batch [collection]` |
+| Check history | `/content-history [url]` |
+
+### Project Operations
+| Task | Command |
+|------|---------|
+| Re-index project | `/index run` |
+| Check index status | `/index status` |
+| Refresh collection | `/index refresh [name]` |
+
+---
+
+*Generated by Astro SEO Agency Plugin v{{PLUGIN_VERSION}}*
+*Last indexed: {{LAST_INDEXED}}*
+*Database: `.planning/seo-audit.db`*

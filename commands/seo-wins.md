@@ -11,29 +11,103 @@ If not available, will provide guidance on manual GSC analysis.
 
 ---
 
-## Step 1: Query Project Structure (via astro-mcp)
+## Step 0: Check Project Index
+
+**Query the project index for fast route-to-file mapping:**
+
+```sql
+-- Check index status
+SELECT * FROM index_status WHERE phase = 'routes';
+
+-- Check route count
+SELECT COUNT(*) as route_count FROM routes;
+```
+
+### Index Status Display
+
+```markdown
+### 📊 Project Index Status
+
+| Phase | Status | Items |
+|-------|--------|-------|
+| Routes | ✅/🔄/❌ | X routes indexed |
+
+**Data Source:** [Database / MCP / File scan]
+```
+
+**If routes not indexed:**
+```markdown
+⚠️ **Routes not indexed**
+
+URL-to-file mapping will be slower without index.
+Run `/index run routes` for faster lookups.
+
+Proceeding with MCP fallback...
+```
+
+---
+
+## Step 1: Query Project Structure
 
 **First, understand the content structure to map queries to files:**
 
-### Get Routes and Content Locations
+### Priority 1: Query Database (Fast)
+
+```sql
+-- Get route summary from index
+SELECT
+  route_type,
+  COUNT(*) as count
+FROM routes
+GROUP BY route_type;
+
+-- Get content sources with file mappings
+SELECT
+  route_pattern,
+  route_type,
+  source_file
+FROM routes
+ORDER BY route_type, route_pattern;
+
+-- Get collection locations
+SELECT name, location, item_count
+FROM collections;
+```
+
+**If database has routes:**
 
 ```markdown
-### 📁 Project Structure
+### 📁 Project Structure (from index)
 
-#### Content Sources (via astro-mcp)
-| Type | Location | Routes |
-|------|----------|--------|
-| Blog | src/content/blog/ | /blog/[slug] |
-| Products | src/data/products.js | /products/[id] |
-| Services | src/data/services.js | /services/[slug] |
-| Pages | src/pages/ | Various |
+**Data Source:** Project Index ✅
+
+#### Content Sources
+| Type | Location | Routes | Items |
+|------|----------|--------|-------|
+| Blog | src/content/blog/ | /blog/[slug] | X |
+| Products | src/data/products.js | /products/[id] | X |
+| Services | src/data/services.js | /services/[slug] | X |
+| Pages | src/pages/ | Various | X |
 
 #### Total Indexable Routes
 | Type | Count |
 |------|-------|
 | Static | X |
 | Dynamic | X |
+| API | X |
 | **Total** | **X** |
+```
+
+### Priority 2: MCP Fallback
+
+If routes not indexed, fall back to astro-mcp:
+
+```markdown
+### 📁 Project Structure (via astro-mcp)
+
+**Note:** Routes not indexed. Run `/index run routes` for faster queries.
+
+[Query list-astro-routes]
 ```
 
 ---
@@ -65,12 +139,41 @@ Would you like me to do a content-based SEO audit instead?
 
 ---
 
-## Step 3: Map Queries to Content Files (NEW)
+## Step 3: Map Queries to Content Files
 
-**Using astro-mcp route data, map each GSC URL to its source file:**
+**Use project index for fast URL-to-file mapping:**
+
+### Priority 1: Query Database
+
+```sql
+-- Map GSC URLs to source files
+SELECT
+  r.route_pattern,
+  r.source_file,
+  r.route_type,
+  ce.title,
+  ce.file_path as content_file
+FROM routes r
+LEFT JOIN collection_entries ce ON r.route_pattern LIKE '%' || ce.slug || '%'
+WHERE r.route_pattern IN ([GSC URLs]);
+
+-- For dynamic routes, match by slug pattern
+SELECT
+  ce.slug,
+  ce.file_path,
+  ce.title,
+  c.name as collection
+FROM collection_entries ce
+JOIN collections c ON ce.collection_id = c.id
+WHERE ce.slug = '[extracted-slug]';
+```
+
+**If database has mappings:**
 
 ```markdown
-### 🗺️ Query to File Mapping
+### 🗺️ Query to File Mapping (from index)
+
+**Data Source:** Project Index ✅
 
 | URL | Query | Source File | Type |
 |-----|-------|-------------|------|
@@ -80,6 +183,10 @@ Would you like me to do a content-based SEO audit instead?
 
 This mapping helps identify exactly which file to edit for each optimization.
 ```
+
+### Priority 2: MCP Fallback
+
+If routes not in database, fall back to astro-mcp route data.
 
 ---
 
@@ -412,12 +519,20 @@ Apply these changes? (yes/no)
 
 ---
 
+## Data Source Priority
+
+| Step | Priority 1: Database | Priority 2: MCP | Priority 3: File Scan |
+|------|---------------------|-----------------|----------------------|
+| Structure | `routes`, `collections` tables | astro-mcp | Glob patterns |
+| URL Mapping | `routes.route_pattern` → `source_file` | list-astro-routes | File structure |
+| Content Files | `collection_entries.file_path` | get-astro-config | Glob src/content |
+
 ## MCP Usage Summary
 
-| Step | Astro Docs MCP | astro-mcp |
-|------|----------------|-----------|
-| Structure | - | Routes, content locations |
-| Mapping | - | URL to file mapping |
-| Analysis | SEO best practices | - |
-| Recommendations | Meta tag patterns | File paths for edits |
-| Implementation | - | Verify route after changes |
+| Step | Database | Astro Docs MCP | astro-mcp |
+|------|----------|----------------|-----------|
+| Structure | ✅ Primary | - | Fallback |
+| Mapping | ✅ Primary | - | Fallback |
+| Analysis | - | SEO best practices | - |
+| Recommendations | File paths | Meta tag patterns | Fallback |
+| Implementation | - | - | Verify route after changes |

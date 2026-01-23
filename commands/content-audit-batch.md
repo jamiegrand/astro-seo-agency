@@ -20,6 +20,43 @@ Audit multiple pages at once and rank them by priority. Useful for quarterly con
 
 ---
 
+## Step 0: Check Project Index
+
+**Query the project index database first for fast data access:**
+
+```sql
+-- Check index status
+SELECT * FROM index_status;
+
+-- Check if collections are indexed
+SELECT name, item_count, last_indexed
+FROM collections
+WHERE status = 'completed';
+```
+
+### Index Status Display
+
+```markdown
+### 📊 Project Index Status
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| Collections | ✅/🔄/❌ | X% |
+| Routes | ✅/🔄/❌ | X% |
+```
+
+**If index incomplete:**
+```markdown
+⚠️ **Project index incomplete for collections**
+
+Some content may be missing. Options:
+1. Continue with available data (partial audit)
+2. Run `/index run collections` first for complete data
+3. Fall back to file scanning (slower)
+```
+
+---
+
 ## Parameters
 
 | Parameter | Default | Description |
@@ -33,21 +70,66 @@ Audit multiple pages at once and rank them by priority. Useful for quarterly con
 
 ## Step 1: Gather Pages to Audit
 
-### Option A: By Content Collection
+### Priority 1: Query Database (Fast)
+
+```sql
+-- Get collection entries from database
+SELECT
+  ce.slug,
+  ce.file_path,
+  ce.title,
+  ce.publish_date,
+  ce.word_count,
+  c.name as collection_name
+FROM collection_entries ce
+JOIN collections c ON ce.collection_id = c.id
+WHERE c.name = '[collection_name]'
+  AND ce.draft = 0
+ORDER BY ce.publish_date DESC
+LIMIT [limit];
+```
+
+**If database has data:**
 
 ```markdown
-### 📁 Collection: blog
+### 📁 Collection: blog (from index)
 
 **Location:** `src/content/blog/`
-**Total Pages:** X
+**Total Pages:** X (indexed)
+**Data Source:** Project Index (fast)
+
+| # | File | URL | Published | Words |
+|---|------|-----|-----------|-------|
+| 1 | seo-guide.md | /blog/seo-guide | 2024-01-15 | 1250 |
+| 2 | content-tips.md | /blog/content-tips | 2024-02-20 | 890 |
+
+**Limiting to first [limit] pages.**
+```
+
+### Priority 2: MCP Fallback (If DB Empty)
+
+If collection not in database, fall back to astro-mcp:
+
+```markdown
+### 📁 Collection: blog (via astro-mcp)
+
+**Note:** Collection not indexed. Consider running `/index run collections`.
 
 | # | File | URL | Published |
 |---|------|-----|-----------|
 | 1 | seo-guide.md | /blog/seo-guide | 2024-01-15 |
-| 2 | content-tips.md | /blog/content-tips | 2024-02-20 |
-| 3 | ... | ... | ... |
+```
 
-**Limiting to first [limit] pages.**
+### Priority 3: File Scan Fallback
+
+If neither available:
+
+```markdown
+### 📁 Collection: blog (via file scan)
+
+**Note:** Scanning files directly (slower). Run `/index run` for faster queries.
+
+[Scan src/content/[collection]/ directory]
 ```
 
 ### Option B: By Page List
@@ -241,10 +323,43 @@ VALUES
   ('/blog/content-tips', 'batch', 50, ...),
   ...;
 
--- Update content inventory
+-- Update content inventory (legacy table)
 INSERT OR REPLACE INTO content_inventory (
   page_path, content_type, collection_name, last_audited, latest_score
 ) VALUES ...;
+
+-- Update collection_entries with audit scores (v3)
+UPDATE collection_entries
+SET
+  last_indexed = CURRENT_TIMESTAMP
+WHERE file_path IN ([audited files]);
+
+-- Link audits to collection entries for history tracking
+INSERT INTO audit_history (
+  collection_entry_id,
+  audit_id,
+  score,
+  audited_at
+)
+SELECT
+  ce.id,
+  a.id,
+  a.overall_score,
+  a.created_at
+FROM audits a
+JOIN collection_entries ce ON '/' || ce.slug = a.page_path
+WHERE a.audit_type = 'batch'
+  AND a.created_at = (SELECT MAX(created_at) FROM audits);
+```
+
+### Data Source Summary
+
+```markdown
+| Step | Data Source | Notes |
+|------|-------------|-------|
+| Page List | Database → MCP → File scan | Priority order |
+| Audit Results | Stored in `audits` table | Linked to collection_entries |
+| Word Count | From `collection_entries.word_count` | Pre-indexed |
 ```
 
 ---
