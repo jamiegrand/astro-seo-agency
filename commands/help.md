@@ -345,4 +345,4 @@ npm run build        # See full error
 
 ---
 
-*Astro SEO Agency Plugin v2.3.0*
+*Astro SEO Agency Plugin v3.0.0*

@@ -382,9 +382,10 @@
         "requiredFor": ["fix-next with GitHub issues"]
       },
       "sequential-thinking": {
-        "description": "Complex problem solving",
+        "description": "Complex problem solving for multi-step feature planning",
         "package": "@modelcontextprotocol/server-sequential-thinking",
-        "optional": true
+        "optional": true,
+        "requiredFor": ["feature"]
       }
     }
   },

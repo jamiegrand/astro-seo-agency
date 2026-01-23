@@ -1,6 +1,6 @@
 # Astro SEO Agency Plugin
 
-[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/jamiegrand/astro-seo-agency/releases)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://github.com/jamiegrand/astro-seo-agency/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Astro](https://img.shields.io/badge/Astro-4.0%2B-ff5d01.svg?logo=astro)](https://astro.build)
 [![Node](https://img.shields.io/badge/Node.js-18%2B-339933.svg?logo=node.js)](https://nodejs.org)

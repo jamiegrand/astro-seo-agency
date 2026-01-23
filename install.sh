@@ -3,7 +3,21 @@
 # Astro SEO Agency - Installation Script
 # Usage: curl -fsSL https://raw.githubusercontent.com/jamiegrand/astro-seo-agency/main/install.sh | bash
 
-set -e
+set -euo pipefail
+
+# Error handler
+error_exit() {
+    echo -e "\n${RED}ERROR:${NC} $1" >&2
+    exit 1
+}
+
+# Trap for cleanup on error
+cleanup() {
+    if [ $? -ne 0 ]; then
+        echo -e "\n${RED}Installation failed. Check errors above.${NC}"
+    fi
+}
+trap cleanup EXIT
 
 # Colors
 RED='\033[0;31m'
@@ -14,8 +28,11 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-# Version
-VERSION="3.0.0"
+# Version - read from plugin.json if available, fallback to hardcoded
+if [ -f "plugin.json" ]; then
+    VERSION=$(grep -o '"version": *"[^"]*"' plugin.json | head -1 | cut -d'"' -f4)
+fi
+VERSION="${VERSION:-3.0.0}"
 
 # Print banner
 echo ""
