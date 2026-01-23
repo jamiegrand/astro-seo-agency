@@ -8,11 +8,8 @@
 -- VERSION CHECK
 -- ============================================================================
 
--- Check if already migrated
-SELECT CASE
-  WHEN EXISTS (SELECT 1 FROM schema_version WHERE version >= 4)
-  THEN RAISE(IGNORE)
-END;
+-- Note: This script is idempotent - safe to run multiple times.
+-- All statements use IF NOT EXISTS, INSERT OR IGNORE, or INSERT OR REPLACE.
 
 -- ============================================================================
 -- LINK ANALYSIS TABLES

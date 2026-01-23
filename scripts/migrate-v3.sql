@@ -14,11 +14,8 @@ CREATE TABLE IF NOT EXISTS schema_version (
   description TEXT
 );
 
--- Check if already migrated
-SELECT CASE
-  WHEN EXISTS (SELECT 1 FROM schema_version WHERE version >= 3)
-  THEN RAISE(IGNORE)
-END;
+-- Note: This script is idempotent - safe to run multiple times.
+-- All statements use IF NOT EXISTS, INSERT OR IGNORE, or INSERT OR REPLACE.
 
 -- ============================================================================
 -- PROJECT METADATA TABLES

@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# Astro SEO Agency - Installation Script
+# Astro SEO Agency - Installation & Update Script
 # Usage: curl -fsSL https://raw.githubusercontent.com/jamiegrand/astro-seo-agency/main/install.sh | bash
+#
+# Supports:
+#   - Fresh installs
+#   - Updates (preserves database, user config)
+#   - Force reinstall with --force flag
 
 set -euo pipefail
 
@@ -26,13 +31,29 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m' # No Color
+
+# Parse arguments
+FORCE_REINSTALL=false
+for arg in "$@"; do
+    case $arg in
+        --force)
+            FORCE_REINSTALL=true
+            ;;
+    esac
+done
 
 # Version - read from plugin.json if available, fallback to hardcoded
 if [ -f "plugin.json" ]; then
     VERSION=$(grep -o '"version": *"[^"]*"' plugin.json | head -1 | cut -d'"' -f4)
 fi
-VERSION="${VERSION:-3.0.0}"
+VERSION="${VERSION:-3.1.0}"
+
+# Installation mode detection
+INSTALL_MODE="fresh"
+EXISTING_VERSION=""
+EXISTING_DB_VERSION=0
 
 # Print banner
 echo ""
@@ -40,6 +61,48 @@ echo -e "${CYAN}╔════════════════════�
 echo -e "${CYAN}║${NC}  ${BOLD}ASTRO SEO AGENCY${NC} v${VERSION} - Installation                        ${CYAN}║${NC}"
 echo -e "${CYAN}╚═══════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
+
+# ============================================================================
+# INSTALLATION MODE DETECTION
+# ============================================================================
+
+detect_existing_installation() {
+    echo -e "${BOLD}Checking for existing installation...${NC}"
+
+    # Check for command files
+    if [ -d ".claude/commands" ] && [ -f ".claude/commands/start.md" ]; then
+        INSTALL_MODE="update"
+
+        # Try to detect existing version from CLAUDE.md
+        if [ -f "CLAUDE.md" ]; then
+            EXISTING_VERSION=$(grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' CLAUDE.md | head -1 || echo "")
+        fi
+
+        # Check database schema version
+        if [ -f ".planning/seo-audit.db" ] && command -v sqlite3 &> /dev/null; then
+            EXISTING_DB_VERSION=$(sqlite3 ".planning/seo-audit.db" "SELECT COALESCE(MAX(version), 0) FROM schema_version;" 2>/dev/null || echo "0")
+        fi
+
+        echo -e "  ${CYAN}ℹ${NC}  Existing installation detected"
+        [ -n "$EXISTING_VERSION" ] && echo -e "      Current version: ${EXISTING_VERSION}"
+        [ "$EXISTING_DB_VERSION" -gt 0 ] && echo -e "      Database schema: v${EXISTING_DB_VERSION}"
+        echo ""
+
+        if [ "$FORCE_REINSTALL" = true ]; then
+            echo -e "  ${YELLOW}⚠${NC}  Force mode: Will reinstall all files"
+            INSTALL_MODE="force"
+        else
+            echo -e "  ${GREEN}→${NC}  Will update to v${VERSION} (preserving your data)"
+        fi
+    else
+        echo -e "  ${GREEN}→${NC}  Fresh installation"
+    fi
+    echo ""
+}
+
+# ============================================================================
+# PROJECT VALIDATION
+# ============================================================================
 
 # Check if we're in a valid project directory
 check_project() {
@@ -124,9 +187,13 @@ install_file() {
     fi
 }
 
-# Install command files
+# Install command files (smart update - only changed files)
 install_commands() {
     echo -e "\n${BOLD}Installing commands...${NC}"
+
+    local UPDATED=0
+    local SKIPPED=0
+    local ADDED=0
 
     local commands=(
         # Routers
@@ -152,6 +219,11 @@ install_commands() {
         "seo-history"
         "seo-impact"
         "seo-keywords"
+        "seo-links"
+
+        # Link analysis (v3.1.0)
+        "index-links"
+        "import-linkdata"
 
         # Audit implementations
         "audit-content"
@@ -191,17 +263,31 @@ install_commands() {
     )
 
     for cmd in "${commands[@]}"; do
-        if install_file "commands/${cmd}.md" ".claude/commands/${cmd}.md" "/${cmd}"; then
+        local dest=".claude/commands/${cmd}.md"
+        local existed=false
+        [ -f "$dest" ] && existed=true
+
+        if install_file "commands/${cmd}.md" "$dest" "/${cmd}"; then
             ((COMMANDS_INSTALLED++))
+            if [ "$existed" = true ]; then
+                ((UPDATED++))
+            else
+                ((ADDED++))
+            fi
         else
             ((INSTALL_ERRORS++))
         fi
     done
 
-    echo -e "\n  Commands installed: ${COMMANDS_INSTALLED}/${#commands[@]}"
+    echo ""
+    if [ "$INSTALL_MODE" = "update" ] || [ "$INSTALL_MODE" = "force" ]; then
+        echo -e "  ${GREEN}✓${NC} Commands: ${ADDED} added, ${UPDATED} updated"
+    else
+        echo -e "  ${GREEN}✓${NC} Commands installed: ${COMMANDS_INSTALLED}/${#commands[@]}"
+    fi
 
     if [ $INSTALL_ERRORS -gt 0 ]; then
-        echo -e "  ${YELLOW}⚠${NC} Some commands failed to install"
+        echo -e "  ${YELLOW}⚠${NC} ${INSTALL_ERRORS} commands failed to install"
     fi
 }
 
@@ -671,7 +757,7 @@ FOOTEREOF
 
 # Initialize SQLite database for content audits
 init_database() {
-    echo -e "\n${BOLD}Initializing audit database...${NC}"
+    echo -e "\n${BOLD}Setting up audit database...${NC}"
 
     # Check if sqlite3 is available
     if ! command -v sqlite3 &> /dev/null; then
@@ -681,61 +767,87 @@ init_database() {
     fi
 
     local DB_PATH=".planning/seo-audit.db"
-    local NEEDS_INIT=true
-    local NEEDS_MIGRATE=false
+    local CURRENT_VERSION=0
+    local LATEST_VERSION=4
 
     # Check if database already exists
     if [ -f "$DB_PATH" ]; then
-        NEEDS_INIT=false
-        # Check schema version
-        local CURRENT_VERSION=$(sqlite3 "$DB_PATH" "SELECT COALESCE(MAX(version), 0) FROM schema_version;" 2>/dev/null || echo "0")
-        if [ "$CURRENT_VERSION" -lt 3 ]; then
-            NEEDS_MIGRATE=true
-            echo -e "  ${CYAN}ℹ${NC}  Existing database found (schema v${CURRENT_VERSION})"
-        else
+        CURRENT_VERSION=$(sqlite3 "$DB_PATH" "SELECT COALESCE(MAX(version), 0) FROM schema_version;" 2>/dev/null || echo "0")
+
+        if [ "$CURRENT_VERSION" -ge "$LATEST_VERSION" ]; then
             echo -e "  ${GREEN}✓${NC} Database up to date (schema v${CURRENT_VERSION})"
             return
         fi
+
+        # Backup before migration
+        echo -e "  ${CYAN}ℹ${NC}  Existing database found (schema v${CURRENT_VERSION})"
+        echo -e "  ${BLUE}Creating backup before migration...${NC}"
+        mkdir -p ".planning/backups"
+        cp "$DB_PATH" ".planning/backups/seo-audit_pre-v${LATEST_VERSION}_$(date +%Y%m%d_%H%M%S).db"
+        echo -e "  ${GREEN}✓${NC} Backup created"
     fi
 
-    # Initialize or migrate database
-    if [ "$NEEDS_INIT" = true ]; then
-        # Fresh install - use init-db.sql
+    # Fresh install - use init-db.sql
+    if [ "$CURRENT_VERSION" -eq 0 ]; then
+        echo -e "  ${BLUE}Initializing database...${NC}"
         if [ "$SOURCE" = "local" ] && [ -f "$SCRIPT_DIR/scripts/init-db.sql" ]; then
             sqlite3 "$DB_PATH" < "$SCRIPT_DIR/scripts/init-db.sql" 2>/dev/null
+            CURRENT_VERSION=3
             echo -e "  ${GREEN}✓${NC} Database initialized (schema v3)"
         elif [ "$SOURCE" = "remote" ]; then
             if curl -fsSL "$REPO_URL/scripts/init-db.sql" -o "/tmp/init-db.sql" 2>/dev/null; then
                 sqlite3 "$DB_PATH" < /tmp/init-db.sql 2>/dev/null
                 rm -f /tmp/init-db.sql
+                CURRENT_VERSION=3
                 echo -e "  ${GREEN}✓${NC} Database initialized (schema v3)"
             else
                 echo -e "  ${YELLOW}⚠${NC} Could not download database schema - will create on first use"
+                return
             fi
         else
             echo -e "  ${YELLOW}⚠${NC} Database schema not found - will create on first use"
+            return
         fi
-    elif [ "$NEEDS_MIGRATE" = true ]; then
-        # Existing install - run migration
-        echo -e "  ${BLUE}Migrating database to v3...${NC}"
+    fi
+
+    # Run v3 migration if needed
+    if [ "$CURRENT_VERSION" -lt 3 ]; then
+        echo -e "  ${BLUE}Migrating to v3...${NC}"
         if [ "$SOURCE" = "local" ] && [ -f "$SCRIPT_DIR/scripts/migrate-v3.sql" ]; then
             sqlite3 "$DB_PATH" < "$SCRIPT_DIR/scripts/migrate-v3.sql" 2>/dev/null
-            echo -e "  ${GREEN}✓${NC} Database migrated to v3"
+            CURRENT_VERSION=3
+            echo -e "  ${GREEN}✓${NC} Migrated to v3 (project metadata)"
         elif [ "$SOURCE" = "remote" ]; then
             if curl -fsSL "$REPO_URL/scripts/migrate-v3.sql" -o "/tmp/migrate-v3.sql" 2>/dev/null; then
                 sqlite3 "$DB_PATH" < /tmp/migrate-v3.sql 2>/dev/null
                 rm -f /tmp/migrate-v3.sql
-                echo -e "  ${GREEN}✓${NC} Database migrated to v3"
-            else
-                echo -e "  ${YELLOW}⚠${NC} Could not download migration script"
-                echo -e "    Run '/index reset' after installation to create tables"
+                CURRENT_VERSION=3
+                echo -e "  ${GREEN}✓${NC} Migrated to v3 (project metadata)"
             fi
         fi
     fi
 
-    # Verify tables exist
+    # Run v4 migration if needed
+    if [ "$CURRENT_VERSION" -lt 4 ]; then
+        echo -e "  ${BLUE}Migrating to v4...${NC}"
+        if [ "$SOURCE" = "local" ] && [ -f "$SCRIPT_DIR/scripts/migrate-v4.sql" ]; then
+            sqlite3 "$DB_PATH" < "$SCRIPT_DIR/scripts/migrate-v4.sql" 2>/dev/null
+            CURRENT_VERSION=4
+            echo -e "  ${GREEN}✓${NC} Migrated to v4 (link analysis tables)"
+        elif [ "$SOURCE" = "remote" ]; then
+            if curl -fsSL "$REPO_URL/scripts/migrate-v4.sql" -o "/tmp/migrate-v4.sql" 2>/dev/null; then
+                sqlite3 "$DB_PATH" < /tmp/migrate-v4.sql 2>/dev/null
+                rm -f /tmp/migrate-v4.sql
+                CURRENT_VERSION=4
+                echo -e "  ${GREEN}✓${NC} Migrated to v4 (link analysis tables)"
+            fi
+        fi
+    fi
+
+    # Verify final state
+    local FINAL_VERSION=$(sqlite3 "$DB_PATH" "SELECT COALESCE(MAX(version), 0) FROM schema_version;" 2>/dev/null || echo "0")
     local TABLE_COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM sqlite_master WHERE type='table';" 2>/dev/null || echo "0")
-    echo -e "  ${CYAN}ℹ${NC}  Database contains ${TABLE_COUNT} tables"
+    echo -e "  ${CYAN}ℹ${NC}  Database: schema v${FINAL_VERSION}, ${TABLE_COUNT} tables"
 }
 
 # Update .gitignore
@@ -815,12 +927,16 @@ verify_installation() {
 # Print completion message
 print_completion() {
     local has_errors=$1
-    
+
     echo ""
-    
+
     if [ "$has_errors" -gt 0 ]; then
         echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${YELLOW}⚠️  Installation completed with warnings${NC}"
+        if [ "$INSTALL_MODE" = "update" ]; then
+            echo -e "${YELLOW}⚠️  Update completed with warnings${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Installation completed with warnings${NC}"
+        fi
         echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo ""
         echo -e "Some commands may not have installed correctly."
@@ -831,38 +947,70 @@ print_completion() {
         echo ""
     else
         echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${GREEN}✅ Installation complete!${NC}"
+        if [ "$INSTALL_MODE" = "update" ]; then
+            echo -e "${GREEN}✅ Update complete! (v${EXISTING_VERSION:-unknown} → v${VERSION})${NC}"
+        else
+            echo -e "${GREEN}✅ Installation complete!${NC}"
+        fi
         echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     fi
     
-    echo ""
-    echo -e "${BOLD}Next steps:${NC}"
-    echo ""
-    echo -e "  1. ${CYAN}Open your project in Claude Code${NC}"
-    echo ""
-    echo -e "  2. ${CYAN}(Optional) Configure analytics:${NC}"
-    echo -e "     ${GREEN}cp .env.example .env${NC}"
-    echo -e "     Then edit .env with your credentials"
-    echo ""
-    echo -e "  3. ${CYAN}Start working:${NC}"
-    echo -e "     ${GREEN}/start${NC}"
-    echo ""
-    echo -e "${BOLD}Quick command reference:${NC}"
-    echo ""
-    echo -e "  ${GREEN}/start${NC}            Begin session with priorities"
-    echo -e "  ${GREEN}/fix${NC}              Fix issues (or /fix 5 for batch)"
-    echo -e "  ${GREEN}/seo${NC}              SEO tools (wins, gaps, roi, refresh)"
-    echo -e "  ${GREEN}/audit${NC}            Site + content audits"
-    echo -e "  ${GREEN}/feature${NC}          Build features or deploy checks"
-    echo -e "  ${GREEN}/setup${NC}            Configuration tools"
-    echo -e "  ${GREEN}/help${NC}             Show all commands"
-    echo ""
-    echo -e "${BOLD}Router commands show subcommands:${NC}"
-    echo ""
-    echo -e "  ${GREEN}/seo wins${NC}         Find ranking opportunities"
-    echo -e "  ${GREEN}/audit content${NC}    Full SEO content audit (0-100)"
-    echo -e "  ${GREEN}/setup verify${NC}     Check installation"
-    echo ""
+    # Show what's new for updates
+    if [ "$INSTALL_MODE" = "update" ]; then
+        echo ""
+        echo -e "${BOLD}What's new in v${VERSION}:${NC}"
+        echo ""
+        echo -e "  ${CYAN}•${NC} Internal link analysis (/seo links)"
+        echo -e "  ${CYAN}•${NC} Auto keyword detection from frontmatter"
+        echo -e "  ${CYAN}•${NC} CSV import for link data (/import-linkdata)"
+        echo -e "  ${CYAN}•${NC} Orphan page detection"
+        echo -e "  ${CYAN}•${NC} Database schema v4 with link graph tables"
+        echo ""
+        echo -e "${BOLD}Your data has been preserved:${NC}"
+        echo -e "  ${GREEN}✓${NC} Audit history"
+        echo -e "  ${GREEN}✓${NC} Keyword cache"
+        echo -e "  ${GREEN}✓${NC} GSC snapshots"
+        echo -e "  ${GREEN}✓${NC} Project configuration"
+        echo ""
+        echo -e "${BOLD}Next steps:${NC}"
+        echo ""
+        echo -e "  ${CYAN}Restart Claude Code${NC} to load updated commands"
+        echo ""
+        echo -e "  Try the new features:"
+        echo -e "    ${GREEN}/seo links${NC}           Analyze internal link structure"
+        echo -e "    ${GREEN}/index links${NC}         Build link graph from content"
+        echo ""
+    else
+        echo ""
+        echo -e "${BOLD}Next steps:${NC}"
+        echo ""
+        echo -e "  1. ${CYAN}Open your project in Claude Code${NC}"
+        echo ""
+        echo -e "  2. ${CYAN}(Optional) Configure analytics:${NC}"
+        echo -e "     ${GREEN}cp .env.example .env${NC}"
+        echo -e "     Then edit .env with your credentials"
+        echo ""
+        echo -e "  3. ${CYAN}Start working:${NC}"
+        echo -e "     ${GREEN}/start${NC}"
+        echo ""
+        echo -e "${BOLD}Quick command reference:${NC}"
+        echo ""
+        echo -e "  ${GREEN}/start${NC}            Begin session with priorities"
+        echo -e "  ${GREEN}/fix${NC}              Fix issues (or /fix 5 for batch)"
+        echo -e "  ${GREEN}/seo${NC}              SEO tools (wins, gaps, roi, refresh, links)"
+        echo -e "  ${GREEN}/audit${NC}            Site + content audits"
+        echo -e "  ${GREEN}/feature${NC}          Build features or deploy checks"
+        echo -e "  ${GREEN}/setup${NC}            Configuration tools"
+        echo -e "  ${GREEN}/help${NC}             Show all commands"
+        echo ""
+        echo -e "${BOLD}Router commands show subcommands:${NC}"
+        echo ""
+        echo -e "  ${GREEN}/seo wins${NC}         Find ranking opportunities"
+        echo -e "  ${GREEN}/seo links${NC}        Internal link analysis"
+        echo -e "  ${GREEN}/audit content${NC}    Full SEO content audit (0-100)"
+        echo -e "  ${GREEN}/setup verify${NC}     Check installation"
+        echo ""
+    fi
 }
 
 # Main installation flow
@@ -870,7 +1018,10 @@ main() {
     echo -e "${BOLD}Checking project...${NC}"
     check_project
     echo -e "  ${GREEN}✓${NC} Valid project found"
-    
+
+    # Detect if this is an update or fresh install
+    detect_existing_installation
+
     create_directories
     install_commands
     install_prompts
@@ -879,13 +1030,13 @@ main() {
     create_env_example
     create_claude_md
     update_gitignore
-    
+
     verify_installation
     local verify_result=$?
-    
+
     # Calculate total errors
     local total_errors=$((INSTALL_ERRORS + verify_result))
-    
+
     print_completion $total_errors
 }
 
