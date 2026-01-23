@@ -85,6 +85,31 @@ description: Show all available commands
 
 ---
 
+## Command Aliases
+
+For backward compatibility, these legacy commands still work:
+
+| Legacy Command | Routes To |
+|----------------|-----------|
+| `/content-audit` | `/audit content` |
+| `/content-audit-quick` | `/audit quick` |
+| `/content-audit-batch` | `/audit batch` |
+| `/content-eeat` | `/audit eeat` |
+| `/content-refresh` | `/seo refresh` |
+| `/content-roi` | `/seo roi` |
+| `/content-gap` | `/seo gaps` |
+| `/content-history` | `/seo history` |
+| `/keyword-cache` | `/seo keywords` |
+| `/impact` | `/seo impact` |
+| `/brownfield` | `/setup existing` |
+| `/verify` | `/setup verify` |
+| `/generate-commands` | `/setup commands` |
+| `/deploy-check` | `/feature deploy` |
+
+**Recommended:** Use the new router-based commands for consistency.
+
+---
+
 ## MCP Integration
 
 This plugin uses two MCP servers for enhanced Astro development:

@@ -291,11 +291,11 @@ Daily sessions × 10, capped at 100
 ## Invocation
 
 This agent is activated by:
-- `/content-roi` command
-- `/content-audit` command
-- `/content-audit-batch` command
-- `/content-refresh` command
-- `/content-eeat` command
+- `/seo roi` command
+- `/audit content` command
+- `/audit batch` command
+- `/seo refresh` command
+- `/audit eeat` command
 - "Analyze content performance"
 - "Create content strategy"
 - "What should I write about?"

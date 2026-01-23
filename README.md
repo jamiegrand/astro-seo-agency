@@ -216,17 +216,19 @@ SCRAPERAPI_KEY=your_api_key
 | `/fix-batch [n]` | Fix multiple issues in sequence (default: 5) |
 | `/audit [type]`  | Run audit (seo / a11y / perf / astro / full) |
 
-### 📝 Content Audit (NEW in 2.3.0)
+### 📝 Content Audit
 
-| Command                      | Description                                      |
-| ---------------------------- | ------------------------------------------------ |
-| `/content-audit [page] [kw]` | Full 6-category SEO audit (0-100 score)          |
-| `/content-audit-quick`       | 10-point rapid check (0-10 score)                |
-| `/content-audit-batch`       | Audit multiple pages, rank by priority           |
-| `/content-refresh`           | Find declining pages via GSC data                |
-| `/content-eeat [page]`       | E-E-A-T deep dive (Experience/Expertise/Authority/Trust) |
-| `/content-history [page]`    | View audit score trends over time                |
-| `/keyword-cache [action]`    | Manage cached keyword research data              |
+| Command                        | Description                                      |
+| ------------------------------ | ------------------------------------------------ |
+| `/audit content [page] [kw]`   | Full 6-category SEO audit (0-100 score)          |
+| `/audit quick [page]`          | 10-point rapid check (0-10 score)                |
+| `/audit batch [collection]`    | Audit multiple pages, rank by priority           |
+| `/audit eeat [page]`           | E-E-A-T deep dive (Experience/Expertise/Authority/Trust) |
+| `/seo refresh`                 | Find declining pages via GSC data                |
+| `/seo history [page]`          | View audit score trends over time                |
+| `/seo keywords [action]`       | Manage cached keyword research data              |
+
+> **Note:** Legacy names (`/content-audit`, `/content-refresh`, etc.) still work as aliases.
 
 <details>
 <summary>Audit types explained</summary>
@@ -243,12 +245,14 @@ SCRAPERAPI_KEY=your_api_key
 
 ### 📈 SEO & Analytics
 
-| Command        | Description                                        |
-| -------------- | -------------------------------------------------- |
-| `/seo-wins`    | Find GSC quick wins (position 4-15)                |
-| `/content-gap` | Find content opportunities and generate briefs     |
-| `/content-roi` | Analyze content performance                        |
-| `/impact [#]`  | Measure before/after effect of changes             |
+| Command          | Description                                        |
+| ---------------- | -------------------------------------------------- |
+| `/seo wins`      | Find GSC quick wins (position 4-15)                |
+| `/seo gaps`      | Find content opportunities and generate briefs     |
+| `/seo roi`       | Analyze content performance                        |
+| `/seo impact [#]`| Measure before/after effect of changes             |
+
+> **Note:** Direct commands (`/seo-wins`) also work alongside router syntax.
 
 <details>
 <summary>Content audit scoring explained</summary>
@@ -273,8 +277,8 @@ The full content audit uses a 6-category scoring system (0-100 total):
 | Command              | Description                                      |
 | -------------------- | ------------------------------------------------ |
 | `/feature "desc"`    | Plan and build new feature                       |
-| `/deploy-check`      | Pre-deployment verification                      |
-| `/generate-commands` | Create custom commands for your content types    |
+| `/feature deploy`    | Pre-deployment verification                      |
+| `/setup commands`    | Create custom commands for your content types    |
 
 ### 🔌 MCP Integration
 
@@ -345,16 +349,16 @@ Higher score = fix first.
 ### Weekly SEO Review
 
 ```bash
-/seo-wins       # Find ranking opportunities
-/content-roi    # Review content performance
+/seo wins       # Find ranking opportunities
+/seo roi        # Review content performance
 ```
 
 ### Monthly Content Maintenance
 
 ```bash
-/content-refresh           # Find declining pages
-/content-audit-batch blog  # Audit all blog posts
-/content-history /blog/top-post  # Check improvement trends
+/seo refresh              # Find declining pages
+/audit batch blog         # Audit all blog posts
+/seo history /blog/top-post  # Check improvement trends
 ```
 
 ### Building Features

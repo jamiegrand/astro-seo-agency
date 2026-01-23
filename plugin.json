@@ -298,6 +298,126 @@
       "category": "development",
       "type": "implementation",
       "parent": "feature"
+    },
+    {
+      "name": "content-gap",
+      "description": "Alias for /seo gaps",
+      "file": "commands/content-gap.md",
+      "category": "seo",
+      "type": "alias",
+      "aliasFor": "seo-gaps"
+    },
+    {
+      "name": "content-roi",
+      "description": "Alias for /seo roi",
+      "file": "commands/content-roi.md",
+      "category": "seo",
+      "type": "alias",
+      "aliasFor": "seo-roi"
+    },
+    {
+      "name": "content-audit",
+      "description": "Alias for /audit content",
+      "file": "commands/content-audit.md",
+      "category": "quality",
+      "type": "alias",
+      "aliasFor": "audit-content"
+    },
+    {
+      "name": "content-audit-quick",
+      "description": "Alias for /audit quick",
+      "file": "commands/content-audit-quick.md",
+      "category": "quality",
+      "type": "alias",
+      "aliasFor": "audit-quick"
+    },
+    {
+      "name": "content-audit-batch",
+      "description": "Alias for /audit batch",
+      "file": "commands/content-audit-batch.md",
+      "category": "quality",
+      "type": "alias",
+      "aliasFor": "audit-batch"
+    },
+    {
+      "name": "content-eeat",
+      "description": "Alias for /audit eeat",
+      "file": "commands/content-eeat.md",
+      "category": "quality",
+      "type": "alias",
+      "aliasFor": "audit-eeat"
+    },
+    {
+      "name": "content-refresh",
+      "description": "Alias for /seo refresh",
+      "file": "commands/content-refresh.md",
+      "category": "seo",
+      "type": "alias",
+      "aliasFor": "seo-refresh"
+    },
+    {
+      "name": "content-history",
+      "description": "Alias for /seo history",
+      "file": "commands/content-history.md",
+      "category": "seo",
+      "type": "alias",
+      "aliasFor": "seo-history"
+    },
+    {
+      "name": "keyword-cache",
+      "description": "Alias for /seo keywords",
+      "file": "commands/keyword-cache.md",
+      "category": "seo",
+      "type": "alias",
+      "aliasFor": "seo-keywords"
+    },
+    {
+      "name": "brownfield",
+      "description": "Alias for /setup existing",
+      "file": "commands/brownfield.md",
+      "category": "meta",
+      "type": "alias",
+      "aliasFor": "setup-existing"
+    },
+    {
+      "name": "verify",
+      "description": "Alias for /setup verify",
+      "file": "commands/verify.md",
+      "category": "meta",
+      "type": "alias",
+      "aliasFor": "setup-verify"
+    },
+    {
+      "name": "generate-commands",
+      "description": "Alias for /setup commands",
+      "file": "commands/generate-commands.md",
+      "category": "meta",
+      "type": "alias",
+      "aliasFor": "setup-commands"
+    },
+    {
+      "name": "index",
+      "description": "Alias for /setup index",
+      "file": "commands/index.md",
+      "category": "meta",
+      "type": "alias",
+      "aliasFor": "setup-index"
+    },
+    {
+      "name": "deploy-check",
+      "description": "Alias for /feature deploy",
+      "file": "commands/deploy-check.md",
+      "category": "development",
+      "type": "alias",
+      "aliasFor": "feature-deploy"
+    },
+    {
+      "name": "impact",
+      "description": "Alias for /seo impact",
+      "file": "commands/impact.md",
+      "category": "seo",
+      "type": "alias",
+      "aliasFor": "seo-impact"
     }
   ],
 
@@ -416,14 +536,14 @@
         "optional": true,
         "recommended": true,
         "requiredFor": ["astro-check", "status", "feature-deploy"],
-        "capabilities": ["get-astro-config", "list-astro-routes", "get-astro-server-address", "search-astro-docs", "get-integration-docs"],
+        "capabilities": ["get-astro-config", "list-astro-routes", "get-astro-server-address", "get-integration-docs"],
         "install": {
           "astro": "npx astro add astro-mcp"
         }
       },
       "gsc": {
         "description": "Google Search Console API access",
-        "package": "mcp-server-gsc",
+        "package": "gsc-mcp-server",
         "optional": true,
         "requiredFor": ["seo-wins", "seo-impact", "seo-roi", "audit-content", "seo-refresh", "audit-batch"]
       },

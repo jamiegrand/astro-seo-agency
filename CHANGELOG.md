@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2025-01-23
+
+### Changed
+
+#### Router-Based Command Architecture
+Commands are now organized under router commands for better discoverability and consistency.
+
+**New Router Commands:**
+- `/seo` - SEO tools hub (wins, gaps, roi, refresh, history, impact, keywords)
+- `/audit` - Audit tools hub (content, quick, batch, eeat)
+- `/fix` - Issue resolution hub (next, batch)
+- `/setup` - Configuration hub (existing, verify, commands, index)
+- `/feature` - Development hub (deploy)
+
+**Command Migration:**
+
+| Old Command | New Command |
+|-------------|-------------|
+| `/content-audit` | `/audit content` |
+| `/content-audit-quick` | `/audit quick` |
+| `/content-audit-batch` | `/audit batch` |
+| `/content-eeat` | `/audit eeat` |
+| `/content-refresh` | `/seo refresh` |
+| `/content-roi` | `/seo roi` |
+| `/content-gap` | `/seo gaps` |
+| `/content-history` | `/seo history` |
+| `/keyword-cache` | `/seo keywords` |
+| `/impact` | `/seo impact` |
+| `/brownfield` | `/setup existing` |
+| `/verify` | `/setup verify` |
+| `/generate-commands` | `/setup commands` |
+| `/deploy-check` | `/feature deploy` |
+
+**Backward Compatibility:** All old command names still work as aliases.
+
+### Added
+- Router pattern with `type: "router"` and `type: "implementation"` annotations
+- Alias command support with `type: "alias"` for backward compatibility
+- Improved help documentation with alias reference table
+
+### Fixed
+- Consistent command naming across all documentation
+- Agent invocation references updated to new command names
+- astro-mcp capabilities list corrected (removed search-astro-docs which belongs to Astro Docs MCP)
+
 ## [2.3.0] - 2026-01-22
 
 ### Added
@@ -99,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Google Analytics and Search Console integration
 - GitHub issue tracking integration
 
+[3.0.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/jamiegrand/astro-seo-agency/compare/v2.0.0...v2.1.0

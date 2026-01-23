@@ -247,9 +247,9 @@ Filter: Affected pages only
 
 This agent is activated by:
 - `/start` command (analytics portion)
-- `/seo-wins` command
-- `/content-roi` command
-- `/impact` command
+- `/seo wins` command
+- `/seo roi` command
+- `/seo impact` command
 - "Analyze SEO for [page]"
 - "Find ranking opportunities"
 - "What's our best performing content?"
