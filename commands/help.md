@@ -41,6 +41,7 @@ description: Show all available commands
 | `/seo history [page]` | View audit score trends |
 | `/seo impact [#]` | Measure before/after effect |
 | `/seo keywords` | Manage keyword cache |
+| `/seo links` | Analyze internal linking structure |
 
 ### Auditing
 | Command | Description |
@@ -74,6 +75,13 @@ description: Show all available commands
 | `/setup commands` | Generate custom commands |
 | `/setup index` | Manage project indexing |
 | `/help` | Show this reference |
+
+### Data & Indexing
+| Command | Description |
+|---------|-------------|
+| `/index links` | Build internal link graph and extract keywords |
+| `/index links --full` | Full re-index of link data |
+| `/import-linkdata [csv]` | Import link data from CSV (RANKV9, Screaming Frog) |
 
 ---
 
@@ -171,6 +179,7 @@ SEO & Analytics tools:
 - `history` - View audit score trends
 - `impact` - Measure before/after effect
 - `keywords` - Manage keyword cache
+- `links` - Analyze internal linking structure (orphans, hubs, opportunities)
 
 ### `/audit`
 
@@ -195,6 +204,16 @@ Configuration tools:
 - `verify` - Verify installation
 - `commands` - Generate custom commands
 - `index` - Manage project indexing
+
+### `/index`
+
+Project indexing:
+- `status` - Show index status
+- `run` - Run full indexing
+- `links` - Build internal link graph and extract keywords
+- `links --full` - Full link re-index
+- `resume` - Resume interrupted indexing
+- `reset` - Clear all indexed data
 
 ### `/feature`
 
@@ -295,4 +314,23 @@ npm run build        # See full error
 
 ---
 
-*Astro SEO Agency Plugin v3.0.0*
+## Database Setup
+
+The plugin uses a SQLite database for tracking audits, keywords, and internal links.
+
+**Quick setup:**
+```bash
+./scripts/setup-db.sh init    # Create database
+./scripts/setup-db.sh index   # Build link graph
+./scripts/setup-db.sh status  # Check status
+```
+
+**Schema v4 adds:**
+- `page_analysis` - Page metadata
+- `page_keywords` - Target keywords per page
+- `internal_links` - Link graph
+- Views: `orphan_pages`, `hub_pages`, `link_opportunities`
+
+---
+
+*Astro SEO Agency Plugin v3.1.0*

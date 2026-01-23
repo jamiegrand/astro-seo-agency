@@ -1,6 +1,6 @@
 {
   "name": "astro-seo-agency",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Complete Astro.js project management with SEO workflows, analytics integration, project indexing, and structured development for Claude Code",
   "author": "Jamie Grand",
   "license": "MIT",
@@ -204,6 +204,32 @@
       "category": "seo",
       "type": "implementation",
       "parent": "seo"
+    },
+    {
+      "name": "seo-links",
+      "description": "Analyze internal linking structure",
+      "file": "commands/seo-links.md",
+      "arguments": "[orphans|hubs|opportunities|page-url]",
+      "category": "seo",
+      "type": "implementation",
+      "parent": "seo"
+    },
+    {
+      "name": "index-links",
+      "description": "Index internal links and keywords from content",
+      "file": "commands/index-links.md",
+      "arguments": "[--full|--collection name|--dry-run]",
+      "category": "data",
+      "type": "implementation",
+      "parent": "index"
+    },
+    {
+      "name": "import-linkdata",
+      "description": "Import link analysis data from CSV",
+      "file": "commands/import-linkdata.md",
+      "arguments": "[csv-path] [--source tool-name]",
+      "category": "data",
+      "type": "standalone"
     },
     {
       "name": "audit-content",
@@ -441,6 +467,10 @@
     "development": {
       "name": "Development",
       "description": "Build features and deploy"
+    },
+    "data": {
+      "name": "Data & Indexing",
+      "description": "Import data and build indexes"
     },
     "meta": {
       "name": "Setup & Help",

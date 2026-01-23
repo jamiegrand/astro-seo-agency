@@ -1,6 +1,6 @@
 ---
 description: Manage project indexing for AI-INFO.md generation
-argument-hint: "[status|run|resume|reset|refresh]"
+argument-hint: "[status|run|resume|reset|refresh|links]"
 ---
 
 # Project Index Management
@@ -33,6 +33,14 @@ Clear all indexed data and start fresh.
 
 ### `/index refresh [collection]`
 Re-index a specific content collection.
+
+### `/index links` or `/index links --full`
+Build internal link graph and extract keywords from content. See `commands/index-links.md` for details.
+
+**Options:**
+- `--full` - Full re-index (clear existing link data)
+- `--collection blog` - Only index a specific collection
+- `--dry-run` - Preview without writing to database
 
 ---
 

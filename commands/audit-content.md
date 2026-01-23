@@ -1,6 +1,6 @@
 ---
 description: Full SEO content audit with E-E-A-T and AI Overview scoring (0-100)
-argument-hint: "[page-path] [target-keyword]"
+argument-hint: "[page-path] [target-keyword?]"
 ---
 
 # Content Audit - Comprehensive SEO Analysis
@@ -13,12 +13,82 @@ Performs a full 6-category SEO audit on a single page with scoring, competitor a
 
 **Required:**
 - Page path (e.g., `src/content/blog/my-post.md`) OR URL (e.g., `/blog/my-post`)
-- Target keyword for optimization
+
+**Optional:**
+- Target keyword (auto-detected if not provided)
 
 **Optional MCP Servers:**
 - **GSC MCP** - Page performance metrics (clicks, impressions, position)
 - **DataForSEO** - Keyword volume, difficulty, PAA questions
 - **ScraperAPI** - Competitor content analysis
+
+---
+
+## Step 0: Auto-Detect Target Keyword
+
+If no keyword is provided, attempt to detect it automatically:
+
+### Priority 1: Check page_keywords table (from link data import)
+
+```sql
+SELECT pk.keyword
+FROM page_keywords pk
+JOIN page_analysis pa ON pk.page_id = pa.id
+WHERE pa.url LIKE '%[slug]%'
+   OR pa.source_file LIKE '%[slug]%'
+ORDER BY pk.is_primary DESC
+LIMIT 1;
+```
+
+### Priority 2: Check frontmatter for seoKeyword/targetKeyword field
+
+```markdown
+Read the source file and check for:
+- `seoKeyword: "..."`
+- `targetKeyword: "..."`
+- `keyword: "..."`
+```
+
+### Priority 3: Query GSC for top query
+
+```sql
+-- If GSC MCP available
+SELECT query
+FROM gsc_snapshots
+WHERE page_path LIKE '%[slug]%'
+ORDER BY impressions DESC
+LIMIT 1;
+```
+
+### Priority 4: Extract from title
+
+Strip common patterns from title:
+- Remove "How to...", "A Guide to...", "The Complete...", etc.
+- Remove year references (2024, 2025, 2026)
+- Extract core noun phrase
+
+### Display Detection Result
+
+```markdown
+### 🔑 Target Keyword Detection
+
+| Source | Keyword | Confidence |
+|--------|---------|------------|
+| Link Data Import | "Web Designer Woodford" | ✅ High |
+| Frontmatter | - | - |
+| GSC Top Query | "web designer woodford" | ✅ High |
+| Title Extraction | "web design mistakes woodford" | ⚠️ Medium |
+
+**Selected:** "Web Designer Woodford" (from Link Data Import)
+
+**Additional keywords found:**
+- Local SEO
+- Mobile-friendly design
+- Site Speed
+- Conversion Rate Optimization
+
+*Override with: `/audit content [page] "your keyword"`*
+```
 
 ---
 

@@ -1,6 +1,6 @@
 ---
-description: SEO tools - wins, gaps, ROI, refresh, history, impact, keywords
-argument-hint: "[wins|gaps|roi|refresh|history|impact|keywords] [args]"
+description: SEO tools - wins, gaps, ROI, refresh, history, impact, keywords, links
+argument-hint: "[wins|gaps|roi|refresh|history|impact|keywords|links] [args]"
 ---
 
 # /seo - SEO & Analytics Tools
@@ -18,6 +18,7 @@ Run `/seo <subcommand>` or use the direct command.
 | `history [page]` | `/seo-history` | View audit score trends | — |
 | `impact [#]` | `/seo-impact` | Measure before/after effect | GA + GSC |
 | `keywords [action]` | `/seo-keywords` | Manage keyword cache | — |
+| `links [view]` | `/seo-links` | Analyze internal linking structure | DB v4 |
 
 ## Routing
 
@@ -29,6 +30,7 @@ Run `/seo <subcommand>` or use the direct command.
 - `history` → Read `commands/seo-history.md` and execute
 - `impact` → Read `commands/seo-impact.md` and execute
 - `keywords` → Read `commands/seo-keywords.md` and execute
+- `links` → Read `commands/seo-links.md` and execute
 
 **If no subcommand:** Display the table above and ask what they'd like to do.
 
@@ -39,4 +41,6 @@ Run `/seo <subcommand>` or use the direct command.
 /seo wins         # Execute seo-wins.md
 /seo gaps         # Execute seo-gaps.md
 /seo history /blog/my-post  # Execute seo-history.md with argument
+/seo links        # Show internal link analysis
+/seo links orphans   # Find orphan pages
 ```
